@@ -7,6 +7,7 @@ import { partnerService } from "@/services/partnerService";
 import toast from "react-hot-toast";
 import { FaChevronLeft, FaChevronRight, FaPhone, FaMapMarkerAlt } from "react-icons/fa";
 import { shouldUnoptimizeImage } from "@/utils/imageUtils";
+import { getBackendBaseUrl } from "@/utils/api";
 
 export default function HealthPartners() {
   const [partners, setPartners] = useState([]);
@@ -93,7 +94,7 @@ export default function HealthPartners() {
           }
           
           // If URL is relative, make it absolute with backend base URL
-          const backendBaseURL = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5000';
+          const backendBaseURL = getBackendBaseUrl();
           
           // Ensure backendBaseURL is valid
           if (!backendBaseURL || (!backendBaseURL.startsWith('http://') && !backendBaseURL.startsWith('https://'))) {

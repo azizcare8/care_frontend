@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import useAuthStore from "@/store/authStore";
 import useDonationStore from "@/store/donationStore";
-import api from "@/utils/api";
+import api, { getApiBaseUrl } from "@/utils/api";
 import toast from "react-hot-toast";
 import Cookies from "js-cookie";
 import { FaDownload, FaEye, FaHeart, FaReceipt, FaSearch } from "react-icons/fa";
@@ -63,7 +63,7 @@ export default function MyDonationsPage() {
       // Open receipt PDF in new tab
       const token = localStorage.getItem('token') || Cookies.get('token');
       // Use api instance baseURL to ensure consistency
-      const apiBaseURL = api.defaults.baseURL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+      const apiBaseURL = api.defaults.baseURL || getApiBaseUrl();
       const url = `${apiBaseURL}/donations/${donationId}/receipt?format=pdf&token=${token}`;
       window.open(url, '_blank');
       toast.success("Receipt download started!");

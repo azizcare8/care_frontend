@@ -37,6 +37,11 @@ const useAuthStore = create(
             sameSite: 'lax',
             path: '/' // Ensure cookie is available on all paths
           });
+
+          // Also store in localStorage for environments that block cookies
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('token', token);
+          }
           
           // Also store in state immediately
           set({
@@ -49,9 +54,9 @@ const useAuthStore = create(
           
           // Verify token is stored (with a small delay to ensure cookie is set)
           setTimeout(() => {
-            const storedToken = Cookies.get('token');
+            const storedToken = Cookies.get('token') ||
+              (typeof window !== 'undefined' ? localStorage.getItem('token') : null);
             if (!storedToken) {
-              console.warn('Token was not stored in cookie properly, retrying...');
               // Retry once
               Cookies.set('token', token, { 
                 expires: 7,
@@ -59,6 +64,9 @@ const useAuthStore = create(
                 sameSite: 'lax',
                 path: '/'
               });
+              if (typeof window !== 'undefined') {
+                localStorage.setItem('token', token);
+              }
             }
           }, 100);
           
@@ -104,6 +112,9 @@ const useAuthStore = create(
           
           // Store token in cookie
           Cookies.set('token', token, { expires: 7 });
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('token', token);
+          }
           
           set({
             user,
@@ -292,7 +303,8 @@ const useAuthStore = create(
         if (typeof window === 'undefined') return;
         
         try {
-          const token = Cookies.get('token');
+          const token = Cookies.get('token') ||
+            (typeof window !== 'undefined' ? localStorage.getItem('token') : null);
           if (token) {
             set({ token, isAuthenticated: true });
             // Fetch user data to verify token and get user info
@@ -302,6 +314,9 @@ const useAuthStore = create(
               // If token is invalid, clear it
               console.warn('Token validation failed:', error);
               Cookies.remove('token');
+              if (typeof window !== 'undefined') {
+                localStorage.removeItem('token');
+              }
               set({ 
                 token: null, 
                 isAuthenticated: false, 
@@ -339,6 +354,9 @@ const useAuthStore = create(
               // If verification fails, clear auth
               try {
                 Cookies.remove('token');
+                if (typeof window !== 'undefined') {
+                  localStorage.removeItem('token');
+                }
               } catch (error) {
                 console.warn('Error removing cookie:', error);
               }

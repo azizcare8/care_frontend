@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { BiSearch, BiEdit, BiTrash, BiPlus, BiX, BiImage } from "react-icons/bi";
-import api from "@/utils/api";
+import api, { getBackendBaseUrl } from "@/utils/api";
 import toast from "react-hot-toast";
 import { uploadService } from "@/services/uploadService";
 
@@ -111,7 +111,7 @@ export default function ProductManagement() {
         imageUrl = editingProduct.image?.url || '';
       }
       
-      const backendBaseURL = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5000';
+      const backendBaseURL = getBackendBaseUrl();
       const fullImageUrl = imageUrl.startsWith('http') ? imageUrl : `${backendBaseURL}${imageUrl}`;
       
       const submitData = {

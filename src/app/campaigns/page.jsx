@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { CampaignCardSkeleton } from '@/components/LoadingSkeleton';
 import { NoCampaignsFound, NoSearchResults } from '@/components/EmptyState';
 import BackToHome from '@/components/BackToHome';
+import { getBackendBaseUrl } from '@/utils/api';
 
 function CampaignsContent() {
   const searchParams = useSearchParams();
@@ -126,12 +127,12 @@ function CampaignsContent() {
               return imageUrl;
             }
             // Otherwise, prepend backend URL
-            const backendBaseURL = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5000';
+            const backendBaseURL = getBackendBaseUrl();
             return `${backendBaseURL}${imageUrl}`;
           }
           
           // Handle backend upload paths (without leading slash)
-          const backendBaseURL = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5000';
+          const backendBaseURL = getBackendBaseUrl();
           // Remove leading slash if present to avoid double slashes
           const cleanUrl = imageUrl.startsWith('/') ? imageUrl.slice(1) : imageUrl;
           return `${backendBaseURL}/${cleanUrl}`;

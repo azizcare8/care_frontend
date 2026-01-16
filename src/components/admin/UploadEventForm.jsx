@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { uploadService } from "@/services/uploadService";
 import useAuthStore from "@/store/authStore";
 import toast from "react-hot-toast";
-import api from "@/utils/api";
+import api, { getBackendBaseUrl } from "@/utils/api";
 
 export default function UploadEventForm() {
   const router = useRouter();
@@ -142,7 +142,7 @@ export default function UploadEventForm() {
       setUploadProgress(70);
 
       // Get backend base URL
-      const backendBaseURL = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5000';
+      const backendBaseURL = getBackendBaseUrl();
 
       // Create event data
       const eventData = {

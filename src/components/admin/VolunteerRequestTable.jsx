@@ -5,12 +5,13 @@ import { FiMail, FiPhone, FiCalendar } from "react-icons/fi";
 import Image from "next/image";
 import useAdminStore from "@/store/adminStore";
 import { adminService } from "@/services/adminService";
-import api from "@/utils/api";
+import api, { getBackendBaseUrl } from "@/utils/api";
 import toast from "react-hot-toast";
 import VolunteerIDCard from "@/components/VolunteerIDCard";
 
 export default function VolunteerRequestTable() {
   const { users, isLoading, getUsers, updateUserStatus } = useAdminStore();
+  const backendBaseUrl = getBackendBaseUrl();
   const [searchTerm, setSearchTerm] = useState("");
   const [entriesPerPage, setEntriesPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
@@ -175,7 +176,7 @@ export default function VolunteerRequestTable() {
             role: volunteer.role || 'volunteer',
             category: volunteer.volunteerDetails?.preferredRole?.[0] || 'Volunteer CFT',
             photo: volunteer.avatar ? {
-              url: volunteer.avatar.startsWith('http') ? volunteer.avatar : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${volunteer.avatar}`,
+              url: volunteer.avatar.startsWith('http') ? volunteer.avatar : `${backendBaseUrl}${volunteer.avatar}`,
               publicId: null
             } : '/default-avatar.png',
             cardNumber: `CFT-DEMO-${volunteer._id.slice(-8)}`,
@@ -201,7 +202,7 @@ export default function VolunteerRequestTable() {
           role: volunteer.role || 'volunteer',
           category: 'Volunteer CFT',
           photo: volunteer.avatar ? {
-            url: volunteer.avatar.startsWith('http') ? volunteer.avatar : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${volunteer.avatar}`,
+            url: volunteer.avatar.startsWith('http') ? volunteer.avatar : `${backendBaseUrl}${volunteer.avatar}`,
             publicId: null
           } : '/default-avatar.png',
           cardNumber: `CFT-DEMO-${volunteer._id.slice(-8)}`,

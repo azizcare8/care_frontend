@@ -2,6 +2,7 @@
 import Image from "next/image";
 import { BiPrinter, BiQr } from "react-icons/bi";
 import { FiMapPin, FiPhone, FiMail, FiGlobe } from "react-icons/fi";
+import { getBackendBaseUrl } from "@/utils/api";
 
 /**
  * Volunteer ID Card Component
@@ -32,16 +33,17 @@ export default function VolunteerIDCard({ cardData, onPrint }) {
   };
 
   // Get photo URL - handle both string and object formats
+  const backendBaseUrl = getBackendBaseUrl();
   let photoUrl = '/default-avatar.png';
   if (cardData.photo) {
     if (typeof cardData.photo === 'string') {
       photoUrl = cardData.photo.startsWith('http') 
         ? cardData.photo 
-        : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${cardData.photo}`;
+        : `${backendBaseUrl}${cardData.photo}`;
     } else if (cardData.photo.url) {
       photoUrl = cardData.photo.url.startsWith('http') 
         ? cardData.photo.url 
-        : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${cardData.photo.url}`;
+        : `${backendBaseUrl}${cardData.photo.url}`;
     }
   }
 

@@ -6,6 +6,7 @@ import { campaignService } from "@/services/campaignService";
 import { uploadService } from "@/services/uploadService";
 import useAuthStore from "@/store/authStore";
 import toast from "react-hot-toast";
+import { getBackendBaseUrl } from "@/utils/api";
 
 export default function UploadFundraiserForm() {
   const router = useRouter();
@@ -204,7 +205,7 @@ export default function UploadFundraiserForm() {
       endDateObj.setMonth(endDateObj.getMonth() + 3);
 
       // Get backend base URL
-      const backendBaseURL = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5000';
+      const backendBaseURL = getBackendBaseUrl();
 
       // Create campaign data
       const campaignData = {

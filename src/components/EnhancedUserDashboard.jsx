@@ -42,7 +42,7 @@ export default function EnhancedUserDashboard() {
     }
 
     // Verify token exists before fetching
-    const token = Cookies.get('token');
+    const token = Cookies.get('token') || localStorage.getItem('token');
     if (!token) {
       console.warn('No token found in cookies, redirecting to login');
       const timer = setTimeout(() => {
@@ -64,7 +64,7 @@ export default function EnhancedUserDashboard() {
       setIsLoading(true);
 
       // Verify token exists before making request
-      const token = Cookies.get('token');
+      const token = Cookies.get('token') || localStorage.getItem('token');
       if (!token) {
         console.warn('No token found, redirecting to login');
         router.push('/login?redirect=/dashboard');

@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { BiSearch, BiEdit, BiTrash, BiPlus, BiDownload, BiQr } from "react-icons/bi";
-import api from "@/utils/api";
+import api, { getBackendBaseUrl } from "@/utils/api";
 import { uploadService } from "@/services/uploadService";
 import toast from "react-hot-toast";
 
@@ -36,6 +36,7 @@ const VOLUNTEER_ROLES = [
 ];
 
 export default function VolunteerCardManagement() {
+  const backendBaseUrl = getBackendBaseUrl();
   const [cards, setCards] = useState([]);
   const [volunteers, setVolunteers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -337,7 +338,7 @@ export default function VolunteerCardManagement() {
                       <div className="flex items-center gap-3">
                         {card.photo?.url ? (
                           <img 
-                            src={card.photo.url.startsWith('http') ? card.photo.url : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${card.photo.url}`} 
+                            src={card.photo.url.startsWith('http') ? card.photo.url : `${backendBaseUrl}${card.photo.url}`} 
                             alt={card.name} 
                             className="w-10 h-10 rounded-full object-cover border-2 border-gray-200"
                             onError={(e) => {

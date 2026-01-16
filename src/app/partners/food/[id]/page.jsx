@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { partnerService } from "@/services/partnerService";
 import toast from "react-hot-toast";
 import { FaPhone, FaMapMarkerAlt, FaEnvelope, FaClock, FaArrowLeft, FaUtensils, FaStore, FaStar, FaCalendarCheck, FaWhatsapp } from "react-icons/fa";
+import { getBackendBaseUrl } from "@/utils/api";
 
 export default function FoodPartnerProfile() {
   const { id } = useParams();
@@ -51,7 +52,7 @@ export default function FoodPartnerProfile() {
           return primaryImage.url;
         }
         // If URL is relative, make it absolute
-        const backendBaseURL = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5000';
+        const backendBaseURL = getBackendBaseUrl();
         return `${backendBaseURL}${primaryImage.url.startsWith('/') ? '' : '/'}${primaryImage.url}`;
       }
     }

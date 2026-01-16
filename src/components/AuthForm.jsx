@@ -82,14 +82,13 @@ export default function AuthForm({ redirectUrl, kycMode = false }) {
       toast.success("Login successful!");
       
       // Verify token is stored before redirecting
-      const token = Cookies.get('token');
+      const token = Cookies.get('token') || localStorage.getItem('token');
       if (!token) {
-        console.error('Token not found after login, retrying...');
         // Wait a bit more and check again
         await new Promise(resolve => setTimeout(resolve, 200));
-        const retryToken = Cookies.get('token');
+        const retryToken = Cookies.get('token') || localStorage.getItem('token');
         if (!retryToken) {
-          toast.error("Login successful but token not stored. Please try again.");
+          toast.error("Login successful but session not stored. Please try again.");
           return;
         }
       }

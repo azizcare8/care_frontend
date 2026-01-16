@@ -8,6 +8,7 @@ import { partnerService } from "@/services/partnerService";
 import toast from "react-hot-toast";
 import { FaPhone, FaMapMarkerAlt, FaEnvelope, FaArrowLeft, FaHospital, FaUserMd, FaCheckCircle } from "react-icons/fa";
 import useAuthStore from "@/store/authStore";
+import { getBackendBaseUrl } from "@/utils/api";
 
 export default function HealthConsultPage() {
   const { id } = useParams();
@@ -141,7 +142,7 @@ export default function HealthConsultPage() {
         if (primaryImage.url.startsWith('http://') || primaryImage.url.startsWith('https://')) {
           return primaryImage.url;
         }
-        const backendBaseURL = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5000';
+        const backendBaseURL = getBackendBaseUrl();
         return `${backendBaseURL}${primaryImage.url.startsWith('/') ? '' : '/'}${primaryImage.url}`;
       }
     }

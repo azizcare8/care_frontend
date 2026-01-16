@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { partnerService } from "@/services/partnerService";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { shouldUnoptimizeImage } from "@/utils/imageUtils";
+import { getBackendBaseUrl } from "@/utils/api";
 
 export default function FoodPartners() {
   const [partners, setPartners] = useState([]);
@@ -103,7 +104,7 @@ export default function FoodPartners() {
           return primaryImage.url;
         }
         // If URL is relative, make it absolute with backend base URL
-        const backendBaseURL = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5000';
+        const backendBaseURL = getBackendBaseUrl();
         return `${backendBaseURL}${primaryImage.url.startsWith('/') ? '' : '/'}${primaryImage.url}`;
       }
     }

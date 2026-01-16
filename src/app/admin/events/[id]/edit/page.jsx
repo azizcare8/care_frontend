@@ -5,7 +5,7 @@ import AdminLayout from "@/components/admin/AdminLayout";
 import { uploadService } from "@/services/uploadService";
 import useAuthStore from "@/store/authStore";
 import toast from "react-hot-toast";
-import api from "@/utils/api";
+import api, { getBackendBaseUrl } from "@/utils/api";
 import { BiChevronLeft } from "react-icons/bi";
 
 export default function EditEventPage() {
@@ -211,7 +211,7 @@ export default function EditEventPage() {
 
       setUploadProgress(70);
 
-      const backendBaseURL = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5000';
+      const backendBaseURL = getBackendBaseUrl();
 
       // Prepare update data
       const updateData = {

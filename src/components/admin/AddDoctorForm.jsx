@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { uploadService } from "@/services/uploadService";
-import api from "@/utils/api";
+import api, { getBackendBaseUrl } from "@/utils/api";
 import toast from "react-hot-toast";
 
 export default function AddDoctorForm({ isPartnerSubmission = false, onBack = null }) {
@@ -285,7 +285,7 @@ export default function AddDoctorForm({ isPartnerSubmission = false, onBack = nu
       }
 
       // Get backend base URL
-      const backendBaseURL = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5000';
+      const backendBaseURL = getBackendBaseUrl();
 
       // Build description with doctor details
       const doctorDescription = `${formData.qualification ? `Qualification: ${formData.qualification}. ` : ''}${formData.specialization ? `Specialization: ${formData.specialization}. ` : ''}${formData.registration ? `Registration No: ${formData.registration}. ` : ''}${formData.fees ? `Actual Fees: ₹${formData.fees}. ` : ''}${formData.feesOffer ? `Special Offer for NGO: ${formData.feesOffer}. ` : ''}`.trim() || 'Medical partner';

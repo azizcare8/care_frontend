@@ -1,34 +1,72 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
+const isBrowser = typeof window !== 'undefined';
+const isLocalhostHost = (hostname) =>
+  hostname === 'localhost' || hostname === '127.0.0.1';
+
+export const getApiBaseUrl = () => {
+  if (isBrowser) {
+    const isLocalhost = isLocalhostHost(window.location.hostname);
+
+    if (isLocalhost) {
+      return 'http://localhost:5000/api';
+    }
+
+    const envUrl = process.env.NEXT_PUBLIC_API_URL;
+    if (envUrl && envUrl !== 'undefined') {
+      return envUrl.endsWith('/api') ? envUrl : `${envUrl}/api`;
+    }
+
+    return `${window.location.origin}/api`;
+  }
+
+  const serverUrl = process.env.NEXT_PUBLIC_API_URL || 'https://carefoundationtrust.org/api';
+  return serverUrl.endsWith('/api') ? serverUrl : `${serverUrl}/api`;
+};
+
+export const getBackendBaseUrl = () => {
+  const apiBase = getApiBaseUrl();
+  return apiBase.endsWith('/api') ? apiBase.slice(0, -4) : apiBase;
+};
+
+const normalizeBackendUrls = (data) => {
+  if (!isBrowser || !data) return data;
+
+  const backendBase = getBackendBaseUrl();
+  if (!backendBase) return data;
+
+  const isLocalhost = isLocalhostHost(window.location.hostname);
+  if (isLocalhost) return data;
+
+  const replaceUrl = (value) => {
+    if (typeof value !== 'string') return value;
+    return value
+      .replace(/^http:\/\/localhost:5000/gi, backendBase)
+      .replace(/^http:\/\/127\.0\.0\.1:5000/gi, backendBase);
+  };
+
+  if (Array.isArray(data)) {
+    return data.map((item) => normalizeBackendUrls(item));
+  }
+
+  if (typeof data === 'object') {
+    return Object.entries(data).reduce((acc, [key, value]) => {
+      acc[key] = normalizeBackendUrls(replaceUrl(value));
+      return acc;
+    }, {});
+  }
+
+  return replaceUrl(data);
+};
+
 // Simple in-memory cache for GET requests
 const cache = new Map();
 const CACHE_TTL = 30000; // 30 seconds cache for faster updates
 
 // Create axios instance
 // Ensure we always have a valid baseURL with /api prefix
-const API_BASE_URL = (() => {
-  if (typeof window !== 'undefined') {
-    // Detect if we are running on localhost
-    const isLocalhost = window.location.hostname === 'localhost' ||
-      window.location.hostname === '127.0.0.1';
-
-    if (isLocalhost) {
-      return 'http://localhost:5000/api';
-    }
-
-    // Production: use environment variable
-    const envUrl = process.env.NEXT_PUBLIC_API_URL;
-    if (envUrl && envUrl !== 'undefined') {
-      return envUrl.endsWith('/api') ? envUrl : envUrl + '/api';
-    }
-    // Fallback: use current origin to construct API URL
-    return window.location.origin + '/api';
-  }
-  // Server-side (during build or SSR): prioritize production env
-  const serverUrl = process.env.NEXT_PUBLIC_API_URL || 'https://carefoundationtrust.org/api';
-  return serverUrl.endsWith('/api') ? serverUrl : serverUrl + '/api';
-})();
+const API_BASE_URL = getApiBaseUrl();
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -42,7 +80,8 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     // Always try to get fresh token from cookies
-    const token = Cookies.get('token');
+    const token = Cookies.get('token') ||
+      (isBrowser ? window.localStorage.getItem('token') : null);
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
       // Debug log in development only
@@ -93,11 +132,13 @@ api.interceptors.response.use(
       };
     }
 
+    const normalizedData = normalizeBackendUrls(response.data);
+
     // Cache successful GET responses
     if (response.config.method === 'get' && !response.config.skipCache) {
       const cacheKey = `${response.config.url}?${JSON.stringify(response.config.params || {})}`;
       cache.set(cacheKey, {
-        data: response.data,
+        data: normalizedData,
         timestamp: Date.now()
       });
 
@@ -107,8 +148,10 @@ api.interceptors.response.use(
         cache.delete(firstKey);
       }
     }
-
-    return response;
+    return {
+      ...response,
+      data: normalizedData
+    };
   },
   (error) => {
     // Handle network errors gracefully
@@ -131,6 +174,9 @@ api.interceptors.response.use(
     if (error.response?.status === 401 || error.response?.status === 403) {
       // Token expired or invalid - clear token
       Cookies.remove('token');
+      if (isBrowser) {
+        window.localStorage.removeItem('token');
+      }
       // Return a rejected promise with auth error info
       return Promise.reject({
         ...error,

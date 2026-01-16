@@ -11,6 +11,7 @@ import { generateCouponPDF } from "@/utils/pdfGenerator";
 import toast from "react-hot-toast";
 import { FaPhone, FaMapMarkerAlt, FaEnvelope, FaArrowLeft, FaStore, FaCreditCard, FaLock, FaCheckCircle, FaRupeeSign, FaCopy, FaQrcode, FaGift, FaEye, FaTrash, FaDownload } from "react-icons/fa";
 import useAuthStore from "@/store/authStore";
+import { getBackendBaseUrl } from "@/utils/api";
 
 export default function FoodPaymentPage() {
   const { id } = useParams();
@@ -88,7 +89,7 @@ export default function FoodPaymentPage() {
         if (primaryImage.url.startsWith('http://') || primaryImage.url.startsWith('https://')) {
           return primaryImage.url;
         }
-        const backendBaseURL = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5000';
+        const backendBaseURL = getBackendBaseUrl();
         return `${backendBaseURL}${primaryImage.url.startsWith('/') ? '' : '/'}${primaryImage.url}`;
       }
     }

@@ -6,6 +6,7 @@ import { FaUserPlus, FaArrowRight } from "react-icons/fa";
 import DonationCard from "./DonationCard";
 import useAuthStore from "@/store/authStore";
 import toast from "react-hot-toast";
+import { getApiBaseUrl } from "@/utils/api";
 
 export default function VolunteerForm() {
   const router = useRouter();
@@ -74,7 +75,7 @@ export default function VolunteerForm() {
       });
 
       // API URL should already include /api based on env config
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+      const apiUrl = getApiBaseUrl();
       console.log('API URL:', `${apiUrl}/auth/register`);
       
       const response = await fetch(`${apiUrl}/auth/register`, {
