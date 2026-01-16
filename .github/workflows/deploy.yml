@@ -16,13 +16,12 @@ jobs:
 
       - name: Deploy Frontend
         run: |
-          set -x
-          ssh -vvv -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "
-            echo 'Connected to VPS';
-            cd /var/www/carefoundation/frontend || exit 1;
-            git pull origin main || exit 1;
-            npm install || exit 1;
-            npm run build || exit 1;
-            pm2 restart carefoundation-frontend || exit 1;
-            echo 'Frontend deployed successfully';
+          ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "
+            export NVM_DIR=/root/.nvm &&
+            [ -s \"\$NVM_DIR/nvm.sh\" ] && . \"\$NVM_DIR/nvm.sh\" &&
+            nvm use 22 &&
+            cd /var/www/carefoundation/frontend &&
+            npm install &&
+            npm run build &&
+            pm2 restart carefoundation-frontend
           "
