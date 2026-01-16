@@ -1,0 +1,29 @@
+# robots.txt for Care Foundation
+
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /profile/
+Disallow: /withdrawals/
+Disallow: /api/
+
+# Sitemaps
+Sitemap: https://carefoundation.org/sitemap.xml
+
+# Crawl-delay
+Crawl-delay: 1
+
+# Specific bot rules
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+
+
+
+

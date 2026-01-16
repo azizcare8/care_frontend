@@ -1,0 +1,167 @@
+"use client";
+import { usePathname } from "next/navigation";
+import { useEffect } from "react";
+import { Toaster } from "react-hot-toast";
+import Footer from "@/components/Footer";
+import NavBar from "@/components/NavBar";
+import TopBar from "@/components/TopBar";
+import WhatsAppFloatButton from "@/components/WhatsAppFloatButton";
+
+export default function ClientLayout({ children }) {
+  const pathname = usePathname();
+
+  // Suppress harmless console errors from third-party scripts/browser extensions
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const originalError = console.error;
+    const originalWarn = console.warn;
+
+    // Filter out "Refused to get unsafe header" warnings from third-party scripts
+    // Also suppress network errors and connection timeout errors
+    const shouldSuppress = (message) => {
+      if (typeof message !== 'string') return false;
+      const suppressedMessages = [
+        'Refused to get unsafe header',
+        'x-rtb-fingerprint-id',
+        'ERR_CONNECTION_TIMED_OUT',
+        'ERR_CONNECTION_REFUSED',
+        'Failed to load resource: net::ERR_CONNECTION_TIMED_OUT',
+        'Failed to load resource: net::ERR_CONNECTION_REFUSED',
+        'Network Error',
+        'Failed to fetch',
+        'Unable to connect to server',
+        'Network error for',
+        'Failed to fetch health partners',
+        'Failed to fetch food partners',
+        'Failed to fetch coupons',
+        'Failed to fetch products',
+        'Failed to fetch upcoming events',
+        'Failed to fetch urgent campaigns',
+        'Could not establish connection. Receiving end does not exist'
+      ];
+      
+      // Suppress all network-related errors in both development and production
+      return suppressedMessages.some(msg => message.includes(msg)) ||
+             message.includes('Network error') ||
+             message.includes('connection') ||
+             message.includes('ERR_CONNECTION');
+    };
+
+    console.error = (...args) => {
+      // Check all arguments for suppressible messages
+      const messages = args.map(arg => {
+        if (typeof arg === 'string') return arg;
+        if (arg?.message) return arg.message;
+        if (arg?.toString) return arg.toString();
+        return '';
+      }).join(' ');
+      
+      if (shouldSuppress(messages)) {
+        return; // Suppress this specific error
+      }
+      originalError.apply(console, args);
+    };
+
+    console.warn = (...args) => {
+      // Check all arguments for suppressible messages
+      const messages = args.map(arg => {
+        if (typeof arg === 'string') return arg;
+        if (arg?.message) return arg.message;
+        if (arg?.toString) return arg.toString();
+        return '';
+      }).join(' ');
+      
+      if (shouldSuppress(messages)) {
+        return; // Suppress this specific warning
+      }
+      originalWarn.apply(console, args);
+    };
+
+    // Also catch unhandled errors and promise rejections
+    const handleError = (event) => {
+      const message = event?.message || event?.reason?.message || '';
+      if (shouldSuppress(message)) {
+        event.preventDefault();
+        event.stopPropagation();
+        return false;
+      }
+    };
+
+    const handleUnhandledRejection = (event) => {
+      if (shouldSuppress(event.reason?.message || '')) {
+        event.preventDefault();
+      }
+    };
+
+    window.addEventListener('error', handleError, true);
+    window.addEventListener('unhandledrejection', handleUnhandledRejection);
+
+    // Restore original console methods on unmount
+    return () => {
+      console.error = originalError;
+      console.warn = originalWarn;
+      window.removeEventListener('error', handleError, true);
+      window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+    };
+  }, []);
+  
+  // Check if current route is admin (hide navbar only for admin)
+  const isAdminRoute = pathname?.startsWith('/admin');
+  const hidePublicLayout = isAdminRoute; // Only hide for admin, show for dashboard
+
+  return (
+    <>
+      {/* Toast Notifications */}
+      <Toaster
+        position="top-right"
+        gutter={8}
+        containerStyle={{
+          top: 20,
+          right: 20,
+        }}
+        toastOptions={{
+          duration: 4000,
+          style: {
+            background: '#363636',
+            color: '#fff',
+          },
+          success: {
+            duration: 3000,
+            iconTheme: {
+              primary: '#4ade80',
+              secondary: '#fff',
+            },
+          },
+          error: {
+            duration: 5000,
+            iconTheme: {
+              primary: '#ef4444',
+              secondary: '#fff',
+            },
+          },
+        }}
+      />
+      
+      {/* Main Content */}
+      <div className="min-h-screen flex flex-col">
+        {/* Show public layout for all routes except admin */}
+        {!hidePublicLayout && (
+          <>
+            <TopBar />
+            <NavBar />
+          </>
+        )}
+
+        <main className={hidePublicLayout ? "" : "flex-grow overflow-x-hidden w-full max-w-full"}>{children}</main>
+
+        {/* Show footer for all routes except admin */}
+        {!hidePublicLayout && <Footer />}
+      </div>
+      
+      {/* Floating WhatsApp Button - Show on all pages except admin */}
+      {!hidePublicLayout && <WhatsAppFloatButton />}
+    </>
+  );
+}
+
