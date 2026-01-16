@@ -18,11 +18,10 @@ jobs:
 
       - name: Deploy Frontend
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
-            cd /var/www/carefoundation/frontend
-            git pull origin main
-            npm install
-            npm run build
+          ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "
+            cd /var/www/carefoundation/frontend &&
+            git pull origin main &&
+            npm install &&
+            npm run build &&
             pm2 restart carefoundation-frontend
-          EOF
-#
+          "
