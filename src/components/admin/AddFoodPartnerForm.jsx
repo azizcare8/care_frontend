@@ -247,7 +247,7 @@ export default function AddFoodPartnerForm({ isPartnerSubmission = false, onBack
           email: formData.email.toLowerCase().trim()
         },
         images: bannerUrl ? [{
-          url: `${backendBaseURL}${bannerUrl}`,
+          url: bannerUrl.startsWith('http') ? bannerUrl : `${backendBaseURL}${bannerUrl}`,
           caption: 'Restaurant Banner',
           isPrimary: true
         }] : [],
@@ -298,7 +298,9 @@ export default function AddFoodPartnerForm({ isPartnerSubmission = false, onBack
           businessLicense: formData.fsai || 'Admin-approved partner',
           gstNumber: '',
           panNumber: '',
-          menuCardPhotos: menuCardPhotoUrls.map(url => `${backendBaseURL}${url}`)
+          menuCardPhotos: menuCardPhotoUrls.map(url =>
+            url.startsWith('http') ? url : `${backendBaseURL}${url}`
+          )
         },
         status: isPartnerSubmission ? 'pending' : 'approved', // Auto-approve for admin-created partners, pending for partner submissions
         isActive: isPartnerSubmission ? false : true // Ensure partner is active only if approved

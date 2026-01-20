@@ -89,11 +89,6 @@ export default function CampaignDetailPage() {
   };
 
   const handleDonateClick = () => {
-    if (!user) {
-      toast.error('Please login to donate');
-      router.push('/login?redirect=/campaigns/' + params.id);
-      return;
-    }
     setShowDonationModal(true);
   };
 

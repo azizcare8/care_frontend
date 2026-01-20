@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import { normalizeImageUrl, shouldUnoptimizeImage } from "@/utils/imageUtils";
 import { BiCalendar, BiEdit, BiTrash, BiSearch } from "react-icons/bi";
 import api from "@/utils/api";
 import toast from "react-hot-toast";
@@ -209,22 +210,37 @@ export default function OurEventsTable() {
                   <td className="px-4 py-3 text-sm max-w-md line-clamp-2">{event.description || event.shortDescription}</td>
                   <td className="px-4 py-3 text-sm">
                     {new Date(event.date).toLocaleDateString()}
-                    {event.time && <div className="text-xs text-gray-500">{event.time}</div>}
+                    {(event.time || event.endTime) && (
+                      <div className="text-xs text-gray-500">
+                        {event.time || "—"}{event.endTime ? ` - ${event.endTime}` : ""}
+                      </div>
+                    )}
                   </td>
                   <td className="px-4 py-3">
-                    {event.picture?.url || event.image ? (
-                      <div className="w-20 h-20 relative rounded border">
-                        <Image 
-                          src={event.picture?.url || event.image} 
-                          alt="Event" 
-                          fill 
-                          sizes="80px"
-                          className="object-cover rounded"
-                        />
-                      </div>
-                    ) : (
-                      <div className="w-20 h-20 bg-gray-200 rounded flex items-center justify-center text-gray-400 text-xs">No Image</div>
-                    )}
+                    {(() => {
+                      const rawImageUrl = event.picture?.url || event.image;
+                      const imageUrl = normalizeImageUrl(rawImageUrl);
+                      if (!imageUrl) {
+                        return (
+                          <div className="w-20 h-20 bg-gray-200 rounded flex items-center justify-center text-gray-400 text-xs">No Image</div>
+                        );
+                      }
+                      return (
+                        <div className="w-20 h-20 relative rounded border">
+                          <Image 
+                            src={imageUrl} 
+                            alt="Event" 
+                            fill 
+                            sizes="80px"
+                            className="object-cover rounded"
+                            unoptimized={shouldUnoptimizeImage(imageUrl)}
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none';
+                            }}
+                          />
+                        </div>
+                      );
+                    })()}
                   </td>
                   <td className="px-4 py-3">
                     <span className={`px-3 py-1 rounded-full text-xs font-medium ${

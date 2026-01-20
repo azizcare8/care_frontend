@@ -6,11 +6,9 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { FaSearch, FaArrowRight } from "react-icons/fa";
 import ImageSlider from "./ImageSlider";
-import useAuthStore from "@/store/authStore";
 
 export default function Banner() {
   const router = useRouter();
-  const { isAuthenticated } = useAuthStore();
   const [searchQuery, setSearchQuery] = useState("");
   const [donorInfo, setDonorInfo] = useState({
     firstName: "",
@@ -99,14 +97,7 @@ export default function Banner() {
     });
     localStorage.setItem('donationHistory', JSON.stringify(previousDonations));
     
-    // Check if user is authenticated
-    if (!isAuthenticated) {
-      // Save redirect URL and redirect to login
-      router.push("/login?redirect=/donate/payment");
-      return;
-    }
-    
-    // Redirect to payment page if authenticated
+    // Redirect to payment page without login requirement
     router.push("/donate/payment");
   };
 

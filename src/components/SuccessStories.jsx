@@ -91,9 +91,9 @@ export default function SuccessStories() {
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     className="object-cover group-hover:scale-110 transition-transform duration-500"
                   />
-                  <div className={`absolute top-4 right-4 bg-gradient-to-r ${story.color} text-white px-3 py-1 rounded-full text-sm font-semibold shadow-lg flex items-center gap-1.5`}>
+                  <div className={`absolute top-4 right-4 bg-gradient-to-r ${story.color} text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg flex items-center gap-1.5`}>
                     <BiCheckCircle className="text-base" />
-                    <span>Completed</span>
+                    <span>Completed Fundraised</span>
                   </div>
                 </div>
 

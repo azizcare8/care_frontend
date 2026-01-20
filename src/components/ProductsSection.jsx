@@ -6,6 +6,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { normalizeImageUrl } from "@/utils/imageUtils";
 
 export default function ProductsSection() {
   const [products, setProducts] = useState([]);
@@ -146,7 +147,7 @@ export default function ProductsSection() {
               <div className="relative overflow-hidden">
                 {product.image?.url ? (
                   <Image
-                    src={product.image.url}
+                    src={normalizeImageUrl(product.image.url)}
                     alt={product.name}
                     width={500}
                     height={200}

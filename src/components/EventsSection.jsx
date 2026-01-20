@@ -2,10 +2,11 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import api from "@/utils/api";
-import { BiCalendar, BiTime, BiMap, BiRightArrow } from "react-icons/bi";
-import { FaWhatsapp } from "react-icons/fa";
+import { BiCalendar, BiTime, BiMap, BiRightArrow, BiShareAlt } from "react-icons/bi";
+import { FaWhatsapp, FaFacebook, FaTwitter, FaLink } from "react-icons/fa";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import { normalizeImageUrl, shouldUnoptimizeImage } from "@/utils/imageUtils";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
 export default function EventsSection() {
@@ -15,6 +16,7 @@ export default function EventsSection() {
   const scrollContainerRef = useRef(null);
   const [showLeftArrow, setShowLeftArrow] = useState(false);
   const [showRightArrow, setShowRightArrow] = useState(true);
+  const [activeShareId, setActiveShareId] = useState(null);
 
   const scroll = (direction) => {
     const container = scrollContainerRef.current;
@@ -63,6 +65,32 @@ export default function EventsSection() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleShare = (event, platform) => {
+    const shareUrl = `${window.location.origin}/events/${event._id}`;
+    const shareText = `Join us at ${event.heading} on ${new Date(event.date).toLocaleDateString()}! ${shareUrl}`;
+
+    switch (platform) {
+      case "whatsapp":
+        window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, "_blank");
+        break;
+      case "facebook":
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`, "_blank");
+        break;
+      case "twitter":
+        window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`, "_blank");
+        break;
+      case "copy":
+        navigator.clipboard.writeText(shareUrl);
+        break;
+    }
+  };
+
+  const getLocationLink = (event) => {
+    if (event.locationLink) return event.locationLink;
+    if (!event.location) return "";
+    return `https://maps.google.com/?q=${encodeURIComponent(event.location)}`;
   };
 
   return (
@@ -136,8 +164,8 @@ export default function EventsSection() {
               >
                 {/* Event Image */}
                 {(() => {
-                  const imageUrl = event.picture?.url || event.image;
-                  if (!imageUrl) return null;
+                  const rawImageUrl = event.picture?.url || event.image;
+                  const imageUrl = normalizeImageUrl(rawImageUrl) || "/images/c1.jpg";
                   
                   return (
                     <div className="relative h-48 w-full">
@@ -146,9 +174,7 @@ export default function EventsSection() {
                         alt={event.heading || "Event Image"}
                         fill
                         className="object-cover"
-                        onError={(e) => {
-                          e.target.style.display = 'none';
-                        }}
+                        unoptimized={shouldUnoptimizeImage(imageUrl)}
                       />
                       <div className="absolute top-4 right-4">
                         <span className="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
@@ -185,13 +211,23 @@ export default function EventsSection() {
                     {event.time && (
                       <div className="flex items-center gap-2 text-gray-600">
                         <BiTime className="text-green-600" />
-                        <span className="text-sm">{event.time}</span>
+                        <span className="text-sm">
+                          {event.time}{event.endTime ? ` - ${event.endTime}` : ""}
+                        </span>
                       </div>
                     )}
                     {event.location && (
                       <div className="flex items-center gap-2 text-gray-600">
                         <BiMap className="text-green-600" />
-                        <span className="text-sm line-clamp-1">{event.location}</span>
+                        <a
+                          href={getLocationLink(event)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm line-clamp-1 text-blue-600 hover:text-blue-700"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          {event.location}
+                        </a>
                       </div>
                     )}
                   </div>
@@ -223,21 +259,52 @@ export default function EventsSection() {
                       <BiRightArrow />
                     </button>
                     <button
-                      onClick={() => {
-                        const shareUrl = `${window.location.origin}/events/${event._id}`;
-                        const shareText = `Join us at ${event.heading} on ${new Date(event.date).toLocaleDateString()}! ${shareUrl}`;
-                        window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank');
-                      }}
-                      className="bg-green-500 text-white p-3 rounded-lg hover:bg-green-600 transition-colors flex items-center justify-center"
-                      title="Share on WhatsApp"
+                      onClick={() => setActiveShareId(activeShareId === event._id ? null : event._id)}
+                      className="bg-blue-600 text-white px-4 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+                      title="Share"
                     >
-                      <FaWhatsapp className="text-xl" />
+                      <BiShareAlt className="text-xl" />
+                      <span className="text-sm font-semibold hidden sm:inline">Share</span>
                     </button>
                   </div>
+                  {activeShareId === event._id && (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <button
+                        onClick={() => handleShare(event, "whatsapp")}
+                        className="flex-1 min-w-[110px] bg-green-500 text-white px-3 py-2 rounded-lg text-xs font-semibold hover:bg-green-600 transition-colors flex items-center justify-center gap-2"
+                      >
+                        <FaWhatsapp />
+                        WhatsApp
+                      </button>
+                      <button
+                        onClick={() => handleShare(event, "facebook")}
+                        className="flex-1 min-w-[110px] bg-blue-600 text-white px-3 py-2 rounded-lg text-xs font-semibold hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+                      >
+                        <FaFacebook />
+                        Facebook
+                      </button>
+                      <button
+                        onClick={() => handleShare(event, "twitter")}
+                        className="flex-1 min-w-[110px] bg-sky-500 text-white px-3 py-2 rounded-lg text-xs font-semibold hover:bg-sky-600 transition-colors flex items-center justify-center gap-2"
+                      >
+                        <FaTwitter />
+                        Twitter
+                      </button>
+                      <button
+                        onClick={() => handleShare(event, "copy")}
+                        className="flex-1 min-w-[110px] bg-gray-200 text-gray-700 px-3 py-2 rounded-lg text-xs font-semibold hover:bg-gray-300 transition-colors flex items-center justify-center gap-2"
+                      >
+                        <FaLink />
+                        Copy Link
+                      </button>
+                    </div>
+                  )}
                 </div>
               </motion.div>
             ))}
             </div>
+
+            
           </div>
         ) : (
           <div className="text-center py-12 bg-white rounded-xl shadow-lg">

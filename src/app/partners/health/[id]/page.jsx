@@ -34,12 +34,59 @@ export default function HealthPartnerProfile() {
     }
   }, [id]);
 
+  const extractFirstValidUrl = (value) => {
+    if (typeof value !== 'string') return null;
+    const matches = value.match(/https?:\/\/[^\s,]+/gi);
+    if (!matches) return null;
+    for (const match of matches) {
+      try {
+        return new URL(match).href;
+      } catch (error) {
+        continue;
+      }
+    }
+    return null;
+  };
+
+  const normalizeAddressString = (value) => {
+    if (typeof value !== 'string') return '';
+    const matches = value.match(/https?:\/\/[^\s,]+/gi) || [];
+    const uniqueUrls = [];
+    matches.forEach((match) => {
+      const trimmed = match.trim();
+      if (trimmed && !uniqueUrls.includes(trimmed)) {
+        uniqueUrls.push(trimmed);
+      }
+    });
+
+    let withoutUrls = value;
+    matches.forEach((match) => {
+      const escaped = match.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      withoutUrls = withoutUrls.replace(new RegExp(escaped, "g"), "");
+    });
+
+    withoutUrls = withoutUrls
+      .replace(/\s*,\s*/g, ", ")
+      .replace(/\s+/g, " ")
+      .replace(/^,\s*|\s*,\s*$/g, "")
+      .trim();
+
+    const parts = [];
+    if (uniqueUrls.length > 0) parts.push(uniqueUrls[0]);
+    if (withoutUrls) parts.push(withoutUrls);
+    return parts.join(", ").trim();
+  };
+
   // Helper function to get full address
   const getFullAddress = (partner) => {
     if (typeof partner?.address === 'object' && partner?.address) {
-      return `${partner.address.street || ''}, ${partner.address.city || ''}, ${partner.address.state || ''} ${partner.address.pincode || ''}`.trim();
+      const address = `${partner.address.street || ''}, ${partner.address.city || ''}, ${partner.address.state || ''} ${partner.address.pincode || ''}`.trim();
+      const normalized = normalizeAddressString(address);
+      return normalized || 'Address not available';
     }
-    return partner?.address || 'Address not available';
+    const addressValue = typeof partner?.address === 'string' ? partner.address : '';
+    const normalized = normalizeAddressString(addressValue);
+    return normalized || 'Address not available';
   };
 
   // Helper function to get image URL
@@ -59,9 +106,28 @@ export default function HealthPartnerProfile() {
     return 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=400&h=400&fit=crop&crop=faces';
   };
 
+  const getAddressUrl = (partner) => {
+    if (!partner) return null;
+    if (typeof partner.address === 'string') {
+      return extractFirstValidUrl(partner.address);
+    }
+    if (typeof partner.address === 'object' && partner.address) {
+      const address = `${partner.address.street || ''}, ${partner.address.city || ''}, ${partner.address.state || ''} ${partner.address.pincode || ''}`;
+      return extractFirstValidUrl(address);
+    }
+    return null;
+  };
+
   // Helper function to get map link
   const getMapLink = (partner) => {
+    const directUrl = getAddressUrl(partner);
+    if (directUrl) {
+      return directUrl;
+    }
     const address = getFullAddress(partner);
+    if (!address || address === 'Address not available') {
+      return 'https://maps.google.com/';
+    }
     return `https://maps.google.com/?q=${encodeURIComponent(address)}`;
   };
 
@@ -136,8 +202,8 @@ export default function HealthPartnerProfile() {
   const email = partner.email || partner.contactPerson?.email || 'N/A';
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-pink-50 pt-24">
-      <div className="max-w-5xl mx-auto px-4 py-8">
+    <div className="min-h-screen bg-[#f4f7fb] pt-24">
+      <div className="max-w-6xl mx-auto px-4 pb-12">
         {/* Back Button */}
         <motion.button
           initial={{ opacity: 0, x: -20 }}
@@ -149,165 +215,164 @@ export default function HealthPartnerProfile() {
           Back to Health Partners
         </motion.button>
 
-        {/* Profile Card */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="bg-white rounded-3xl shadow-2xl overflow-hidden border-2 border-gray-100"
+          className="bg-white rounded-[28px] shadow-[0_25px_70px_-35px_rgba(15,23,42,0.45)] overflow-hidden border border-slate-100"
         >
-          {/* Header Section */}
-          <div className="bg-gradient-to-r from-blue-500 via-blue-600 to-indigo-600 p-8 text-white">
-            <div className="flex flex-col md:flex-row items-center gap-8">
-              {/* Profile Image */}
-              <div className="relative w-48 h-48 rounded-full overflow-hidden shadow-2xl ring-4 ring-white/30 flex-shrink-0">
-                <Image
-                  src={imageUrl}
-                  alt={partner.name}
-                  fill
-                  className="object-cover"
-                  unoptimized
-                  onError={(e) => {
-                    e.target.src = 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=400&h=400&fit=crop&crop=faces';
-                  }}
-                />
-              </div>
-
-              {/* Basic Info */}
-              <div className="text-center md:text-left flex-grow">
-                <span className="inline-block bg-white/20 text-white px-4 py-1 rounded-full text-sm font-semibold mb-3 backdrop-blur-sm">
-                  <FaUserMd className="inline mr-2" />
+          {/* Hero Section */}
+          <div className="relative bg-gradient-to-br from-white via-blue-50/60 to-white">
+            <div className="grid grid-cols-1 lg:grid-cols-[1.15fr_0.85fr] gap-10 items-start p-6 sm:p-10">
+              <div className="order-2 lg:order-1">
+                <span className="inline-flex items-center gap-2 bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs sm:text-sm font-semibold mb-3">
+                  <FaUserMd className="text-sm" />
                   {specialization}
                 </span>
-                <h1 className="text-4xl font-bold mb-2">{partner.name}</h1>
+                <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-2">{partner.name}</h1>
                 {partner.contactPerson?.name && (
-                  <p className="text-blue-100 text-lg mb-4">
+                  <p className="text-slate-600 text-base sm:text-lg mb-3">
                     Contact: {partner.contactPerson.name}
                   </p>
                 )}
-                <div className="flex items-center justify-center md:justify-start gap-1 text-yellow-300">
+                <div className="flex items-center gap-1 text-yellow-400 mb-5">
                   {[...Array(5)].map((_, i) => (
-                    <FaStar key={i} className="text-lg" />
+                    <FaStar key={i} className="text-base sm:text-lg" />
                   ))}
-                  <span className="text-white ml-2">(Trusted Partner)</span>
+                  <span className="text-slate-600 ml-2">(Trusted Partner)</span>
+                </div>
+
+                <div className="flex flex-wrap gap-3">
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={handleConsult}
+                    className="bg-blue-600 text-white py-3 px-5 rounded-xl font-semibold shadow-md hover:bg-blue-700 transition-all flex items-center gap-2"
+                  >
+                    <FaCalendarCheck />
+                    Consult Now
+                  </motion.button>
+                  <motion.a
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    href={mapLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-white text-blue-700 py-3 px-5 rounded-xl font-semibold shadow-md border border-blue-100 hover:border-blue-200 transition-all flex items-center gap-2"
+                  >
+                    <FaMapMarkerAlt />
+                    View on Map
+                  </motion.a>
+                  <motion.a
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    href={getWhatsAppLink(phone)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-emerald-50 text-emerald-700 py-3 px-5 rounded-xl font-semibold shadow-md border border-emerald-100 hover:border-emerald-200 transition-all flex items-center gap-2"
+                  >
+                    <FaWhatsapp />
+                    WhatsApp
+                  </motion.a>
+                </div>
+
+                <div className="mt-6 space-y-4 max-w-2xl">
+                  <div className="rounded-2xl bg-white border border-slate-100 p-4 flex items-start gap-3 shadow-sm">
+                    <div className="bg-blue-100 p-2.5 rounded-full">
+                      <FaPhone className="text-blue-600 text-base" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-slate-500">Phone</p>
+                      <a
+                        href={phone && phone !== "N/A" ? `tel:${phone.replace(/\s+/g, "")}` : undefined}
+                        className="text-sm font-semibold text-slate-800 hover:text-blue-600 transition-colors"
+                      >
+                        {phone}
+                      </a>
+                    </div>
+                  </div>
+                  <div className="rounded-2xl bg-white border border-slate-100 p-4 flex items-start gap-3 shadow-sm">
+                    <div className="bg-green-100 p-2.5 rounded-full">
+                      <FaEnvelope className="text-green-600 text-base" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-slate-500">Email</p>
+                      <a
+                        href={email && email !== "N/A" ? `mailto:${email}` : undefined}
+                        className="text-sm font-semibold text-slate-800 break-words hover:text-blue-600 transition-colors"
+                      >
+                        {email}
+                      </a>
+                    </div>
+                  </div>
+                  <div className="rounded-2xl bg-white border border-slate-100 p-4 flex items-start gap-3 shadow-sm">
+                    <div className="bg-red-100 p-2.5 rounded-full">
+                      <FaMapMarkerAlt className="text-red-600 text-base" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-slate-500">Address</p>
+                      <a
+                        href={mapLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm font-semibold text-slate-800 break-words hover:text-blue-600 transition-colors"
+                      >
+                        {address}
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="relative order-1 lg:order-2 lg:justify-self-end w-full">
+                <div className="absolute -right-8 -top-8 h-40 w-40 rounded-full bg-blue-200/60 blur-3xl" />
+                <div className="absolute -left-10 -bottom-10 h-48 w-48 rounded-full bg-indigo-200/60 blur-3xl" />
+                <div className="relative aspect-[4/5] w-full max-w-sm mx-auto rounded-[30px] overflow-hidden shadow-[0_25px_55px_-20px_rgba(30,64,175,0.45)] ring-8 ring-white/80">
+                  <Image
+                    src={imageUrl}
+                    alt={partner.name}
+                    fill
+                    className="object-cover"
+                    unoptimized
+                    onError={(e) => {
+                      e.target.src = 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=400&h=400&fit=crop&crop=faces';
+                    }}
+                  />
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Content Section */}
-          <div className="p-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {/* Contact Information */}
-              <div className="space-y-6">
-                <h3 className="text-xl font-bold text-gray-800 border-b-2 border-blue-200 pb-2 flex items-center gap-2">
-                  <FaHospital className="text-blue-500" />
-                  Contact Information
-                </h3>
-
-                <div className="space-y-4">
-                  <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-xl hover:bg-blue-50 transition-colors">
-                    <div className="bg-blue-100 p-3 rounded-full">
-                      <FaPhone className="text-blue-600 text-lg" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500 font-medium">Phone</p>
-                      <a href={getWhatsAppLink(phone)} target="_blank" rel="noopener noreferrer" className="text-gray-800 font-semibold hover:text-blue-600 transition-colors">
-                        {phone}
-                      </a>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-xl hover:bg-blue-50 transition-colors">
-                    <div className="bg-green-100 p-3 rounded-full">
-                      <FaEnvelope className="text-green-600 text-lg" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500 font-medium">Email</p>
-                      <a href={`mailto:${email}`} className="text-gray-800 font-semibold hover:text-blue-600 transition-colors">
-                        {email}
-                      </a>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-xl hover:bg-blue-50 transition-colors">
-                    <div className="bg-red-100 p-3 rounded-full">
-                      <FaMapMarkerAlt className="text-red-600 text-lg" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500 font-medium">Address</p>
-                      <p className="text-gray-800 font-semibold">{address}</p>
-                    </div>
-                  </div>
+          {/* Details Section */}
+          <div className="p-6 sm:p-10 border-t border-slate-100 bg-gradient-to-br from-white to-slate-50">
+            <div className="max-w-4xl mx-auto space-y-6">
+              <div className="rounded-3xl overflow-hidden border border-slate-100 shadow-sm bg-white">
+                <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-5 py-4 text-white flex items-center gap-2">
+                  <FaClock className="text-white" />
+                  <h3 className="text-lg font-semibold">About</h3>
                 </div>
-              </div>
-
-              {/* About & Description */}
-              <div className="space-y-6">
-                <h3 className="text-xl font-bold text-gray-800 border-b-2 border-blue-200 pb-2 flex items-center gap-2">
-                  <FaClock className="text-blue-500" />
-                  About
-                </h3>
-
-                <div className="p-4 bg-gray-50 rounded-xl">
-                  <p className="text-gray-700 leading-relaxed">
+                <div className="px-5 py-4">
+                  <p className="text-slate-700 leading-relaxed">
                     {partner.description || `${partner.name} is a trusted healthcare partner committed to providing quality medical services. We are dedicated to helping our community stay healthy and well.`}
                   </p>
                 </div>
-
-                {partner.services && partner.services.length > 0 && (
-                  <div>
-                    <h4 className="font-semibold text-gray-800 mb-3">Services Offered:</h4>
-                    <div className="flex flex-wrap gap-2">
-                      {partner.services.map((service, index) => (
-                        <span
-                          key={index}
-                          className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium"
-                        >
-                          {service}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
               </div>
-            </div>
 
-            {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 mt-10 pt-8 border-t-2 border-gray-100">
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={handleConsult}
-                className="flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white py-4 px-8 rounded-xl font-bold text-lg shadow-lg hover:from-green-600 hover:to-green-700 transition-all flex items-center justify-center gap-3"
-              >
-                <FaCalendarCheck className="text-xl" />
-                Consult Now
-              </motion.button>
-              
-              <motion.a
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                href={mapLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex-1 bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-4 px-8 rounded-xl font-bold text-lg shadow-lg hover:from-blue-600 hover:to-indigo-700 transition-all flex items-center justify-center gap-3"
-              >
-                <FaMapMarkerAlt className="text-xl" />
-                View on Map
-              </motion.a>
-
-              <motion.a
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                href={getWhatsAppLink(phone)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white py-4 px-8 rounded-xl font-bold text-lg shadow-lg hover:from-green-600 hover:to-green-700 transition-all flex items-center justify-center gap-3"
-              >
-                <FaWhatsapp className="text-xl" />
-                Chat on WhatsApp
-              </motion.a>
+              {partner.services && partner.services.length > 0 && (
+                <div className="rounded-3xl border border-slate-100 shadow-sm bg-white p-5">
+                  <h4 className="font-semibold text-slate-800 mb-3">Services Offered</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {partner.services.map((service, index) => (
+                      <span
+                        key={index}
+                        className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium"
+                      >
+                        {service}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </motion.div>

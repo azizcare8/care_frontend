@@ -27,14 +27,6 @@ export default function DonatePage() {
     // Prevent multiple executions
     if (hasCheckedData) return;
 
-    // Check if user is authenticated
-    if (!isAuthenticated || !user) {
-      showToastOnce('Please login to make a donation', 'error', { id: 'login-required-donation' });
-      router.push(`/login?redirect=/donate/${params.id}`);
-      setHasCheckedData(true);
-      return;
-    }
-
     // Load campaign
     const loadCampaign = async () => {
       if (params.id) {
@@ -169,9 +161,11 @@ export default function DonatePage() {
           }
         },
         prefill: {
-          name: user?.name || '',
-          email: user?.email || '',
-          contact: user?.phone || ''
+          name: donationData?.firstName
+            ? `${donationData.firstName} ${donationData.lastName || ''}`.trim()
+            : donationData?.donorDetails?.name || user?.name || '',
+          email: donationData?.email || donationData?.donorDetails?.email || user?.email || '',
+          contact: donationData?.phone || donationData?.donorDetails?.phone || user?.phone || ''
         },
         theme: {
           color: '#10b981'
@@ -255,8 +249,10 @@ export default function DonatePage() {
             // This will open Stripe's hosted payment page
           },
           billing_details: {
-            name: user?.name,
-            email: user?.email
+            name: donationData?.firstName
+              ? `${donationData.firstName} ${donationData.lastName || ''}`.trim()
+              : donationData?.donorDetails?.name || user?.name || 'Guest Donor',
+            email: donationData?.email || donationData?.donorDetails?.email || user?.email || ''
           }
         }
       });
@@ -344,13 +340,6 @@ export default function DonatePage() {
   // Handle dummy/test payment (for testing without payment gateway)
   const handleDummyPayment = async () => {
     try {
-      // Check authentication again
-      if (!isAuthenticated || !user) {
-        toast.error('Please login to make a donation', { id: 'login-required-donation' });
-        router.push(`/login?redirect=/donate/${params.id}`);
-        return;
-      }
-
       if (!donationData || !donationData.campaignId) {
         toast.error('Donation data is missing');
         return;
@@ -358,11 +347,11 @@ export default function DonatePage() {
 
       setIsProcessing(true);
 
-      console.log('Creating test donation with data:', {
-        campaign: donationData.campaignId,
-        amount: donationData.amount,
-        user: user?._id || user?.id
-      });
+      const donorName = donationData.firstName
+        ? `${donationData.firstName} ${donationData.lastName || ''}`.trim()
+        : donationData.donorDetails?.name || user?.name || 'Guest Donor';
+      const donorEmail = donationData.email || donationData.donorDetails?.email || user?.email || '';
+      const donorPhone = donationData.phone || donationData.donorDetails?.phone || user?.phone || '';
 
       // Create test donation directly
       const response = await donationService.createTestDonation({
@@ -371,9 +360,9 @@ export default function DonatePage() {
         isAnonymous: donationData.isAnonymous || false,
         message: donationData.message || '',
         donorDetails: {
-          name: user?.name || 'Test Donor',
-          email: user?.email || '',
-          phone: user?.phone || ''
+          name: donorName,
+          email: donorEmail,
+          phone: donorPhone
         }
       });
 
@@ -392,13 +381,7 @@ export default function DonatePage() {
       console.error('Dummy payment error:', error);
       const errorMessage = error?.response?.data?.message || error?.message || 'Dummy donation failed. Please try again.';
       
-      // Check if it's authentication error
-      if (errorMessage.includes('authentication') || errorMessage.includes('token') || errorMessage.includes('login')) {
-        toast.error('Please login to make a donation', { id: 'login-required-donation' });
-        router.push(`/login?redirect=/donate/${params.id}`);
-      } else {
-        toast.error(errorMessage);
-      }
+      toast.error(errorMessage);
     } finally {
       setIsProcessing(false);
     }
@@ -450,11 +433,19 @@ export default function DonatePage() {
             <div className="space-y-3">
               <div className="flex justify-between">
                 <span className="text-gray-600">Donor Name:</span>
-                <span className="font-semibold">{donationData.isAnonymous ? 'Anonymous' : user?.name}</span>
+                <span className="font-semibold">
+                  {donationData.isAnonymous
+                    ? 'Anonymous'
+                    : donationData.firstName
+                      ? `${donationData.firstName} ${donationData.lastName || ''}`.trim()
+                      : donationData.donorDetails?.name || user?.name || 'Guest Donor'}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Email:</span>
-                <span className="font-semibold">{user?.email}</span>
+                <span className="font-semibold">
+                  {donationData.email || donationData.donorDetails?.email || user?.email || '—'}
+                </span>
               </div>
               {donationData.message && (
                 <div>

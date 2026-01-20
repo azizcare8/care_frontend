@@ -6,11 +6,9 @@ import { paymentService } from "@/services/paymentService";
 import { donationService } from "@/services/donationService";
 import toast, { showToastOnce } from "@/utils/toast";
 import { FaCreditCard, FaLock, FaCheckCircle } from "react-icons/fa";
-import useAuthStore from "@/store/authStore";
 
 export default function DonationPaymentPage() {
   const router = useRouter();
-  const { isAuthenticated, user } = useAuthStore();
   const [donationData, setDonationData] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState('dummy');
   const [amount, setAmount] = useState(1);
@@ -94,13 +92,6 @@ export default function DonationPaymentPage() {
     // Prevent multiple executions
     if (hasCheckedData) return;
 
-    // Check if user is authenticated
-    if (!isAuthenticated) {
-      showToastOnce("Please login to proceed with payment", "error", { id: "login-required-payment" });
-      router.push(`/login?redirect=/donate/payment`);
-      return;
-    }
-
     // Load donation data from session storage
     const storedData = sessionStorage.getItem('donorInfo');
     if (storedData) {
@@ -120,7 +111,7 @@ export default function DonationPaymentPage() {
       router.push("/donate");
       setHasCheckedData(true);
     }
-  }, [isAuthenticated, router, hasCheckedData]);
+  }, [router, hasCheckedData]);
 
   const handleDummyPayment = async () => {
     if (!donationData || amount < 1) {

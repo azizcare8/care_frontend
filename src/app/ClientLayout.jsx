@@ -1,7 +1,7 @@
 "use client";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
-import { Toaster } from "react-hot-toast";
+// import { Toaster } from "react-hot-toast";
 import Footer from "@/components/Footer";
 import NavBar from "@/components/NavBar";
 import TopBar from "@/components/TopBar";
@@ -13,6 +13,8 @@ export default function ClientLayout({ children }) {
   // Suppress harmless console errors from third-party scripts/browser extensions
   useEffect(() => {
     if (typeof window === 'undefined') return;
+    // Only suppress errors in production so dev errors stay visible.
+    if (process.env.NODE_ENV !== 'production') return;
 
     const originalError = console.error;
     const originalWarn = console.warn;
@@ -112,36 +114,7 @@ export default function ClientLayout({ children }) {
 
   return (
     <>
-      {/* Toast Notifications */}
-      <Toaster
-        position="top-right"
-        gutter={8}
-        containerStyle={{
-          top: 20,
-          right: 20,
-        }}
-        toastOptions={{
-          duration: 4000,
-          style: {
-            background: '#363636',
-            color: '#fff',
-          },
-          success: {
-            duration: 3000,
-            iconTheme: {
-              primary: '#4ade80',
-              secondary: '#fff',
-            },
-          },
-          error: {
-            duration: 5000,
-            iconTheme: {
-              primary: '#ef4444',
-              secondary: '#fff',
-            },
-          },
-        }}
-      />
+      {/* Toast Notifications (disabled to avoid runtime crash) */}
       
       {/* Main Content */}
       <div className="min-h-screen flex flex-col">

@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import CountUp from "react-countup";
-import { FiDollarSign, FiTarget, FiUsers, FiHeart, FiZap } from "react-icons/fi";
+import { FiTarget, FiUsers, FiHeart, FiZap } from "react-icons/fi";
+import { FaRupeeSign } from "react-icons/fa";
 import { BiCheckCircle, BiLock, BiSupport } from "react-icons/bi";
 import api from "@/utils/api";
 
@@ -64,10 +65,10 @@ export default function TrustIndicators() {
 
   const trustStats = [
     {
-      icon: FiDollarSign,
+      icon: FaRupeeSign,
       count: stats.totalRaised,
       label: "Total Raised",
-      prefix: "₹",
+      prefix: "",
       suffix: "+",
       bgColor: "bg-gradient-to-br from-green-500 to-emerald-600",
       iconBg: "bg-green-100",

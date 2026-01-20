@@ -3,9 +3,10 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import ClientLayout from "../ClientLayout";
 import api from "@/utils/api";
-import { BiCalendar, BiTime, BiMap, BiRightArrow } from "react-icons/bi";
-import { FaWhatsapp, FaFacebook, FaTwitter } from "react-icons/fa";
+import { BiCalendar, BiTime, BiMap, BiRightArrow, BiShareAlt } from "react-icons/bi";
+import { FaWhatsapp, FaFacebook, FaTwitter, FaLink } from "react-icons/fa";
 import Image from "next/image";
+import { normalizeImageUrl, shouldUnoptimizeImage } from "@/utils/imageUtils";
 import BackToHome from "@/components/BackToHome";
 
 export default function EventsPage() {
@@ -14,6 +15,7 @@ export default function EventsPage() {
   const [completedEvents, setCompletedEvents] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("upcoming");
+  const [activeShareId, setActiveShareId] = useState(null);
 
   useEffect(() => {
     fetchEvents();
@@ -49,7 +51,16 @@ export default function EventsPage() {
       case "twitter":
         window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`, "_blank");
         break;
+      case "copy":
+        navigator.clipboard.writeText(shareUrl);
+        break;
     }
+  };
+
+  const getLocationLink = (event) => {
+    if (event.locationLink) return event.locationLink;
+    if (!event.location) return "";
+    return `https://maps.google.com/?q=${encodeURIComponent(event.location)}`;
   };
 
   const events = activeTab === "upcoming" ? upcomingEvents : completedEvents;
@@ -63,17 +74,17 @@ export default function EventsPage() {
         
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-5xl font-bold text-gray-900 mb-4">Events & Activities</h1>
-          <p className="text-xl text-gray-600">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">Events & Activities</h1>
+          <p className="text-base sm:text-lg lg:text-xl text-gray-600">
             Join us in making a difference through our events and activities
           </p>
         </div>
 
         {/* Tabs */}
-        <div className="flex justify-center gap-4 mb-8">
+        <div className="flex justify-center gap-4 mb-8 flex-wrap">
           <button
             onClick={() => setActiveTab("upcoming")}
-            className={`px-8 py-3 rounded-xl font-semibold transition-all ${
+            className={`px-6 sm:px-8 py-3 rounded-xl font-semibold transition-all ${
               activeTab === "upcoming"
                 ? "bg-gradient-to-r from-green-500 to-green-600 text-white shadow-lg"
                 : "bg-white text-gray-600 hover:bg-gray-50"
@@ -83,7 +94,7 @@ export default function EventsPage() {
           </button>
           <button
             onClick={() => setActiveTab("completed")}
-            className={`px-8 py-3 rounded-xl font-semibold transition-all ${
+            className={`px-6 sm:px-8 py-3 rounded-xl font-semibold transition-all ${
               activeTab === "completed"
                 ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg"
                 : "bg-white text-gray-600 hover:bg-gray-50"
@@ -105,40 +116,37 @@ export default function EventsPage() {
             ))}
           </div>
         ) : events.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {events.map((event) => (
               <div
                 key={event._id}
-                className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
+                className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 border border-gray-100"
               >
-                {event.picture?.url && (
+                {(() => {
+                  const imageUrl = normalizeImageUrl(event.picture?.url) || "/images/c1.jpg";
+                  return (
                   <div className="relative h-48 w-full">
                     <Image
-                      src={event.picture.url}
+                      src={imageUrl}
                       alt={event.heading}
                       fill
                       className="object-cover"
+                      unoptimized={shouldUnoptimizeImage(imageUrl)}
                     />
-                    <div className="absolute top-4 right-4 flex gap-2">
-                      <button
-                        onClick={() => handleShare(event, "whatsapp")}
-                        className="bg-green-500 text-white p-2 rounded-full hover:bg-green-600 transition-all shadow-lg"
-                        title="Share on WhatsApp"
-                      >
-                        <FaWhatsapp size={16} />
-                      </button>
-                      <button
-                        onClick={() => handleShare(event, "facebook")}
-                        className="bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 transition-all shadow-lg"
-                        title="Share on Facebook"
-                      >
-                        <FaFacebook size={16} />
-                      </button>
+                    <div className="absolute top-4 left-4">
+                      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                        activeTab === "upcoming"
+                          ? "bg-green-500 text-white"
+                          : "bg-blue-500 text-white"
+                      }`}>
+                        {activeTab === "upcoming" ? "Upcoming" : "Completed"}
+                      </span>
                     </div>
                   </div>
-                )}
+                  );
+                })()}
 
-                <div className="p-6">
+                <div className="p-6 flex flex-col gap-4">
                   <h3 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2">
                     {event.heading}
                   </h3>
@@ -157,13 +165,22 @@ export default function EventsPage() {
                     {event.time && (
                       <div className="flex items-center gap-2 text-gray-600">
                         <BiTime className="text-green-600" />
-                        <span className="text-sm">{event.time}</span>
+                        <span className="text-sm">
+                          {event.time}{event.endTime ? ` - ${event.endTime}` : ""}
+                        </span>
                       </div>
                     )}
                     {event.location && (
                       <div className="flex items-center gap-2 text-gray-600">
                         <BiMap className="text-green-600" />
-                        <span className="text-sm line-clamp-1">{event.location}</span>
+                        <a
+                          href={getLocationLink(event)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm line-clamp-1 text-blue-600 hover:text-blue-700"
+                        >
+                          {event.location}
+                        </a>
                       </div>
                     )}
                   </div>
@@ -184,13 +201,54 @@ export default function EventsPage() {
                     </div>
                   )}
 
-                  <button
-                    onClick={() => router.push(`/events/${event._id}`)}
-                    className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold py-3 px-6 rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-300 flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
-                  >
-                    View Details
-                    <BiRightArrow />
-                  </button>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      onClick={() => router.push(`/events/${event._id}`)}
+                      className="flex-1 min-w-[140px] bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold py-3 px-6 rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-300 flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
+                    >
+                      View Details
+                      <BiRightArrow />
+                    </button>
+                    <button
+                      onClick={() => setActiveShareId(activeShareId === event._id ? null : event._id)}
+                      className="flex-1 min-w-[120px] bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-blue-700 transition-all duration-300 flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
+                    >
+                      <BiShareAlt />
+                      Share
+                    </button>
+                  </div>
+                  {activeShareId === event._id && (
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        onClick={() => handleShare(event, "whatsapp")}
+                        className="flex-1 min-w-[110px] bg-green-500 text-white px-3 py-2 rounded-lg text-xs font-semibold hover:bg-green-600 transition-colors flex items-center justify-center gap-2"
+                      >
+                        <FaWhatsapp />
+                        WhatsApp
+                      </button>
+                      <button
+                        onClick={() => handleShare(event, "facebook")}
+                        className="flex-1 min-w-[110px] bg-blue-600 text-white px-3 py-2 rounded-lg text-xs font-semibold hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+                      >
+                        <FaFacebook />
+                        Facebook
+                      </button>
+                      <button
+                        onClick={() => handleShare(event, "twitter")}
+                        className="flex-1 min-w-[110px] bg-sky-500 text-white px-3 py-2 rounded-lg text-xs font-semibold hover:bg-sky-600 transition-colors flex items-center justify-center gap-2"
+                      >
+                        <FaTwitter />
+                        Twitter
+                      </button>
+                      <button
+                        onClick={() => handleShare(event, "copy")}
+                        className="flex-1 min-w-[110px] bg-gray-200 text-gray-700 px-3 py-2 rounded-lg text-xs font-semibold hover:bg-gray-300 transition-colors flex items-center justify-center gap-2"
+                      >
+                        <FaLink />
+                        Copy Link
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}

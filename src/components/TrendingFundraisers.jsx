@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import useAuthStore from "@/store/authStore";
 import { useState, useRef, useEffect } from "react";
+import { normalizeImageUrl } from "@/utils/imageUtils";
 import { FaChevronLeft, FaChevronRight, FaRocket } from "react-icons/fa";
 import { FiTarget, FiFileText } from "react-icons/fi";
 
@@ -234,9 +235,10 @@ export default function TrendingFundraisers({ campaigns = [], isLoading = false 
                 
                 <div className="relative w-full h-64 overflow-hidden">
                   {(() => {
-                    const imageUrl = campaign.images?.[0]?.url || "/images/c1.jpg";
-                    const isBackendUrl = imageUrl?.startsWith('http://localhost:5000') || 
-                                       imageUrl?.startsWith('https://carefoundation-backend-1.onrender.com');
+                    const rawImageUrl = campaign.images?.[0]?.url;
+                    const imageUrl = rawImageUrl ? normalizeImageUrl(rawImageUrl) : "/images/c1.jpg";
+                    const isBackendUrl = imageUrl?.startsWith("http://localhost:5000") ||
+                                       imageUrl?.startsWith("https://carefoundation-backend-1.onrender.com");
                     if (isBackendUrl) {
                       // Use regular img tag for backend URLs to avoid Next.js optimization issues
                       return (

@@ -51,6 +51,11 @@ const nextConfig = {
         hostname: 'images.unsplash.com',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'care-foundation-uploads.s3.ap-southeast-2.amazonaws.com',
+        pathname: '/**',
+      },
     ],
     formats: ['image/avif', 'image/webp'],
     minimumCacheTTL: 60,
@@ -63,6 +68,9 @@ const nextConfig = {
     optimizePackageImports: ['react-icons', 'framer-motion'],
     optimizeCss: true,
   },
+
+  // Silence Next 16 Turbopack warning when custom webpack config exists
+  turbopack: {},
   
   // Webpack optimizations
   webpack: (config, { isServer }) => {

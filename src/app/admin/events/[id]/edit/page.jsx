@@ -21,7 +21,9 @@ export default function EditEventPage() {
     heading: "",
     date: "",
     time: "",
+    endTime: "",
     location: "",
+    locationLink: "",
     shortBrief: "",
     description: "",
     videoLink1: "",
@@ -63,7 +65,9 @@ export default function EditEventPage() {
         heading: eventData.heading || "",
         date: formattedDate,
         time: eventData.time || "",
+        endTime: eventData.endTime || "",
         location: eventData.location || "",
+        locationLink: eventData.locationLink || "",
         shortBrief: eventData.shortBrief || "",
         description: eventData.description || "",
         videoLink1: eventData.videos?.find(v => v.platform === 'youtube')?.url || "",
@@ -220,7 +224,9 @@ export default function EditEventPage() {
         description: formData.description.trim(),
         date: new Date(formData.date).toISOString(),
         time: formData.time.trim(),
+        endTime: formData.endTime.trim() || undefined,
         location: formData.location.trim(),
+        locationLink: formData.locationLink.trim() || undefined,
         picture: {
           url: mainImageUrl.startsWith('http') ? mainImageUrl : `${backendBaseURL}${mainImageUrl}`,
           publicId: event?.picture?.publicId || null,
@@ -345,7 +351,7 @@ export default function EditEventPage() {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-2">Event Date <span className="text-red-500">*</span></label>
               <input 
@@ -362,6 +368,16 @@ export default function EditEventPage() {
                 type="time" 
                 name="time" 
                 value={formData.time} 
+                onChange={handleChange} 
+                className="border-2 border-gray-300 rounded-xl px-4 py-3 w-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm hover:shadow-md"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-2">Event End Time</label>
+              <input 
+                type="time" 
+                name="endTime" 
+                value={formData.endTime} 
                 onChange={handleChange} 
                 className="border-2 border-gray-300 rounded-xl px-4 py-3 w-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm hover:shadow-md"
               />
@@ -388,6 +404,17 @@ export default function EditEventPage() {
               value={formData.location} 
               onChange={handleChange} 
               placeholder="Enter Event Location" 
+              className="border-2 border-gray-300 rounded-xl px-4 py-3 w-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm hover:shadow-md"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-gray-700 mb-2">Google Maps Link</label>
+            <input 
+              type="url" 
+              name="locationLink" 
+              value={formData.locationLink} 
+              onChange={handleChange} 
+              placeholder="https://maps.google.com/..." 
               className="border-2 border-gray-300 rounded-xl px-4 py-3 w-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm hover:shadow-md"
             />
           </div>

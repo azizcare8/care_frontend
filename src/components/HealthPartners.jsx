@@ -1,40 +1,19 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { partnerService } from "@/services/partnerService";
 import toast from "react-hot-toast";
-import { FaChevronLeft, FaChevronRight, FaPhone, FaMapMarkerAlt } from "react-icons/fa";
+import { FaPhone, FaMapMarkerAlt } from "react-icons/fa";
 import { shouldUnoptimizeImage } from "@/utils/imageUtils";
 import { getBackendBaseUrl } from "@/utils/api";
 
 export default function HealthPartners() {
   const [partners, setPartners] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const scrollContainerRef = useRef(null);
-  const [showLeftArrow, setShowLeftArrow] = useState(false);
-  const [showRightArrow, setShowRightArrow] = useState(true);
+  const searchParams = useSearchParams();
   const router = useRouter();
-
-  const scroll = (direction) => {
-    const container = scrollContainerRef.current;
-    if (container) {
-      const scrollAmount = 400;
-      container.scrollBy({
-        left: direction === 'left' ? -scrollAmount : scrollAmount,
-        behavior: 'smooth'
-      });
-    }
-  };
-
-  const handleScroll = () => {
-    const container = scrollContainerRef.current;
-    if (container) {
-      setShowLeftArrow(container.scrollLeft > 0);
-      setShowRightArrow(container.scrollLeft < container.scrollWidth - container.clientWidth - 10);
-    }
-  };
 
   useEffect(() => {
     const fetchPartners = async () => {
@@ -58,11 +37,50 @@ export default function HealthPartners() {
     fetchPartners();
   }, []);
 
-  useEffect(() => {
-    setTimeout(() => {
-      handleScroll();
-    }, 100);
-  }, [partners]);
+  const selectedType = searchParams?.get("type");
+
+  const extractFirstValidUrl = (value) => {
+    if (typeof value !== 'string') return null;
+    const matches = value.match(/https?:\/\/[^\s,]+/gi);
+    if (!matches) return null;
+    for (const match of matches) {
+      try {
+        return new URL(match).href;
+      } catch (error) {
+        continue;
+      }
+    }
+    return null;
+  };
+
+  const normalizeAddressString = (value) => {
+    if (typeof value !== 'string') return '';
+    const matches = value.match(/https?:\/\/[^\s,]+/gi) || [];
+    const uniqueUrls = [];
+    matches.forEach((match) => {
+      const trimmed = match.trim();
+      if (trimmed && !uniqueUrls.includes(trimmed)) {
+        uniqueUrls.push(trimmed);
+      }
+    });
+
+    let withoutUrls = value;
+    matches.forEach((match) => {
+      const escaped = match.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      withoutUrls = withoutUrls.replace(new RegExp(escaped, "g"), "");
+    });
+
+    withoutUrls = withoutUrls
+      .replace(/\s*,\s*/g, ", ")
+      .replace(/\s+/g, " ")
+      .replace(/^,\s*|\s*,\s*$/g, "")
+      .trim();
+
+    const parts = [];
+    if (uniqueUrls.length > 0) parts.push(uniqueUrls[0]);
+    if (withoutUrls) parts.push(withoutUrls);
+    return parts.join(", ").trim();
+  };
 
   // Helper function to get full address
   const getFullAddress = (partner) => {
@@ -70,9 +88,12 @@ export default function HealthPartners() {
       if (!partner) return 'Address not available';
       if (typeof partner.address === 'object' && partner.address) {
         const address = `${partner.address.street || ''}, ${partner.address.city || ''}, ${partner.address.state || ''} ${partner.address.pincode || ''}`.trim();
-        return address || 'Address not available';
+        const normalized = normalizeAddressString(address);
+        return normalized || 'Address not available';
       }
-      return (typeof partner.address === 'string' ? partner.address : 'Address not available') || 'Address not available';
+      const addressValue = typeof partner.address === 'string' ? partner.address : '';
+      const normalized = normalizeAddressString(addressValue);
+      return normalized || 'Address not available';
     } catch (error) {
       return 'Address not available';
     }
@@ -117,9 +138,25 @@ export default function HealthPartners() {
     return 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=300&h=300&fit=crop&crop=faces';
   };
 
+  const getAddressUrl = (partner) => {
+    if (!partner) return null;
+    if (typeof partner.address === 'string') {
+      return extractFirstValidUrl(partner.address);
+    }
+    if (typeof partner.address === 'object' && partner.address) {
+      const address = `${partner.address.street || ''}, ${partner.address.city || ''}, ${partner.address.state || ''} ${partner.address.pincode || ''}`;
+      return extractFirstValidUrl(address);
+    }
+    return null;
+  };
+
   // Helper function to get map link
   const getMapLink = (partner) => {
     try {
+      const directUrl = getAddressUrl(partner);
+      if (directUrl) {
+        return directUrl;
+      }
       const address = getFullAddress(partner);
       // Ensure address is valid and not empty
       if (!address || address.trim() === '' || address === 'Address not available') {
@@ -183,6 +220,34 @@ export default function HealthPartners() {
     router.push(`/partners/health/${partnerId}`);
   };
 
+  const normalizedPartners = partners.filter((partner) => partner && (partner._id || partner.id));
+  const getPartnerType = (partner) => (partner.businessType || '').toLowerCase();
+  const sectionConfigs = [
+    { id: 'hospital', title: 'Hospitals', subtitle: 'Trusted hospitals supporting our mission' },
+    { id: 'clinic', title: 'Doctors & Clinics', subtitle: 'Medical doctors and clinics for consultations' },
+    { id: 'pathology', title: 'Pathology Labs', subtitle: 'Diagnostic and lab partners' },
+    { id: 'pharmacy', title: 'Pharmacies', subtitle: 'Pharmacy partners for medicines' },
+    { id: 'other', title: 'Other Medical Partners', subtitle: 'Additional medical support services' }
+  ];
+
+  const groupedSections = sectionConfigs.map((section) => {
+    const sectionPartners = normalizedPartners.filter((partner) => {
+      const type = getPartnerType(partner);
+      if (!type) return section.id === 'other';
+      if (section.id === 'clinic') return type === 'clinic';
+      if (section.id === 'other') {
+        return !['hospital', 'clinic', 'pathology', 'pharmacy'].includes(type);
+      }
+      return type === section.id;
+    });
+    return { ...section, partners: sectionPartners };
+  });
+
+  const visibleSections = selectedType
+    ? groupedSections.filter((section) => section.id === selectedType)
+    : groupedSections;
+  const hasVisiblePartners = visibleSections.some((section) => section.partners.length > 0);
+
   if (isLoading) {
     return (
       <section className="py-20 bg-gradient-to-br from-blue-50 via-pink-50 to-white">
@@ -232,114 +297,102 @@ export default function HealthPartners() {
           <div className="mt-3 w-24 h-1 bg-gradient-to-r from-blue-500 to-pink-500 mx-auto rounded-full" />
         </motion.div>
 
-        <div className="relative">
-          {showLeftArrow && (
-            <button
-              onClick={() => scroll('left')}
-              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white rounded-full p-3 shadow-lg hover:bg-gray-100 transition-all border-2 border-gray-200"
-              aria-label="Scroll left"
-            >
-              <FaChevronLeft className="text-gray-700 text-lg" />
-            </button>
+        <div className="space-y-12 px-4 sm:px-6 lg:px-8">
+          {!hasVisiblePartners && (
+            <div className="text-center py-10 bg-white rounded-2xl shadow-lg">
+              <p className="text-gray-600">No partners available for this category yet.</p>
+            </div>
           )}
-          {showRightArrow && (
-            <button
-              onClick={() => scroll('right')}
-              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white rounded-full p-3 shadow-lg hover:bg-gray-100 transition-all border-2 border-gray-200"
-              aria-label="Scroll right"
-            >
-              <FaChevronRight className="text-gray-700 text-lg" />
-            </button>
-          )}
-          <div 
-            ref={scrollContainerRef}
-            onScroll={handleScroll}
-            className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide scroll-smooth px-12" 
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}
-          >
-            {partners
-              .filter((partner) => partner && (partner._id || partner.id)) // Filter out invalid partners
-              .map((partner, index) => {
-              try {
-                const address = getFullAddress(partner);
-                let mapLink = getMapLink(partner);
-                const specialization = getSpecialization(partner);
-                const phone = partner.phone || partner.contactPerson?.phone || 'N/A';
-                
-                // Validate mapLink before using it
-                try {
-                  new URL(mapLink);
-                } catch (e) {
-                  mapLink = 'https://maps.google.com/';
-                }
-                
-                return (
-              <motion.div
-                key={partner._id || partner.id}
-                initial={{ opacity: 0, y: 50 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.2, duration: 0.6 }}
-                whileHover={{ scale: 1.04 }}
-                onClick={() => handleCardClick(partner)}
-                className="flex-shrink-0 w-80 bg-white rounded-2xl shadow-xl p-6 flex flex-col items-center text-center transition-all duration-300 hover:shadow-2xl border-2 border-gray-200 hover:border-blue-400 group cursor-pointer"
-              >
-                
-                <div className="relative w-40 h-40 mb-4 rounded-full overflow-hidden shadow-lg ring-4 ring-pink-100">
-                  <Image
-                    src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=300&h=300&fit=crop&crop=faces"
-                    alt={partner.name || 'Health Partner'}
-                    fill
-                    sizes="160px"
-                    className="object-cover"
-                    unoptimized={true}
-                    onError={(e) => {
-                      e.target.src = 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=300&h=300&fit=crop&crop=faces';
-                    }}
-                  />
+          {visibleSections
+            .filter((section) => section.partners.length > 0)
+            .map((section) => (
+              <div key={section.id}>
+                <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between mb-6 gap-2">
+                  <div>
+                    <h3 className="text-2xl font-bold text-gray-800">{section.title}</h3>
+                    <p className="text-sm text-gray-600">{section.subtitle}</p>
+                  </div>
+                  <span className="text-sm text-gray-500">{section.partners.length} partners</span>
                 </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {section.partners.map((partner, index) => {
+                    try {
+                      const address = getFullAddress(partner);
+                      let mapLink = getMapLink(partner);
+                      const specialization = getSpecialization(partner);
+                      const phone = partner.phone || partner.contactPerson?.phone || 'N/A';
+                      const imageUrl = getImageUrl(partner);
 
-                <p className="text-blue-600 font-semibold text-sm mb-1 uppercase tracking-wide">
-                  {specialization}
-                </p>
+                      try {
+                        new URL(mapLink);
+                      } catch (e) {
+                        mapLink = 'https://maps.google.com/';
+                      }
 
-                <h3 className="text-2xl font-bold text-gray-800 mb-2">
-                  {partner.name}
-                </h3>
+                      return (
+                        <motion.div
+                          key={partner._id || partner.id}
+                          initial={{ opacity: 0, y: 30 }}
+                          whileInView={{ opacity: 1, y: 0 }}
+                          transition={{ delay: index * 0.05, duration: 0.5 }}
+                          whileHover={{ scale: 1.02 }}
+                          onClick={() => handleCardClick(partner)}
+                          className="bg-white rounded-2xl shadow-xl p-6 flex flex-col items-center text-center transition-all duration-300 hover:shadow-2xl border-2 border-gray-200 hover:border-blue-400 group cursor-pointer"
+                        >
+                          <div className="relative w-32 h-32 mb-4 rounded-full overflow-hidden shadow-lg ring-4 ring-pink-100">
+                            <Image
+                              src={imageUrl}
+                              alt={partner.name || 'Health Partner'}
+                              fill
+                              sizes="128px"
+                              className="object-cover"
+                              unoptimized={shouldUnoptimizeImage(imageUrl)}
+                            />
+                          </div>
 
-                <p className="text-gray-600 text-sm flex items-center justify-center gap-1.5">
-                  <FaPhone className="text-green-600" />
-                  <span>{phone}</span>
-                </p>
-                <p className="text-gray-600 text-sm mt-1 flex items-center justify-center gap-1.5">
-                  <FaMapMarkerAlt className="text-red-600" />
-                  <span>{address}</span>
-                </p>
+                          <p className="text-blue-600 font-semibold text-xs mb-1 uppercase tracking-wide">
+                            {specialization}
+                          </p>
 
-                <div className="flex gap-3 w-full mt-6" onClick={(e) => e.stopPropagation()}>
-                  <button 
-                    onClick={() => handleBookAppointment(partner)}
-                    className="flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white py-3 rounded-lg font-semibold shadow-md hover:from-green-600 hover:to-green-700 transition-all transform hover:scale-105"
-                  >
-                    Consult Now
-                  </button>
-                  <a
-                    href={mapLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex-1 bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-3 rounded-lg font-semibold text-sm shadow-md hover:from-blue-600 hover:to-indigo-700 transition-all text-center transform hover:scale-105"
-                  >
-                    View Map
-                  </a>
+                          <h3 className="text-xl font-bold text-gray-800 mb-2">
+                            {partner.name}
+                          </h3>
+
+                          <p className="text-gray-600 text-sm flex items-center justify-center gap-1.5 w-full">
+                            <FaPhone className="text-green-600" />
+                            <span className="flex-1 min-w-0 truncate">{phone}</span>
+                          </p>
+                          <p className="text-gray-600 text-sm mt-1 flex items-start justify-center gap-1.5 w-full">
+                            <FaMapMarkerAlt className="text-red-600" />
+                            <span className="flex-1 min-w-0 line-clamp-2 break-words">{address}</span>
+                          </p>
+
+                          <div className="flex gap-3 w-full mt-6" onClick={(e) => e.stopPropagation()}>
+                            <button 
+                              onClick={() => handleBookAppointment(partner)}
+                              className="flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white py-3 rounded-lg font-semibold shadow-md hover:from-green-600 hover:to-green-700 transition-all transform hover:scale-105"
+                            >
+                              Consult Now
+                            </button>
+                            <a
+                              href={mapLink}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex-1 bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-3 rounded-lg font-semibold text-sm shadow-md hover:from-blue-600 hover:to-indigo-700 transition-all text-center transform hover:scale-105"
+                            >
+                              View Map
+                            </a>
+                          </div>
+                        </motion.div>
+                      );
+                    } catch (error) {
+                      console.warn('Error rendering partner:', partner?._id || partner?.id, error);
+                      return null;
+                    }
+                  })}
                 </div>
-              </motion.div>
-                );
-              } catch (error) {
-                // Skip rendering this partner if there's an error
-                console.warn('Error rendering partner:', partner?._id || partner?.id, error);
-                return null;
-              }
-            })}
-          </div>
+              </div>
+            ))}
         </div>
       </div>
     </section>

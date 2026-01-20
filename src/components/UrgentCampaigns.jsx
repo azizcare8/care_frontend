@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { FaClock, FaHeartbeat, FaFire } from "react-icons/fa";
 import api from "@/utils/api";
+import { normalizeImageUrl } from "@/utils/imageUtils";
 
 export default function UrgentCampaigns() {
   const router = useRouter();
@@ -113,9 +114,10 @@ export default function UrgentCampaigns() {
                   {/* Image */}
                   <div className="relative h-56 mt-10 overflow-hidden">
                     {(() => {
-                      const imageUrl = campaign.images?.[0]?.url || "/images/c1.jpg";
-                      const isBackendUrl = imageUrl?.startsWith('https://carefoundationtrust.org') ||
-                        imageUrl?.startsWith('https://carefoundation-backend-1.onrender.com');
+                      const rawImageUrl = campaign.images?.[0]?.url;
+                      const imageUrl = rawImageUrl ? normalizeImageUrl(rawImageUrl) : "/images/c1.jpg";
+                      const isBackendUrl = imageUrl?.startsWith("https://carefoundationtrust.org") ||
+                        imageUrl?.startsWith("https://carefoundation-backend-1.onrender.com");
                       if (isBackendUrl) {
                         // Use regular img tag for backend URLs to avoid Next.js optimization issues
                         return (

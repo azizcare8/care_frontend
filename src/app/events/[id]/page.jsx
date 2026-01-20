@@ -5,8 +5,9 @@ import api from "@/utils/api";
 import toast from "react-hot-toast";
 import useAuthStore from "@/store/authStore";
 import { BiCalendar, BiTime, BiMap, BiUser, BiShareAlt, BiChevronLeft } from "react-icons/bi";
-import { FaWhatsapp, FaFacebook, FaTwitter } from "react-icons/fa";
+import { FaWhatsapp, FaFacebook, FaTwitter, FaLink } from "react-icons/fa";
 import Image from "next/image";
+import { normalizeImageUrl, shouldUnoptimizeImage } from "@/utils/imageUtils";
 
 export default function EventDetailPage() {
   const params = useParams();
@@ -16,6 +17,7 @@ export default function EventDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isRegistering, setIsRegistering] = useState(false);
   const [isRegistered, setIsRegistered] = useState(false);
+  const [isShareOpen, setIsShareOpen] = useState(false);
 
   useEffect(() => {
     if (params.id) {
@@ -68,7 +70,7 @@ export default function EventDetailPage() {
   const handleRegister = async () => {
     if (!isAuthenticated) {
       toast.error("Please login to register for events");
-      router.push("/login");
+      router.push(`/login?redirect=/events/${params.id}`);
       return;
     }
 
@@ -137,6 +139,12 @@ export default function EventDetailPage() {
     }
   };
 
+  const getLocationLink = (eventData) => {
+    if (eventData?.locationLink) return eventData.locationLink;
+    if (!eventData?.location) return "";
+    return `https://maps.google.com/?q=${encodeURIComponent(eventData.location)}`;
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -181,39 +189,58 @@ export default function EventDetailPage() {
 
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
           {/* Event Image */}
-          {event.picture?.url && (
-            <div className="relative h-96 w-full">
-              <Image
-                src={event.picture.url}
-                alt={event.heading}
-                fill
-                className="object-cover"
-              />
-              <div className="absolute top-4 right-4 flex gap-2">
-                <button
-                  onClick={() => handleShare("whatsapp")}
-                  className="bg-green-500 text-white p-3 rounded-full hover:bg-green-600 transition-all shadow-lg"
-                  title="Share on WhatsApp"
-                >
-                  <FaWhatsapp size={20} />
-                </button>
-                <button
-                  onClick={() => handleShare("facebook")}
-                  className="bg-blue-600 text-white p-3 rounded-full hover:bg-blue-700 transition-all shadow-lg"
-                  title="Share on Facebook"
-                >
-                  <FaFacebook size={20} />
-                </button>
-                <button
-                  onClick={() => handleShare("twitter")}
-                  className="bg-blue-400 text-white p-3 rounded-full hover:bg-blue-500 transition-all shadow-lg"
-                  title="Share on Twitter"
-                >
-                  <FaTwitter size={20} />
-                </button>
+          {(() => {
+            const imageUrl = normalizeImageUrl(event.picture?.url) || "/images/c1.jpg";
+            return (
+              <div className="relative h-96 w-full">
+                <Image
+                  src={imageUrl}
+                  alt={event.heading}
+                  fill
+                  className="object-cover"
+                  unoptimized={shouldUnoptimizeImage(imageUrl)}
+                />
+                <div className="absolute top-4 right-4">
+                  <button
+                    onClick={() => setIsShareOpen((prev) => !prev)}
+                    className="bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700 transition-all shadow-lg flex items-center gap-2"
+                    title="Share"
+                  >
+                    <BiShareAlt size={18} />
+                    <span className="text-sm font-semibold">Share</span>
+                  </button>
+                  {isShareOpen && (
+                    <div className="mt-3 bg-white rounded-xl shadow-xl p-3 flex flex-col gap-2">
+                      <button
+                        onClick={() => handleShare("whatsapp")}
+                        className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold bg-green-500 text-white hover:bg-green-600"
+                      >
+                        <FaWhatsapp /> WhatsApp
+                      </button>
+                      <button
+                        onClick={() => handleShare("facebook")}
+                        className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold bg-blue-600 text-white hover:bg-blue-700"
+                      >
+                        <FaFacebook /> Facebook
+                      </button>
+                      <button
+                        onClick={() => handleShare("twitter")}
+                        className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold bg-sky-500 text-white hover:bg-sky-600"
+                      >
+                        <FaTwitter /> Twitter
+                      </button>
+                      <button
+                        onClick={() => handleShare("copy")}
+                        className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      >
+                        <FaLink /> Copy Link
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
 
           <div className="p-8">
             {/* Event Header */}
@@ -257,7 +284,9 @@ export default function EventDetailPage() {
                   <BiTime className="text-blue-600" size={24} />
                   <div>
                     <p className="text-sm text-gray-600">Time</p>
-                    <p className="font-semibold text-gray-900">{event.time}</p>
+                    <p className="font-semibold text-gray-900">
+                      {event.time}{event.endTime ? ` - ${event.endTime}` : ""}
+                    </p>
                   </div>
                 </div>
               )}
@@ -266,7 +295,14 @@ export default function EventDetailPage() {
                   <BiMap className="text-purple-600" size={24} />
                   <div>
                     <p className="text-sm text-gray-600">Location</p>
-                    <p className="font-semibold text-gray-900">{event.location}</p>
+                    <a
+                      href={getLocationLink(event)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-semibold text-blue-600 hover:text-blue-700"
+                    >
+                      {event.location}
+                    </a>
                   </div>
                 </div>
               )}
@@ -313,7 +349,7 @@ export default function EventDetailPage() {
                     ) : (
                       <button
                         onClick={handleRegister}
-                        disabled={isRegistering || !isAuthenticated}
+                        disabled={isRegistering}
                         className="w-full px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl hover:from-green-600 hover:to-green-700 transition-all shadow-lg hover:shadow-xl font-semibold disabled:opacity-50"
                       >
                         {isRegistering ? "Registering..." : isAuthenticated ? "Register as Volunteer" : "Login to Register"}
@@ -359,16 +395,21 @@ export default function EventDetailPage() {
               <div>
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">Event Gallery</h2>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {event.images.map((img, idx) => (
+                  {event.images.map((img, idx) => {
+                    const imageUrl = normalizeImageUrl(img.url);
+                    if (!imageUrl) return null;
+                    return (
                     <div key={idx} className="relative h-48 rounded-xl overflow-hidden">
                       <Image
-                        src={img.url}
+                        src={imageUrl}
                         alt={`Event image ${idx + 1}`}
                         fill
                         className="object-cover hover:scale-110 transition-transform cursor-pointer"
+                        unoptimized={shouldUnoptimizeImage(imageUrl)}
                       />
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}

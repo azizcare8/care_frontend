@@ -15,7 +15,9 @@ export default function UploadEventForm() {
     heading: "",
     date: "",
     time: "",
+    endTime: "",
     location: "",
+    locationLink: "",
     shortBrief: "",
     description: "",
     videoLink1: "", // YouTube link 1
@@ -151,14 +153,16 @@ export default function UploadEventForm() {
         description: formData.description.trim(),
         date: new Date(formData.date).toISOString(),
         time: formData.time.trim(), // Required field - Event model requires time
+        endTime: formData.endTime.trim() || undefined,
         location: formData.location.trim(),
+        locationLink: formData.locationLink.trim() || undefined,
         picture: {
-          url: `${backendBaseURL}${mainImageUrl}`,
+          url: mainImageUrl.startsWith('http') ? mainImageUrl : `${backendBaseURL}${mainImageUrl}`,
           publicId: null, // Add publicId if available from upload response
           caption: 'Event Main Picture'
         },
         images: additionalImages.length > 0 ? additionalImages.map(img => ({
-          url: `${backendBaseURL}${img.url}`,
+          url: img.url.startsWith('http') ? img.url : `${backendBaseURL}${img.url}`,
           caption: img.caption
         })) : [],
         videos: videos.length > 0 ? videos.map(video => ({
@@ -187,7 +191,9 @@ export default function UploadEventForm() {
         heading: "",
         date: "",
         time: "",
+        endTime: "",
         location: "",
+        locationLink: "",
         shortBrief: "",
         description: "",
         videoLink1: "",
@@ -266,7 +272,7 @@ export default function UploadEventForm() {
             <input type="text" name="heading" value={formData.heading} onChange={handleChange} placeholder="Enter The Heading Of the Event" className="border-2 border-gray-300 rounded-xl px-4 py-3 w-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm hover:shadow-md"/>
           </div>
 
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-2">Event Date <span className="text-green-500">*</span></label>
               <input type="date" name="date" value={formData.date} onChange={handleChange} className="border-2 border-gray-300 rounded-xl px-4 py-3 w-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm hover:shadow-md"/>
@@ -274,6 +280,10 @@ export default function UploadEventForm() {
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-2">Event Time <span className="text-green-500">*</span></label>
               <input type="time" name="time" value={formData.time} onChange={handleChange} className="border-2 border-gray-300 rounded-xl px-4 py-3 w-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm hover:shadow-md"/>
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-2">Event End Time</label>
+              <input type="time" name="endTime" value={formData.endTime} onChange={handleChange} className="border-2 border-gray-300 rounded-xl px-4 py-3 w-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm hover:shadow-md"/>
             </div>
           </div>
 
@@ -285,6 +295,10 @@ export default function UploadEventForm() {
           <div>
             <label className="block text-sm font-bold text-gray-700 mb-2">Event Location <span className="text-green-500">*</span></label>
             <input type="text" name="location" value={formData.location} onChange={handleChange} placeholder="Enter Event Location" className="border-2 border-gray-300 rounded-xl px-4 py-3 w-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm hover:shadow-md"/>
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-gray-700 mb-2">Google Maps Link</label>
+            <input type="url" name="locationLink" value={formData.locationLink} onChange={handleChange} placeholder="https://maps.google.com/..." className="border-2 border-gray-300 rounded-xl px-4 py-3 w-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm hover:shadow-md"/>
           </div>
 
           <div>
@@ -354,11 +368,11 @@ export default function UploadEventForm() {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-green-600 mb-2">
+              <label className="block text-sm font-bold text-gray-700 mb-2">
                 Upload Video 2
               </label>
               <div className="flex items-center gap-3">
-                <label className="px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-200 transition-colors text-sm font-medium text-gray-700">
+                <label className="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl cursor-pointer hover:from-blue-600 hover:to-blue-700 transition-all duration-200 text-sm font-bold shadow-lg hover:shadow-xl">
                   Choose video
                   <input
                     type="file"
@@ -367,7 +381,7 @@ export default function UploadEventForm() {
                     accept="video/*"
                   />
                 </label>
-                <span className="text-sm text-gray-500">
+                <span className="text-sm text-gray-600 font-medium">
                   {formData.videoFile2 ? formData.videoFile2.name : 'No file chosen'}
                 </span>
               </div>

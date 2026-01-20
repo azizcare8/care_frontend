@@ -31,7 +31,11 @@ export default function NavBar() {
       href: null,
       submenu: [
         { label: "Food Partners", href: "/partners/food" },
-        { label: "Health Partners", href: "/partners/health" },
+        { label: "All Health Partners", href: "/partners/health" },
+        { label: "Medical Doctors", href: "/partners/health?type=clinic" },
+        { label: "Hospitals", href: "/partners/health?type=hospital" },
+        { label: "Pathology Labs", href: "/partners/health?type=pathology" },
+        { label: "Pharmacies", href: "/partners/health?type=pharmacy" }
       ]
     },
     {
@@ -135,6 +139,7 @@ export default function NavBar() {
                               key={subIndex}
                               onClick={() => handleClick(subItem.href)}
                               className="block text-gray-800 hover:text-green-600 px-5 py-3 hover:bg-green-50 w-full text-left transition-all duration-200 border-b border-gray-100 last:border-b-0"
+                              suppressHydrationWarning
                             >
                               {subItem.label}
                             </button>
@@ -218,6 +223,7 @@ export default function NavBar() {
                                 key={subIndex}
                                 onClick={() => handleClick(subItem.href)}
                                 className="block w-full text-left text-gray-700 hover:text-green-600 hover:bg-green-50 px-3 py-2 rounded-lg transition-all duration-200 text-sm"
+                                suppressHydrationWarning
                               >
                                 {subItem.label}
                               </button>

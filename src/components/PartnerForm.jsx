@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { FaUserPlus, FaArrowRight, FaStethoscope, FaHospital, FaUtensils, FaPills, FaFlask } from "react-icons/fa";
+import { FaUserPlus, FaArrowRight, FaStethoscope, FaHospital, FaUtensils, FaPills, FaFlask, FaCalendarAlt } from "react-icons/fa";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import AddDoctorForm from "@/components/admin/AddDoctorForm";
@@ -54,10 +54,22 @@ export default function PartnerForm() {
       icon: FaFlask,
       color: "from-cyan-500 to-cyan-600",
       hoverColor: "hover:from-cyan-600 hover:to-cyan-700"
+    },
+    {
+      id: "event",
+      name: "Event Form",
+      description: "Create and submit new events and activities",
+      icon: FaCalendarAlt,
+      color: "from-emerald-500 to-green-600",
+      hoverColor: "hover:from-emerald-600 hover:to-green-700"
     }
   ];
 
   const handlePartnerTypeSelect = (typeId) => {
+    if (typeId === "event") {
+      router.push("/admin/create-event");
+      return;
+    }
     setSelectedPartnerType(typeId);
     // Scroll to form section
     setTimeout(() => {

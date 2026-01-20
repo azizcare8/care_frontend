@@ -215,8 +215,16 @@ export default function UploadFundraiserForm() {
         goalAmount: parseInt(formData.targetAmount),
         category: 'medical', // You can add a category selector
         images: [
-          { url: `${backendBaseURL}${mainImageUrl}`, caption: 'Main Campaign Image', isPrimary: true },
-          ...additionalImages.map(img => ({ ...img, url: `${backendBaseURL}${img.url}`, isPrimary: false }))
+          {
+            url: mainImageUrl.startsWith('http') ? mainImageUrl : `${backendBaseURL}${mainImageUrl}`,
+            caption: 'Main Campaign Image',
+            isPrimary: true
+          },
+          ...additionalImages.map(img => ({
+            ...img,
+            url: img.url.startsWith('http') ? img.url : `${backendBaseURL}${img.url}`,
+            isPrimary: false
+          }))
         ],
         videos: videos.length > 0 ? videos.map(video => ({
           url: video.url,

@@ -312,7 +312,7 @@ export default function AddDoctorForm({ isPartnerSubmission = false, onBack = nu
           designation: 'Doctor'
         },
         images: bannerUrl ? [{
-          url: `${backendBaseURL}${bannerUrl}`,
+          url: bannerUrl.startsWith('http') ? bannerUrl : `${backendBaseURL}${bannerUrl}`,
           caption: 'Doctor Profile Banner',
           isPrimary: true
         }] : [],
@@ -362,9 +362,15 @@ export default function AddDoctorForm({ isPartnerSubmission = false, onBack = nu
         documents: {
           businessLicense: formData.registration || 'Admin-approved doctor partner',
           gstNumber: '',
-          panNumber: panCardUrl ? `${backendBaseURL}${panCardUrl}` : '',
-          aadharNumber: aadharCardUrl ? `${backendBaseURL}${aadharCardUrl}` : '',
-          clinicPhotos: clinicPhotoUrls.map(url => `${backendBaseURL}${url}`)
+          panNumber: panCardUrl
+            ? (panCardUrl.startsWith('http') ? panCardUrl : `${backendBaseURL}${panCardUrl}`)
+            : '',
+          aadharNumber: aadharCardUrl
+            ? (aadharCardUrl.startsWith('http') ? aadharCardUrl : `${backendBaseURL}${aadharCardUrl}`)
+            : '',
+          clinicPhotos: clinicPhotoUrls.map(url =>
+            url.startsWith('http') ? url : `${backendBaseURL}${url}`
+          )
         },
         status: isPartnerSubmission ? 'pending' : 'approved', // Auto-approve for admin-created partners, pending for partner submissions
         isActive: isPartnerSubmission ? false : true // Ensure partner is active only if approved

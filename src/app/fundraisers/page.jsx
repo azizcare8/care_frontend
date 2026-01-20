@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import ClientLayout from "../ClientLayout";
 import TrendingFundraisers from "@/components/TrendingFundraisers";
 import DonationCard from "@/components/DonationCard";
@@ -8,13 +8,15 @@ import useCampaignStore from "@/store/campaignStore";
 import toast from "react-hot-toast";
 
 export default function FundraisersPage() {
-  const { 
-    getTrendingCampaigns, 
-    trendingCampaigns,
-    isLoading 
-  } = useCampaignStore();
+  const getTrendingCampaigns = useCampaignStore((state) => state.getTrendingCampaigns);
+  const trendingCampaigns = useCampaignStore((state) => state.trendingCampaigns);
+  const isLoading = useCampaignStore((state) => state.isLoading);
+  const hasLoadedRef = useRef(false);
 
   useEffect(() => {
+    if (hasLoadedRef.current) return;
+    hasLoadedRef.current = true;
+
     const loadCampaigns = async () => {
       try {
         await getTrendingCampaigns();
