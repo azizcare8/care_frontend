@@ -36,3 +36,4 @@ jobs:
 
             pm2 status | grep carefoundation-frontend | grep online
           EOF
+          "
