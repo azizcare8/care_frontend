@@ -16,14 +16,19 @@ jobs:
 
       - name: Deploy Frontend
         run: |
-          ssh -tt -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
             export NVM_DIR=/root/.nvm
             [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
             nvm use 22
 
             cd /var/www/carefoundation/frontend
+
+            git reset --hard
+            git clean -fd
             git pull origin main
+
             npm install
             npm run build
-            pm2 restart carefoundation-frontend
+
+            pm2 restart carefoundation-frontend || pm2 start ecosystem.config.js
           EOF
