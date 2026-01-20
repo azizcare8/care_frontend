@@ -128,8 +128,10 @@ export default function Home() {
           <HowItWorks />
           <SuccessStories />
           <CausesSection />
-          <HealthPartners />
-          <FoodPartners />
+          <Suspense fallback={<div className="py-10 text-center">Loading partners...</div>}>
+            <HealthPartners />
+            <FoodPartners />
+          </Suspense>
           <CouponsSection />
           <ProductsSection />
           <EventsSection />
