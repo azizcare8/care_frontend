@@ -1,8 +1,49 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import Cropper from "react-easy-crop";
 import { uploadService } from "@/services/uploadService";
 import api, { getBackendBaseUrl } from "@/utils/api";
 import toast from "react-hot-toast";
+
+const createImage = (url) => (
+  new Promise((resolve, reject) => {
+    const image = new Image();
+    image.addEventListener("load", () => resolve(image));
+    image.addEventListener("error", (error) => reject(error));
+    image.setAttribute("crossOrigin", "anonymous");
+    image.src = url;
+  })
+);
+
+const getCroppedImg = async (imageSrc, pixelCrop, type) => {
+  const image = await createImage(imageSrc);
+  const canvas = document.createElement("canvas");
+  canvas.width = pixelCrop.width;
+  canvas.height = pixelCrop.height;
+  const ctx = canvas.getContext("2d");
+
+  ctx.drawImage(
+    image,
+    pixelCrop.x,
+    pixelCrop.y,
+    pixelCrop.width,
+    pixelCrop.height,
+    0,
+    0,
+    pixelCrop.width,
+    pixelCrop.height
+  );
+
+  return new Promise((resolve, reject) => {
+    canvas.toBlob((blob) => {
+      if (!blob) {
+        reject(new Error("Canvas is empty"));
+        return;
+      }
+      resolve(blob);
+    }, type || "image/jpeg", 0.9);
+  });
+};
 
 export default function AddDoctorForm({ isPartnerSubmission = false, onBack = null }) {
   const [formData, setFormData] = useState({
@@ -19,6 +60,13 @@ export default function AddDoctorForm({ isPartnerSubmission = false, onBack = nu
   const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [bannerPreview, setBannerPreview] = useState(null); // Image preview state
+  const [bannerSource, setBannerSource] = useState(null);
+  const [bannerSourceType, setBannerSourceType] = useState("image/jpeg");
+  const [bannerSourceName, setBannerSourceName] = useState("banner");
+  const [bannerCrop, setBannerCrop] = useState({ x: 0, y: 0 });
+  const [bannerZoom, setBannerZoom] = useState(1);
+  const [bannerCropPixels, setBannerCropPixels] = useState(null);
+  const [bannerCropOpen, setBannerCropOpen] = useState(false);
   const [clinicPhotoPreviews, setClinicPhotoPreviews] = useState([]); // Multiple clinic photo previews
   const [panCardPreview, setPanCardPreview] = useState(null); // PAN Card preview
   const [aadharCardPreview, setAadharCardPreview] = useState(null); // Aadhar Card preview
@@ -68,19 +116,61 @@ export default function AddDoctorForm({ isPartnerSubmission = false, onBack = nu
         return;
       }
 
-      // Create preview URL
-      const previewUrl = URL.createObjectURL(file);
+      const reader = new FileReader();
+      reader.onload = () => {
+        setBannerSource(reader.result);
+        setBannerSourceType(file.type || "image/jpeg");
+        setBannerSourceName(file.name || "banner");
+        setBannerCrop({ x: 0, y: 0 });
+        setBannerZoom(1);
+        setBannerCropPixels(null);
+        setBannerCropOpen(true);
+      };
+      reader.readAsDataURL(file);
+      e.target.value = '';
+    }
+  };
 
-      // Clean up old preview
+  const handleBannerCropComplete = useCallback((_, croppedPixels) => {
+    setBannerCropPixels(croppedPixels);
+  }, []);
+
+  const applyBannerCrop = useCallback(async () => {
+    if (!bannerSource || !bannerCropPixels) {
+      toast.error('Please adjust the crop area');
+      return;
+    }
+
+    try {
+      const blob = await getCroppedImg(bannerSource, bannerCropPixels, bannerSourceType);
+      const baseName = bannerSourceName?.replace(/\.[^.]+$/, '') || 'banner';
+      const extension = bannerSourceType === 'image/png'
+        ? 'png'
+        : bannerSourceType === 'image/webp'
+          ? 'webp'
+          : 'jpg';
+      const croppedFile = new File([blob], `${baseName}-cropped.${extension}`, { type: bannerSourceType });
+      const previewUrl = URL.createObjectURL(croppedFile);
+
       if (bannerPreview) {
         URL.revokeObjectURL(bannerPreview);
       }
 
       setBannerPreview(previewUrl);
-      setFormData(prev => ({ ...prev, banner: file }));
-      toast.success('Banner image selected!');
+      setFormData(prev => ({ ...prev, banner: croppedFile }));
+      setBannerCropOpen(false);
+      toast.success('Banner image ready!');
+    } catch (error) {
+      console.error('Banner crop failed:', error);
+      toast.error('Unable to crop banner image');
     }
-  };
+  }, [bannerSource, bannerCropPixels, bannerSourceType, bannerSourceName, bannerPreview]);
+
+  const cancelBannerCrop = useCallback(() => {
+    setBannerCropOpen(false);
+    setBannerSource(null);
+    setBannerCropPixels(null);
+  }, []);
 
   const handleDocumentChange = (e) => {
     const file = e.target.files[0];
@@ -185,7 +275,7 @@ export default function AddDoctorForm({ isPartnerSubmission = false, onBack = nu
         URL.revokeObjectURL(preview.url);
       });
     };
-  }, [bannerPreview, clinicPhotoPreviews]);
+  }, [bannerPreview, clinicPhotoPreviews, panCardPreview, aadharCardPreview]);
 
   const uploadBanner = async (file) => {
     if (!file) return null;
@@ -288,7 +378,7 @@ export default function AddDoctorForm({ isPartnerSubmission = false, onBack = nu
       const backendBaseURL = getBackendBaseUrl();
 
       // Build description with doctor details
-      const doctorDescription = `${formData.qualification ? `Qualification: ${formData.qualification}. ` : ''}${formData.specialization ? `Specialization: ${formData.specialization}. ` : ''}${formData.registration ? `Registration No: ${formData.registration}. ` : ''}${formData.fees ? `Actual Fees: ₹${formData.fees}. ` : ''}${formData.feesOffer ? `Special Offer for NGO: ${formData.feesOffer}. ` : ''}`.trim() || 'Medical partner';
+      const doctorDescription = `${formData.qualification ? `Qualification: ${formData.qualification}. ` : ''}${formData.specialization ? `Specialization: ${formData.specialization}. ` : ''}${formData.registration ? `Registration No: ${formData.registration}. ` : ''}${formData.fees ? `Actual Fees: ${formData.fees}. ` : ''}${formData.feesOffer ? `Special Offer for NGO: ${formData.feesOffer}. ` : ''}`.trim() || 'Medical partner';
 
       // Map form data to Partner model structure
       const partnerData = {
@@ -504,7 +594,7 @@ export default function AddDoctorForm({ isPartnerSubmission = false, onBack = nu
       <div className="bg-white rounded-xl shadow-sm border p-8">
         <h3 className="text-lg font-semibold text-gray-900 mb-6">Adding Doctor Partner</h3>
 
-        {/* Banner Image Preview */}
+      {/* Banner Image Preview */}
         {bannerPreview && (
           <div className="mb-6 flex justify-center">
             <div className="relative">
@@ -517,6 +607,62 @@ export default function AddDoctorForm({ isPartnerSubmission = false, onBack = nu
               </div>
               <div className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full font-medium">
                 ✓ Selected
+              </div>
+            </div>
+          </div>
+        )}
+
+        {bannerCropOpen && bannerSource && (
+          <div className="fixed inset-0 z-[999] bg-black/60 flex items-center justify-center p-4">
+            <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl p-4">
+              <div className="flex items-center justify-between mb-4">
+                <h4 className="text-lg font-semibold text-gray-900">Crop Banner</h4>
+                <button
+                  type="button"
+                  onClick={cancelBannerCrop}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  ✕
+                </button>
+              </div>
+              <div className="relative w-full h-64 bg-gray-900 rounded-lg overflow-hidden">
+                <Cropper
+                  image={bannerSource}
+                  crop={bannerCrop}
+                  zoom={bannerZoom}
+                  aspect={16 / 9}
+                  onCropChange={setBannerCrop}
+                  onZoomChange={setBannerZoom}
+                  onCropComplete={handleBannerCropComplete}
+                />
+              </div>
+              <div className="mt-4 flex items-center gap-3">
+                <label className="text-sm text-gray-600">Zoom</label>
+                <input
+                  type="range"
+                  min={1}
+                  max={3}
+                  step={0.1}
+                  value={bannerZoom}
+                  onChange={(e) => setBannerZoom(Number(e.target.value))}
+                  className="w-full"
+                />
+              </div>
+              <div className="mt-6 flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={cancelBannerCrop}
+                  className="px-4 py-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={applyBannerCrop}
+                  className="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700"
+                >
+                  Save Crop
+                </button>
               </div>
             </div>
           </div>

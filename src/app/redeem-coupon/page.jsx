@@ -121,7 +121,7 @@ function RedeemCouponContent() {
 
     const amount = parseFloat(paymentAmount);
     if (isNaN(amount) || amount < 1) {
-      toast.error('Please enter a valid payment amount (minimum ₹1)');
+      toast.error('Please enter a valid payment amount (minimum 1)');
       return;
     }
 
@@ -162,7 +162,7 @@ function RedeemCouponContent() {
         currency: orderResponse.data.currency,
         order_id: orderResponse.data.orderId,
         name: 'Care Foundation',
-        description: `Payment for ${coupon.title || 'Coupon Redemption'} - ₹${amount}`,
+        description: `Payment for ${coupon.title || 'Coupon Redemption'} - ${amount}`,
         handler: async function (response) {
           try {
             setIsProcessingPayment(true);
@@ -386,7 +386,7 @@ function RedeemCouponContent() {
                       <div className="text-3xl font-bold">
                         {coupon.value?.isPercentage 
                           ? `${coupon.value.percentage}% OFF`
-                          : `₹${coupon.value?.amount}`
+                          : `${coupon.value?.amount}`
                         }
                       </div>
                     </div>
@@ -495,7 +495,7 @@ function RedeemCouponContent() {
                   {/* Payment Amount (Optional) */}
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Payment Amount (Optional) ₹
+                      Payment Amount (Optional)
                     </label>
                     <input
                       type="number"
@@ -508,7 +508,7 @@ function RedeemCouponContent() {
                     />
                     <p className="text-xs text-gray-500 mt-1">
                       {paymentAmount > 0 
-                        ? `Payment of ₹${paymentAmount} will be processed via Razorpay when you click "Redeem Coupon"`
+                        ? `Payment of ${paymentAmount} will be processed via Razorpay when you click "Redeem Coupon"`
                         : 'Leave empty to redeem coupon without payment'}
                     </p>
                   </div>
@@ -529,7 +529,7 @@ function RedeemCouponContent() {
                         Redeeming...
                       </div>
                     ) : paymentAmount > 0 ? (
-                      `Redeem & Pay ₹${paymentAmount} via Razorpay`
+                      `Redeem & Pay ${paymentAmount} via Razorpay`
                     ) : (
                       'Redeem Coupon'
                     )}

@@ -214,7 +214,7 @@ export default function CouponDataTable() {
                               }
                               if (coupon.value.amount) {
                                 if (typeof coupon.value.amount === 'number') {
-                                  return `₹${coupon.value.amount.toLocaleString('en-IN')}`;
+                                  return `${coupon.value.amount.toLocaleString('en-IN')}`;
                                 }
                                 if (typeof coupon.value.amount === 'string') {
                                   return coupon.value.amount;
@@ -448,7 +448,7 @@ export default function CouponDataTable() {
                       }
                       if (coupon.value.amount) {
                         if (typeof coupon.value.amount === 'number') {
-                          return `₹${coupon.value.amount.toLocaleString('en-IN')}`;
+                          return `${coupon.value.amount.toLocaleString('en-IN')}`;
                         }
                         if (typeof coupon.value.amount === 'string') {
                           return coupon.value.amount;

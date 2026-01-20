@@ -75,7 +75,7 @@ export default function VendorWallet({ vendorId }) {
           <div className="flex items-center justify-between mb-8">
             <div>
               <h3 className="text-green-100 font-medium tracking-wide uppercase text-xs mb-1">Available Balance</h3>
-              <p className="text-5xl font-extrabold tracking-tight">₹{wallet?.currentBalance?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}</p>
+              <p className="text-5xl font-extrabold tracking-tight">{wallet?.currentBalance?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}</p>
             </div>
             <div className="bg-white/20 p-4 rounded-2xl backdrop-blur-md border border-white/30">
               <BiWallet className="text-4xl" />
@@ -85,11 +85,11 @@ export default function VendorWallet({ vendorId }) {
           <div className="grid grid-cols-2 gap-8 pt-6 border-t border-white/20">
             <div>
               <p className="text-green-100 text-xs uppercase font-bold tracking-wider mb-1">Total Earned</p>
-              <p className="text-2xl font-bold">₹{wallet?.totalReceived?.toLocaleString(undefined, { minimumFractionDigits: 2 }) || '0.00'}</p>
+              <p className="text-2xl font-bold">{wallet?.totalReceived?.toLocaleString(undefined, { minimumFractionDigits: 2 }) || '0.00'}</p>
             </div>
             <div>
               <p className="text-green-100 text-xs uppercase font-bold tracking-wider mb-1">Total Settled</p>
-              <p className="text-2xl font-bold">₹{wallet?.totalSettled?.toLocaleString(undefined, { minimumFractionDigits: 2 }) || '0.00'}</p>
+              <p className="text-2xl font-bold">{wallet?.totalSettled?.toLocaleString(undefined, { minimumFractionDigits: 2 }) || '0.00'}</p>
             </div>
           </div>
         </div>
@@ -116,7 +116,7 @@ export default function VendorWallet({ vendorId }) {
                 </div>
                 <div className="text-right">
                   <p className="font-semibold text-green-600">
-                    ₹{couponItem.amount?.toFixed(2) || '0.00'}
+                    {couponItem.amount?.toFixed(2) || '0.00'}
                   </p>
                   <p className="text-xs text-gray-500">
                     {couponItem.status || 'Pending'}
@@ -158,7 +158,7 @@ export default function VendorWallet({ vendorId }) {
                 </div>
                 <div className={`text-right font-semibold ${tx.type === 'topup' ? 'text-green-600' : 'text-red-600'
                   }`}>
-                  {tx.type === 'topup' ? '+' : '-'}₹{tx.amount?.toFixed(2) || '0.00'}
+                  {tx.type === 'topup' ? '+' : '-'}{tx.amount?.toFixed(2) || '0.00'}
                 </div>
               </div>
             ))}

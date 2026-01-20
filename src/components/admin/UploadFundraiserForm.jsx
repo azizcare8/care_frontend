@@ -126,7 +126,7 @@ export default function UploadFundraiserForm() {
 
     // Goal amount validation
     if (formData.targetAmount < 100) {
-      toast.error('Target amount must be at least ₹100');
+      toast.error('Target amount must be at least 100');
       return;
     }
 
@@ -407,7 +407,7 @@ export default function UploadFundraiserForm() {
                 name="targetAmount"
                 value={formData.targetAmount}
                 onChange={handleChange}
-                placeholder="Enter Amount ₹"
+                placeholder="Enter Amount "
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
               />
             </div>

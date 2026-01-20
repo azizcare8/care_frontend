@@ -268,7 +268,7 @@ export default function HealthPaymentPage() {
                 // If no health package found, create coupon manually with payment amount
                 const couponData = {
                   title: `Health Coupon - ${partner?.name}`,
-                  description: consultationData.message || `Health consultation with ${partner?.name} - Payment: ₹${amount}`,
+                  description: consultationData.message || `Health consultation with ${partner?.name} - Payment: ${amount}`,
                   category: 'medical', // Backend uses 'medical' category for health coupons
                   type: 'discount',
                   value: {
@@ -522,7 +522,7 @@ export default function HealthPaymentPage() {
           // If no health package found, create coupon manually with payment amount
           const couponData = {
             title: `Health Coupon - ${partner?.name}`,
-            description: consultationData.message || `Health consultation with ${partner?.name} - Payment: ₹${amount}`,
+            description: consultationData.message || `Health consultation with ${partner?.name} - Payment: ${amount}`,
             category: 'medical', // Backend uses 'medical' category for health coupons
             type: 'discount',
             value: {
@@ -697,7 +697,7 @@ export default function HealthPaymentPage() {
                     Payment Amount <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
-                    <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 text-xl font-bold">₹</span>
+                    <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 text-xl font-bold"></span>
                     <input
                       type="number"
                       min="1"
@@ -709,7 +709,7 @@ export default function HealthPaymentPage() {
                       required
                     />
                   </div>
-                  <p className="text-sm text-gray-600">Minimum amount: ₹1</p>
+                  <p className="text-sm text-gray-600">Minimum amount: 1</p>
                 </div>
               </div>
 
@@ -771,7 +771,7 @@ export default function HealthPaymentPage() {
                 ) : (
                   <>
                     <FaLock className="text-xl" />
-                    Pay ₹{amount}
+                    Pay {amount}
                   </>
                 )}
               </motion.button>
@@ -883,7 +883,7 @@ export default function HealthPaymentPage() {
                                   </div>
                                 </td>
                                 <td className="px-6 py-4">
-                                  <span className="font-bold text-green-600 text-lg">₹{couponValue}</span>
+                                  <span className="font-bold text-green-600 text-lg">{couponValue}</span>
                                 </td>
                                 <td className="px-6 py-4 text-sm text-gray-700 whitespace-nowrap">
                                   {coupon.validity?.endDate 
@@ -1066,7 +1066,7 @@ export default function HealthPaymentPage() {
                           <div>
                             <label className="text-xs text-gray-500 font-semibold uppercase">Value</label>
                             <div className="mt-1 px-4 py-2 bg-gray-50 border-2 border-gray-200 rounded-lg font-bold text-lg text-green-600">
-                              ₹{typeof viewCoupon.value === 'object' && viewCoupon.value?.amount 
+                              {typeof viewCoupon.value === 'object' && viewCoupon.value?.amount 
                                 ? viewCoupon.value.amount 
                                 : (typeof viewCoupon.value === 'number' ? viewCoupon.value : amount)}
                             </div>

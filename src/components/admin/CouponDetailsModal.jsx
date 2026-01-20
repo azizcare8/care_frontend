@@ -58,7 +58,7 @@ export default function CouponDetailsModal({ coupon, onClose }) {
       return `${coupon.value.percentage}% OFF`;
     } else if (coupon.value.amount) {
       if (typeof coupon.value.amount === 'number') {
-        return `₹${coupon.value.amount}`;
+        return `${coupon.value.amount}`;
       }
       return coupon.value.amount; // For free_item/service
     }
@@ -212,16 +212,16 @@ export default function CouponDetailsModal({ coupon, onClose }) {
                     <div>
                       <p className="text-sm text-gray-600">Wallet Balance</p>
                       <p className="font-bold text-green-600 text-lg">
-                        ₹{walletInfo.currentBalance?.toFixed(2) || '0.00'}
+                        {walletInfo.currentBalance?.toFixed(2) || '0.00'}
                       </p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-600">Total Received</p>
-                      <p className="font-semibold">₹{walletInfo.totalReceived?.toFixed(2) || '0.00'}</p>
+                      <p className="font-semibold">{walletInfo.totalReceived?.toFixed(2) || '0.00'}</p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-600">Total Redeemed</p>
-                      <p className="font-semibold">₹{walletInfo.totalRedeemed?.toFixed(2) || '0.00'}</p>
+                      <p className="font-semibold">{walletInfo.totalRedeemed?.toFixed(2) || '0.00'}</p>
                     </div>
                   </div>
                   
@@ -249,7 +249,7 @@ export default function CouponDetailsModal({ coupon, onClose }) {
                   <div key={index} className="bg-gray-50 rounded-lg p-3">
                     <div className="flex justify-between items-start">
                       <div>
-                        <p className="font-semibold">₹{redemption.amount || '0.00'}</p>
+                        <p className="font-semibold">{redemption.amount || '0.00'}</p>
                         <p className="text-sm text-gray-600">
                           {formatDate(redemption.redeemedAt)}
                         </p>

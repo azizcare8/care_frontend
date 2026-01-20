@@ -123,10 +123,10 @@ export default function FundraisedDataTable() {
                             <div className="text-xs text-gray-500">{campaign.category}</div>
                           </td>
                           <td className="px-4 py-4 text-sm font-medium text-gray-900">
-                            ₹{campaign.goalAmount?.toLocaleString() || 0}
+                            {campaign.goalAmount?.toLocaleString() || 0}
                           </td>
                           <td className="px-4 py-4 text-sm font-medium text-green-600">
-                            ₹{campaign.currentAmount?.toLocaleString() || 0}
+                            {campaign.currentAmount?.toLocaleString() || 0}
                           </td>
                           <td className="px-4 py-4">
                             <div className="flex items-center gap-2">

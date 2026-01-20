@@ -101,7 +101,7 @@ export default function CampaignDetailPage() {
     const amount = customAmount || selectedAmount;
     
     if (!amount || amount < 1) {
-      toast.error('Minimum donation amount is ₹1');
+      toast.error('Minimum donation amount is 1');
       return;
     }
 
@@ -253,7 +253,7 @@ export default function CampaignDetailPage() {
               <div className="grid grid-cols-3 gap-4 mb-6">
                 <div className="text-center p-4 bg-gray-50 rounded-lg">
                   <div className="text-2xl font-bold text-green-600">
-                    ₹{campaign.currentAmount.toLocaleString()}
+                    {campaign.currentAmount.toLocaleString()}
                   </div>
                   <div className="text-sm text-gray-600">Raised</div>
                 </div>
@@ -333,7 +333,7 @@ export default function CampaignDetailPage() {
                           </div>
                         </div>
                         <div className="text-green-600 font-bold">
-                          ₹{donation.amount.toLocaleString()}
+                          {donation.amount.toLocaleString()}
                         </div>
                       </div>
                     ))}
@@ -359,8 +359,8 @@ export default function CampaignDetailPage() {
                   ></div>
                 </div>
                 <div className="flex justify-between text-sm text-gray-600">
-                  <span>₹{campaign.currentAmount.toLocaleString()}</span>
-                  <span>₹{campaign.goalAmount.toLocaleString()}</span>
+                  <span>{campaign.currentAmount.toLocaleString()}</span>
+                  <span>{campaign.goalAmount.toLocaleString()}</span>
                 </div>
               </div>
 
@@ -467,7 +467,7 @@ export default function CampaignDetailPage() {
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                   >
-                    ₹{amount.toLocaleString()}
+                    {amount.toLocaleString()}
                   </button>
                 ))}
               </div>
@@ -485,7 +485,7 @@ export default function CampaignDetailPage() {
                   setCustomAmount(e.target.value);
                   setSelectedAmount('');
                 }}
-                placeholder="Enter amount (min ₹100)"
+                placeholder="Enter amount (min 100)"
                 min="100"
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
               />

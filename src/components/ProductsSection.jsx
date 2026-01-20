@@ -214,7 +214,7 @@ export default function ProductsSection() {
 
                 {product.price > 0 && (
                   <div className="mb-4 text-center">
-                    <span className="text-2xl font-bold text-green-600">₹{product.price.toFixed(2)}</span>
+                    <span className="text-2xl font-bold text-green-600">{product.price.toFixed(2)}</span>
                   </div>
                 )}
 

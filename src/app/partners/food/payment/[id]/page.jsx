@@ -264,7 +264,7 @@ export default function FoodPaymentPage() {
                 // If no food package found, create coupon manually with payment amount
                 const couponData = {
                   title: `Food Coupon - ${partner?.name}`,
-                  description: consultationData.message || `Food consultation with ${partner?.name} - Payment: ₹${amount}`,
+                  description: consultationData.message || `Food consultation with ${partner?.name} - Payment: ${amount}`,
                   category: 'food',
                   type: 'discount',
                   value: {
@@ -482,7 +482,7 @@ export default function FoodPaymentPage() {
           // If no food package found, create coupon manually with payment amount
           const couponData = {
             title: `Food Coupon - ${partner?.name}`,
-            description: consultationData.message || `Food consultation with ${partner?.name} - Payment: ₹${amount}`,
+            description: consultationData.message || `Food consultation with ${partner?.name} - Payment: ${amount}`,
             category: 'food',
             type: 'discount',
             value: {
@@ -650,7 +650,7 @@ export default function FoodPaymentPage() {
                     Payment Amount <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
-                    <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 text-xl font-bold">₹</span>
+                    <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 text-xl font-bold"></span>
                     <input
                       type="number"
                       min="1"
@@ -662,7 +662,7 @@ export default function FoodPaymentPage() {
                       required
                     />
                   </div>
-                  <p className="text-sm text-gray-600">Minimum amount: ₹1</p>
+                  <p className="text-sm text-gray-600">Minimum amount: 1</p>
                 </div>
               </div>
 
@@ -724,7 +724,7 @@ export default function FoodPaymentPage() {
                 ) : (
                   <>
                     <FaLock className="text-xl" />
-                    Pay ₹{amount}
+                    Pay {amount}
                   </>
                 )}
               </motion.button>
@@ -840,7 +840,7 @@ export default function FoodPaymentPage() {
                                   </div>
                                 </td>
                                 <td className="px-6 py-4">
-                                  <span className="font-bold text-green-600 text-lg">₹{couponValue}</span>
+                                  <span className="font-bold text-green-600 text-lg">{couponValue}</span>
                                 </td>
                                 <td className="px-6 py-4 text-sm text-gray-700 whitespace-nowrap">
                                   {coupon.validity?.endDate 
@@ -1023,7 +1023,7 @@ export default function FoodPaymentPage() {
                           <div>
                             <label className="text-xs text-gray-500 font-semibold uppercase">Value</label>
                             <div className="mt-1 px-4 py-2 bg-gray-50 border-2 border-gray-200 rounded-lg font-bold text-lg text-green-600">
-                              ₹{typeof viewCoupon.value === 'object' && viewCoupon.value?.amount 
+                              {typeof viewCoupon.value === 'object' && viewCoupon.value?.amount 
                                 ? viewCoupon.value.amount 
                                 : (typeof viewCoupon.value === 'number' ? viewCoupon.value : amount)}
                             </div>

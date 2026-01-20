@@ -622,11 +622,11 @@ export default function UsersListTable() {
                         <p className="text-sm text-gray-600">Total Referrals</p>
                       </div>
                       <div className="text-center">
-                        <p className="text-2xl font-bold text-green-600">₹{userDetails.referralStats.totalReferralDonations?.toLocaleString() || 0}</p>
+                        <p className="text-2xl font-bold text-green-600">{userDetails.referralStats.totalReferralDonations?.toLocaleString() || 0}</p>
                         <p className="text-sm text-gray-600">Referral Donations</p>
                       </div>
                       <div className="text-center">
-                        <p className="text-2xl font-bold text-blue-600">₹{userDetails.referralStats.referralRewards?.toLocaleString() || 0}</p>
+                        <p className="text-2xl font-bold text-blue-600">{userDetails.referralStats.referralRewards?.toLocaleString() || 0}</p>
                         <p className="text-sm text-gray-600">Rewards</p>
                       </div>
                     </div>

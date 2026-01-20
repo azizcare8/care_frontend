@@ -55,7 +55,7 @@ export default function TransparencyPage() {
               <FiDollarSign className="text-4xl text-green-200" />
               <div className="text-right">
                 <p className="text-green-100 text-sm">Total Donated</p>
-                <p className="text-3xl font-bold">₹{overall.totalAmount?.toLocaleString() || "0"}</p>
+                <p className="text-3xl font-bold">{overall.totalAmount?.toLocaleString() || "0"}</p>
               </div>
             </div>
           </div>
@@ -65,7 +65,7 @@ export default function TransparencyPage() {
               <FiCheckCircle className="text-4xl text-blue-200" />
               <div className="text-right">
                 <p className="text-blue-100 text-sm">Total Assigned</p>
-                <p className="text-3xl font-bold">₹{overall.totalAssigned?.toLocaleString() || "0"}</p>
+                <p className="text-3xl font-bold">{overall.totalAssigned?.toLocaleString() || "0"}</p>
               </div>
             </div>
           </div>
@@ -114,7 +114,7 @@ export default function TransparencyPage() {
                         )}
                       </div>
                       <div className="text-right">
-                        <p className="font-bold text-green-600">₹{donation.amount?.toLocaleString()}</p>
+                        <p className="font-bold text-green-600">{donation.amount?.toLocaleString()}</p>
                         <p className="text-xs text-gray-500">
                           {new Date(donation.createdAt).toLocaleDateString()}
                         </p>
@@ -141,10 +141,10 @@ export default function TransparencyPage() {
                     </div>
                     <div className="text-right">
                       <p className="font-bold text-green-600">
-                        ₹{beneficiary.assignedAmount?.toLocaleString() || "0"}
+                        {beneficiary.assignedAmount?.toLocaleString() || "0"}
                       </p>
                       <p className="text-xs text-gray-500">
-                        Received: ₹{beneficiary.receivedAmount?.toLocaleString() || "0"}
+                        Received: {beneficiary.receivedAmount?.toLocaleString() || "0"}
                       </p>
                     </div>
                   </div>

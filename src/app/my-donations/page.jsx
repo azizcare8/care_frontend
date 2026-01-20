@@ -100,7 +100,7 @@ export default function MyDonationsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-green-100 text-sm font-medium mb-1">Total Donated</p>
-                <p className="text-3xl font-bold">₹{totalDonated.toLocaleString()}</p>
+                <p className="text-3xl font-bold">{totalDonated.toLocaleString()}</p>
               </div>
               <div className="text-4xl opacity-20">💰</div>
             </div>
@@ -226,7 +226,7 @@ export default function MyDonationsPage() {
                       </td>
                       <td className="px-6 py-4">
                         <p className="text-lg font-bold text-green-600">
-                          ₹{donation.amount?.toLocaleString()}
+                          {donation.amount?.toLocaleString()}
                         </p>
                       </td>
                       <td className="px-6 py-4">

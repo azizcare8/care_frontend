@@ -216,12 +216,12 @@ function CampaignsContent() {
             <div className="flex justify-between items-center text-sm">
               <div>
                 <span className="text-gray-900 font-bold">
-                  ₹{campaign.currentAmount.toLocaleString()}
+                  {campaign.currentAmount.toLocaleString()}
                 </span>
                 <span className="text-gray-500"> raised</span>
               </div>
               <div className="text-gray-600">
-                of ₹{campaign.goalAmount.toLocaleString()}
+                of {campaign.goalAmount.toLocaleString()}
               </div>
             </div>
 
@@ -281,7 +281,7 @@ function CampaignsContent() {
                 </div>
                 <div>
                   <h3 className="text-2xl font-bold text-gray-900 mb-1">
-                    Ready to Donate ₹{donorAmount.toLocaleString()}!
+                    Ready to Donate {donorAmount.toLocaleString()}!
                   </h3>
                   <p className="text-gray-700 text-lg">
                     👇 <strong>Click on any campaign below</strong> to complete your donation

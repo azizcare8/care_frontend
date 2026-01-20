@@ -74,7 +74,7 @@ export const generateCouponPDF = (coupon) => {
       ? coupon.value.amount 
       : (typeof coupon.value === 'number' ? coupon.value : 0);
     doc.setTextColor(...primaryColor);
-    doc.text(`₹${couponValue}`, 20, yPos + 7);
+    doc.text(`${couponValue}`, 20, yPos + 7);
     doc.setTextColor(...textColor);
     
     yPos += 20;

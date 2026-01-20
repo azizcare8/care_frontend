@@ -170,7 +170,7 @@ export default function DonationDataTable() {
                           {new Date(donation.createdAt).toLocaleDateString()}
                         </td>
                         <td className="px-6 py-4 text-sm font-bold text-green-600">
-                          ₹{donation.amount?.toLocaleString() || 0}
+                          {donation.amount?.toLocaleString() || 0}
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-700 uppercase font-medium">
                           {donation.paymentMethod || donation.paymentDetails?.gateway || 'N/A'}

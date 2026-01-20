@@ -52,7 +52,7 @@ export default function Banner() {
     // Validate amount
     const amount = parseFloat(donorInfo.amount);
     if (isNaN(amount) || amount < 1) {
-      toast.error("Minimum donation amount is ₹1");
+      toast.error("Minimum donation amount is 1");
       return;
     }
 
@@ -174,7 +174,7 @@ export default function Banner() {
                   {/* Donation Amount - Prominent */}
                   <div className="space-y-2">
                     <div className="relative">
-                      <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-600 font-bold text-lg">₹</div>
+                      <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-600 font-bold text-lg"></div>
                       <input
                         type="number"
                         name="amount"
@@ -201,7 +201,7 @@ export default function Banner() {
                               : 'bg-white/80 text-gray-700 hover:bg-white'
                           }`}
                         >
-                          ₹{amt}
+                          {amt}
                         </button>
                       ))}
                     </div>
@@ -280,7 +280,7 @@ export default function Banner() {
                   </button>
                   
                   <p className="text-xs text-center text-white/80 mt-2">
-                    * Required fields | Minimum donation: ₹1
+                    * Required fields | Minimum donation: 1
                   </p>
                 </form>
             </div>

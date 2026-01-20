@@ -6,22 +6,22 @@ const isLocalhostHost = (hostname) =>
   hostname === 'localhost' || hostname === '127.0.0.1';
 
 export const getApiBaseUrl = () => {
+  const envUrl = process.env.NEXT_PUBLIC_API_URL;
+
+  if (envUrl && envUrl !== 'undefined') {
+    return envUrl.endsWith('/api') ? envUrl : `${envUrl}/api`;
+  }
+
   if (isBrowser) {
     const isLocalhost = isLocalhostHost(window.location.hostname);
-
     if (isLocalhost) {
       return 'http://localhost:5000/api';
-    }
-
-    const envUrl = process.env.NEXT_PUBLIC_API_URL;
-    if (envUrl && envUrl !== 'undefined') {
-      return envUrl.endsWith('/api') ? envUrl : `${envUrl}/api`;
     }
 
     return `${window.location.origin}/api`;
   }
 
-  const serverUrl = process.env.NEXT_PUBLIC_API_URL || 'https://carefoundationtrust.org/api';
+  const serverUrl = 'https://carefoundationtrust.org/api';
   return serverUrl.endsWith('/api') ? serverUrl : `${serverUrl}/api`;
 };
 

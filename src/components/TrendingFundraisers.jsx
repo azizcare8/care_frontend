@@ -271,8 +271,8 @@ export default function TrendingFundraisers({ campaigns = [], isLoading = false 
                   </h3>
 
                   <p className="text-sm text-gray-600 mb-3">
-                    Raised ₹
-                    {(campaign.currentAmount || 0).toLocaleString("en-IN")} of ₹
+                    Raised 
+                    {(campaign.currentAmount || 0).toLocaleString("en-IN")} of 
                     {(campaign.goalAmount || 0).toLocaleString("en-IN")}
                   </p>
 
@@ -287,7 +287,7 @@ export default function TrendingFundraisers({ campaigns = [], isLoading = false 
 
                   <div className="flex justify-between text-sm text-gray-600 mb-5">
                     <span>{progress.toFixed(0)}% Funded</span>
-                    <span>Goal ₹{(campaign.goalAmount || 0).toLocaleString("en-IN")}</span>
+                    <span>Goal {(campaign.goalAmount || 0).toLocaleString("en-IN")}</span>
                   </div>
 
                   <div className="flex gap-3 mb-5">

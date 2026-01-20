@@ -70,7 +70,15 @@ const nextConfig = {
   },
 
   // Silence Next 16 Turbopack warning when custom webpack config exists
-  turbopack: {},
+  turbopack: {
+    root: __dirname
+  },
+
+  allowedDevOrigins: [
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+    'http://192.168.0.42:3000'
+  ],
   
   // Webpack optimizations
   webpack: (config, { isServer }) => {

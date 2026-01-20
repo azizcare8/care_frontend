@@ -753,7 +753,7 @@ export default function KYCVerificationPage() {
                         name="fees"
                         value={formData.fees}
                         onChange={handleInputChange}
-                        placeholder="e.g., ₹500 per consultation"
+                        placeholder="e.g., 500 per consultation"
                         className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                       />
                     </div>

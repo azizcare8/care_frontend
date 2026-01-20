@@ -13,7 +13,7 @@ export default function SuccessStories() {
     {
       name: "Riya's Cancer Treatment",
       image: "/images/c1.jpg",
-      amount: "₹12,50,000",
+      amount: "12,50,000",
       supporters: 1250,
       category: "Medical",
       story: "With your support, 8-year-old Riya successfully completed her cancer treatment and is now cancer-free!",
@@ -25,7 +25,7 @@ export default function SuccessStories() {
     {
       name: "Village School Renovation",
       image: "/images/c2.jpg",
-      amount: "₹8,75,000",
+      amount: "8,75,000",
       supporters: 890,
       category: "Education",
       story: "Built new classrooms and provided books for 300+ students in a rural Maharashtra village.",
@@ -37,7 +37,7 @@ export default function SuccessStories() {
     {
       name: "Flood Relief Kerala",
       image: "/images/c3.jpg",
-      amount: "₹15,20,000",
+      amount: "15,20,000",
       supporters: 2100,
       category: "Disaster Relief",
       story: "Provided emergency supplies, shelter, and medical aid to 500+ families affected by Kerala floods.",

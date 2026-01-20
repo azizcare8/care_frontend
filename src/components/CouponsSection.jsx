@@ -40,7 +40,7 @@ export default function CouponsSection() {
       return `${coupon.value.percentage}% OFF`;
     }
     if (coupon.value?.amount) {
-      return `₹${coupon.value.amount.toLocaleString('en-IN')}`;
+      return `${coupon.value.amount.toLocaleString('en-IN')}`;
     }
     return 'Special Offer';
   };

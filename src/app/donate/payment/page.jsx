@@ -115,7 +115,7 @@ export default function DonationPaymentPage() {
 
   const handleDummyPayment = async () => {
     if (!donationData || amount < 1) {
-      toast.error("Invalid donation amount. Minimum is ₹1");
+      toast.error("Invalid donation amount. Minimum is 1");
       return;
     }
 
@@ -227,7 +227,7 @@ export default function DonationPaymentPage() {
 
   const handleRazorpayPayment = async () => {
     if (!donationData || amount < 1) {
-      toast.error("Invalid donation amount. Minimum is ₹1");
+      toast.error("Invalid donation amount. Minimum is 1");
       return;
     }
 
@@ -280,7 +280,7 @@ export default function DonationPaymentPage() {
         amount: response.data.amount,
         currency: response.data.currency,
         name: 'Care Foundation Trust',
-        description: `Donation of ₹${amount}`,
+        description: `Donation of ${amount}`,
         order_id: response.data.orderId,
         handler: async (razorpayResponse) => {
           try {
@@ -609,7 +609,7 @@ export default function DonationPaymentPage() {
               <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                 <div>
                   <p className="text-sm text-gray-600">Donation Amount</p>
-                  <p className="text-2xl font-bold text-green-600">₹{amount.toLocaleString()}</p>
+                  <p className="text-2xl font-bold text-green-600">{amount.toLocaleString()}</p>
                 </div>
                 <div className="text-right">
                   <p className="text-sm text-gray-600">Donor</p>
@@ -673,7 +673,7 @@ export default function DonationPaymentPage() {
                 className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-4 rounded-xl shadow-lg transition transform hover:scale-[1.02] flex items-center justify-center gap-2 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <FaLock />
-                <span>Pay ₹{amount.toLocaleString()}</span>
+                <span>Pay {amount.toLocaleString()}</span>
               </button>
 
               <p className="text-xs text-center text-gray-500 mt-4">

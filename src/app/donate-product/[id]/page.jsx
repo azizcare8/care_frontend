@@ -170,7 +170,7 @@ export default function DonateProductPage() {
 
       // Validate amount
       if (!amount || amount < 1) {
-        toast.error('Minimum donation amount is ₹1');
+        toast.error('Minimum donation amount is 1');
         setIsProcessing(false);
         return;
       }
@@ -209,7 +209,7 @@ export default function DonateProductPage() {
         amount: response.data.amount,
         currency: response.data.currency,
         name: 'Care Foundation Trust',
-        description: `Product Donation: ${product.name} - ₹${amount}`,
+        description: `Product Donation: ${product.name} - ${amount}`,
         order_id: response.data.orderId,
         handler: async (razorpayResponse) => {
           try {
@@ -352,8 +352,8 @@ export default function DonateProductPage() {
                 } else {
                   // If no package found, create coupon manually with payment amount
                   const couponData = {
-                    title: `Product Donation Coupon - ₹${amount}`,
-                    description: productMessage || `Thank you for your product donation of ₹${amount}`,
+                    title: `Product Donation Coupon - ${amount}`,
+                    description: productMessage || `Thank you for your product donation of ${amount}`,
                     category: 'food',
                     type: 'discount',
                     value: {
@@ -606,7 +606,7 @@ export default function DonateProductPage() {
                             </div>
                           </td>
                           <td className="px-6 py-4">
-                            <span className="font-bold text-green-600 text-lg">₹{couponValue}</span>
+                            <span className="font-bold text-green-600 text-lg">{couponValue}</span>
                           </td>
                           <td className="px-6 py-4 text-sm text-gray-700 whitespace-nowrap">
                             {coupon.validity?.endDate 
@@ -721,7 +721,7 @@ export default function DonateProductPage() {
                       <div>
                         <label className="text-sm font-semibold text-gray-600">Value</label>
                         <p className="text-lg font-bold text-green-600">
-                          ₹{typeof viewCoupon.value === 'object' && viewCoupon.value?.amount 
+                          {typeof viewCoupon.value === 'object' && viewCoupon.value?.amount 
                             ? viewCoupon.value.amount 
                             : (typeof viewCoupon.value === 'number' ? viewCoupon.value : donationData.amount)}
                         </p>
@@ -799,7 +799,7 @@ export default function DonateProductPage() {
               </div>
               <div className="text-right">
                 <p className="text-sm text-gray-600">Amount</p>
-                <p className="text-2xl font-bold text-green-600">₹{donationData.amount.toLocaleString()}</p>
+                <p className="text-2xl font-bold text-green-600">{donationData.amount.toLocaleString()}</p>
               </div>
             </div>
           </div>
@@ -879,7 +879,7 @@ export default function DonateProductPage() {
               disabled={isProcessing}
               className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white font-bold py-4 px-6 rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isProcessing ? 'Processing...' : `Pay ₹${donationData.amount.toLocaleString()}`}
+              {isProcessing ? 'Processing...' : `Pay ${donationData.amount.toLocaleString()}`}
             </button>
             <p className="text-xs text-gray-500 text-center mt-4">
               By proceeding, you agree to our terms and conditions

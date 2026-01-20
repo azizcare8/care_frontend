@@ -145,10 +145,10 @@ export default function FundraiserLiveTable() {
                           <div className="line-clamp-3">{item.shortDescription || item.title}</div>
                         </td>
                         <td className="px-4 py-4 text-sm font-medium text-gray-900">
-                          ₹{item.goalAmount?.toLocaleString() || 0}
+                          {item.goalAmount?.toLocaleString() || 0}
                         </td>
                         <td className="px-4 py-4 text-sm font-medium text-green-600">
-                          ₹{item.currentAmount?.toLocaleString() || 0}
+                          {item.currentAmount?.toLocaleString() || 0}
                         </td>
                         <td className="px-4 py-4 text-sm text-gray-700">
                           {item.timeline?.startDate ? new Date(item.timeline.startDate).toLocaleDateString() : 'N/A'}

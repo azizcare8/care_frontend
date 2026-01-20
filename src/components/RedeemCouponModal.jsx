@@ -248,7 +248,7 @@ export default function RedeemCouponModal({ onRedeemSuccess, onCancel }) {
 
                         <div className="mt-4 pt-4 border-t border-green-200">
                             <p className="text-lg font-semibold text-green-700">
-                                Valued at: {couponData.value?.percentage ? `${couponData.value.percentage}%` : `₹${couponData.value?.amount}`}
+                                Valued at: {couponData.value?.percentage ? `${couponData.value.percentage}%` : `${couponData.value?.amount}`}
                             </p>
                             <p className="text-sm text-gray-500 mt-1">
                                 Category: {couponData.category}

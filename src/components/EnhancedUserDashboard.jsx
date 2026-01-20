@@ -196,7 +196,7 @@ function VendorDashboard({ data }) {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-emerald-100 text-xs font-bold uppercase tracking-wider mb-1">Total Earnings</p>
-              <p className="text-3xl font-black mt-1">₹{stats.totalEarnings?.toLocaleString() || 0}</p>
+              <p className="text-3xl font-black mt-1">{stats.totalEarnings?.toLocaleString() || 0}</p>
             </div>
             <FiDollarSign className="text-5xl text-emerald-200 opacity-60" />
           </div>
@@ -214,7 +214,7 @@ function VendorDashboard({ data }) {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-purple-100 text-xs font-bold uppercase tracking-wider mb-1">Wallet Balance</p>
-              <p className="text-3xl font-black mt-1">₹{stats.pendingSettlement?.toLocaleString() || 0}</p>
+              <p className="text-3xl font-black mt-1">{stats.pendingSettlement?.toLocaleString() || 0}</p>
             </div>
             <FiDownload className="text-5xl text-purple-200 opacity-60" />
           </div>
@@ -283,7 +283,7 @@ function VendorDashboard({ data }) {
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-xl font-black text-emerald-600">+₹{(redemption.amount || 0).toLocaleString()}</p>
+                    <p className="text-xl font-black text-emerald-600">+{(redemption.amount || 0).toLocaleString()}</p>
                     <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">
                       {new Date(redemption.redeemedAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}
                     </p>
@@ -338,7 +338,7 @@ function BeneficiaryDashboard({ data }) {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-blue-100 text-xs font-bold uppercase tracking-widest mb-1">Total Assistance</p>
-              <p className="text-3xl font-black">₹{stats.totalAssistance?.toLocaleString() || "0"}</p>
+              <p className="text-3xl font-black">{stats.totalAssistance?.toLocaleString() || "0"}</p>
             </div>
             <FaReceipt className="text-5xl text-blue-200 opacity-60" />
           </div>
@@ -408,7 +408,7 @@ function BeneficiaryDashboard({ data }) {
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-black text-purple-600 text-lg">{coupon.value?.percentage ? `${coupon.value.percentage}%` : `₹${coupon.value?.amount}`}</p>
+                    <p className="font-black text-purple-600 text-lg">{coupon.value?.percentage ? `${coupon.value.percentage}%` : `${coupon.value?.amount}`}</p>
                     <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-green-100 text-green-700 uppercase">{coupon.status}</span>
                   </div>
                 </div>
@@ -495,7 +495,7 @@ function DonorDashboard({ data }) {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-rose-100 text-xs font-bold uppercase tracking-wider mb-1">Total Donated</p>
-              <p className="text-3xl font-black mt-1">₹{donationStats.totalDonated?.toLocaleString() || 0}</p>
+              <p className="text-3xl font-black mt-1">{donationStats.totalDonated?.toLocaleString() || 0}</p>
             </div>
             <FaHeart className="text-5xl text-rose-200 opacity-60" />
           </div>
@@ -595,7 +595,7 @@ function DonorDashboard({ data }) {
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-xl font-black text-gray-900">₹{donation.amount?.toLocaleString()}</p>
+                      <p className="text-xl font-black text-gray-900">{donation.amount?.toLocaleString()}</p>
                       <p className="text-[10px] text-green-600 font-bold">SUCCESS</p>
                     </div>
                   </div>
@@ -779,7 +779,7 @@ function FundraiserDashboardView({ data }) {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-green-100 text-sm">Total Raised</p>
-              <p className="text-3xl font-bold">₹{data.campaigns?.totalRaised?.toLocaleString() || "0"}</p>
+              <p className="text-3xl font-bold">{data.campaigns?.totalRaised?.toLocaleString() || "0"}</p>
             </div>
             <FiDollarSign className="text-4xl text-green-200" />
           </div>
@@ -828,7 +828,7 @@ function FundraiserDashboardView({ data }) {
               </div>
               <div>
                 <p className="text-[10px] text-green-600 font-bold uppercase tracking-wider mb-0.5">Total Redeemed</p>
-                <p className="font-extrabold text-green-700 leading-none">₹{totalRedeemedValue.toLocaleString()}</p>
+                <p className="font-extrabold text-green-700 leading-none">{totalRedeemedValue.toLocaleString()}</p>
               </div>
             </div>
 
@@ -880,7 +880,7 @@ function FundraiserDashboardView({ data }) {
                     <h3 className="font-semibold text-gray-900">{coupon.title}</h3>
                     <p className="text-sm text-gray-600">Code: {coupon.code}</p>
                     <p className="text-xs text-gray-500 mt-1">
-                      {coupon.value?.percentage ? `${coupon.value.percentage}% OFF` : `₹${coupon.value?.amount || '0'}`}
+                      {coupon.value?.percentage ? `${coupon.value.percentage}% OFF` : `${coupon.value?.amount || '0'}`}
                       {' • '}
                       {coupon.category?.replace(/_/g, ' ')}
                     </p>
@@ -926,7 +926,7 @@ function DefaultDashboard({ data }) {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white rounded-lg shadow p-6">
           <p className="text-gray-600 text-sm">Total Donated</p>
-          <p className="text-2xl font-bold text-gray-900">₹{data.donations?.totalDonated?.toLocaleString() || "0"}</p>
+          <p className="text-2xl font-bold text-gray-900">{data.donations?.totalDonated?.toLocaleString() || "0"}</p>
         </div>
         <div className="bg-white rounded-lg shadow p-6">
           <p className="text-gray-600 text-sm">Donations</p>

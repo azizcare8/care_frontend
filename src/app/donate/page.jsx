@@ -36,7 +36,7 @@ export default function DonatePage() {
     // Validate amount
     const amount = parseFloat(donorInfo.amount);
     if (isNaN(amount) || amount < 1) {
-      toast.error("Minimum donation amount is ₹1");
+      toast.error("Minimum donation amount is 1");
       return;
     }
 
@@ -116,7 +116,7 @@ export default function DonatePage() {
             <div className="space-y-3">
               <label className="block text-sm font-semibold text-gray-700">Donation Amount *</label>
               <div className="relative">
-                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-600 font-bold text-xl">₹</div>
+                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-600 font-bold text-xl"></div>
                 <input
                   type="number"
                   name="amount"
@@ -143,7 +143,7 @@ export default function DonatePage() {
                         : 'bg-gray-100 text-gray-700 hover:bg-green-100 hover:text-green-700'
                     }`}
                   >
-                    ₹{amt.toLocaleString()}
+                    {amt.toLocaleString()}
                   </button>
                 ))}
               </div>
@@ -255,7 +255,7 @@ export default function DonatePage() {
             </button>
             
             <p className="text-xs text-center text-gray-500 mt-3">
-              * Required fields | Minimum donation: ₹1 | 100% goes to charity
+              * Required fields | Minimum donation: 1 | 100% goes to charity
             </p>
           </form>
         </div>

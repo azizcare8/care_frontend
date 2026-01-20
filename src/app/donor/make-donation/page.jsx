@@ -32,7 +32,7 @@ export default function MakeDonationPage() {
 
   const steps = [
     { step: "1", title: "Select Campaign", description: "Choose a cause you want to support" },
-    { step: "2", title: "Enter Amount", description: "Any amount from ₹10 is welcome" },
+    { step: "2", title: "Enter Amount", description: "Any amount from 10 is welcome" },
     { step: "3", title: "Fill Details", description: "Name, email for receipt" },
     { step: "4", title: "Complete Payment", description: "Secure checkout" }
   ];

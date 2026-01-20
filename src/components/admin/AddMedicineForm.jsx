@@ -511,7 +511,7 @@ export default function AddMedicineForm({ isPartnerSubmission = false, onBack = 
             </div>
 
             <div className="mt-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Free Delivery Above (₹)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Free Delivery Above ()</label>
               <input
                 type="number"
                 name="freeDeliveryAbove"

@@ -28,7 +28,7 @@ export default function SeeImpactPage() {
 
   const impactStats = [
     { number: "50,000+", label: "Lives Impacted" },
-    { number: "₹5Cr+", label: "Funds Raised" },
+    { number: "5Cr+", label: "Funds Raised" },
     { number: "1,000+", label: "Successful Campaigns" },
     { number: "100%", label: "Transparency" }
   ];

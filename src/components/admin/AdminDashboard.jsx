@@ -3,7 +3,7 @@
 import React, { useEffect } from "react";
 import { BiCart, BiRupee, BiTrendingUp, BiCheckCircle } from "react-icons/bi";
 import { BsPeople, BsHeart, BsAward } from "react-icons/bs";
-import { FiUsers, FiDollarSign } from "react-icons/fi";
+import { FiUsers } from "react-icons/fi";
 import { HiOutlineTicket } from "react-icons/hi";
 import useAdminStore from "@/store/adminStore";
 import AdminFooter from "./AdminFooter";
@@ -98,8 +98,8 @@ export default function AdminDashboard() {
     },
     {
       title: "Total Donations",
-      count: `₹${(stats?.financial?.totalRaised || 0).toLocaleString()}`,
-      icon: <FiDollarSign size={24} />,
+      count: ` ₹{(stats?.financial?.totalRaised || 0).toLocaleString()}`,
+      icon: <BiRupee size={24} />,
       bg: "bg-purple-100 text-purple-600",
       gradient: "from-purple-500 to-purple-600",
     },

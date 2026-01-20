@@ -182,7 +182,7 @@ export default function CampaignApprovalsPage() {
                       <div>
                         <p className="text-xs text-gray-500 mb-1">Goal Amount</p>
                         <p className="text-sm font-semibold text-gray-900">
-                          ₹{campaign.goalAmount?.toLocaleString()}
+                          {campaign.goalAmount?.toLocaleString()}
                         </p>
                       </div>
                       <div>

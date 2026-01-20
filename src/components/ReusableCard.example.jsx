@@ -85,7 +85,7 @@ export function CardWithCustomContentExample() {
     >
       <div className="flex items-center justify-between mt-4">
         <span className="text-sm text-gray-500">Rating: 4.5</span>
-        <span className="text-sm font-semibold text-green-600">₹500</span>
+        <span className="text-sm font-semibold text-green-600">500</span>
       </div>
     </ReusableCard>
   );

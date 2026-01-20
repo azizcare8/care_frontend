@@ -14,7 +14,7 @@ const ROLE_DATA = [
     summary: "Configures the entire coupon ecosystem, approvals, visibility, and payouts.",
     points: [
       "Approve or reject partners, beneficiaries, and donors whenever needed.",
-      "Create coupon packages (Food ₹100, Monthly Ration ₹1000, Health Checkup ₹500) while configuring validity and partner eligibility.",
+      "Create coupon packages (Food 100, Monthly Ration 1000, Health Checkup 500) while configuring validity and partner eligibility.",
       "See all coupons, transactions, and redemptions, and approve partner settlement requests."
     ]
   },
@@ -50,7 +50,7 @@ const ROLE_DATA = [
 const COUPON_STRUCTURE = [
   { label: "couponCode", detail: "Unique human-readable ID visible to donors, partners, and admins." },
   { label: "qrCode", detail: "Scannable payload used at partner locations for quick validation." },
-  { label: "amount / packageId", detail: "Reflects predefined packages such as Food ₹100 or Health Checkup ₹500." },
+  { label: "amount / packageId", detail: "Reflects predefined packages such as Food 100 or Health Checkup 500." },
   { label: "category", detail: "FOOD or HEALTH to enforce partner alignment." },
   { label: "partnerId", detail: "Optional until redemption to allow 'any partner in the city' scenarios." },
   { label: "donorId", detail: "Link to the user who paid for this coupon." },
@@ -68,7 +68,7 @@ const FLOW_DATA = [
     highlights: "Prepare partners and packages before any donor starts sponsoring coupons.",
     steps: [
       "Create Food & Health partner accounts and capture payout details (bank / UPI).",
-      "Define coupon packages such as Food ₹100 for 30 days and Health ₹500 for 60 days while specifying eligible partner categories.",
+      "Define coupon packages such as Food 100 for 30 days and Health 500 for 60 days while specifying eligible partner categories.",
       "Optionally enforce partner-level limits (max coupons per day or per city) during onboarding."
     ]
   },
@@ -225,7 +225,7 @@ export default function CouponsPage() {
       return `${coupon.value.percentage}% OFF`;
     }
     if (coupon.value?.amount) {
-      return `₹${coupon.value.amount.toLocaleString("en-IN")}`;
+      return `${coupon.value.amount.toLocaleString("en-IN")}`;
     }
     return "Special Offer";
   };

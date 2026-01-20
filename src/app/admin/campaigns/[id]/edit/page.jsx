@@ -294,7 +294,7 @@ export default function EditCampaignPage() {
 
           {/* Target Amount */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Target Amount (₹) *</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Target Amount *</label>
             <input
               type="number"
               name="targetAmount"

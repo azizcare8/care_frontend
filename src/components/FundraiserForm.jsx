@@ -68,7 +68,7 @@ export default function FundraiserForm() {
       }
 
       if (!formData.goalAmount || parseInt(formData.goalAmount) < 100) {
-        toast.error("Goal amount must be at least ₹100");
+        toast.error("Goal amount must be at least 100");
         return;
       }
 

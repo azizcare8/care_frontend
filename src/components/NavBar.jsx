@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FaBars, FaTimes, FaChevronDown } from "react-icons/fa";
 import AuthForm from "@/components/AuthForm";
 import useAuthStore from "@/store/authStore";
@@ -14,6 +14,19 @@ export default function NavBar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [openDropdown, setOpenDropdown] = useState(null);
+  const [authReady, setAuthReady] = useState(false);
+  const [authSnapshot, setAuthSnapshot] = useState({
+    isAuthenticated: false,
+    user: null
+  });
+
+  useEffect(() => {
+    setAuthSnapshot({ isAuthenticated, user });
+    setAuthReady(true);
+  }, [isAuthenticated, user]);
+
+  const effectiveAuth = authReady ? authSnapshot.isAuthenticated : false;
+  const effectiveUser = authReady ? authSnapshot.user : null;
 
   const navLinks = [
     { label: "Home", href: "/" },
@@ -31,7 +44,7 @@ export default function NavBar() {
       href: null,
       submenu: [
         { label: "Food Partners", href: "/partners/food" },
-        { label: "All Health Partners", href: "/partners/health" },
+        { label: "Health Partners", href: "/partners/health" },
         { label: "Medical Doctors", href: "/partners/health?type=clinic" },
         { label: "Hospitals", href: "/partners/health?type=hospital" },
         { label: "Pathology Labs", href: "/partners/health?type=pathology" },
@@ -139,7 +152,6 @@ export default function NavBar() {
                               key={subIndex}
                               onClick={() => handleClick(subItem.href)}
                               className="block text-gray-800 hover:text-green-600 px-5 py-3 hover:bg-green-50 w-full text-left transition-all duration-200 border-b border-gray-100 last:border-b-0"
-                              suppressHydrationWarning
                             >
                               {subItem.label}
                             </button>
@@ -162,7 +174,7 @@ export default function NavBar() {
               {/* Desktop Sign In / Logout Button */}
               <div className="ml-4 flex items-center gap-3">
                 {/* KYC Verification Icon - Show when KYC is verified */}
-                {isAuthenticated && user?.kyc?.isVerified && (
+                {effectiveAuth && effectiveUser?.kyc?.isVerified && (
                   <div
                     className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg shadow-md"
                     title="KYC Verification Complete"
@@ -173,13 +185,21 @@ export default function NavBar() {
                     <span className="text-xs font-semibold hidden sm:inline">KYC Verified</span>
                   </div>
                 )}
-                {isAuthenticated ? (
-                  <button
-                    onClick={handleLogout}
-                    className="bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-2.5 rounded-lg font-semibold hover:from-red-600 hover:to-red-700 shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105"
-                  >
-                    Logout
-                  </button>
+                {effectiveAuth ? (
+                  <>
+                    <button
+                      onClick={() => handleClick("/admin")}
+                      className="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-2.5 rounded-lg font-semibold hover:from-green-600 hover:to-green-700 shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+                    >
+                      Dashboard
+                    </button>
+                    <button
+                      onClick={handleLogout}
+                      className="bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-2.5 rounded-lg font-semibold hover:from-red-600 hover:to-red-700 shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+                    >
+                      Logout
+                    </button>
+                  </>
                 ) : (
                   <button
                     onClick={() => setShowLogin(true)}
@@ -223,7 +243,6 @@ export default function NavBar() {
                                 key={subIndex}
                                 onClick={() => handleClick(subItem.href)}
                                 className="block w-full text-left text-gray-700 hover:text-green-600 hover:bg-green-50 px-3 py-2 rounded-lg transition-all duration-200 text-sm"
-                                suppressHydrationWarning
                               >
                                 {subItem.label}
                               </button>
@@ -245,7 +264,7 @@ export default function NavBar() {
                 {/* Mobile Sign In / Logout */}
                 <div className="pt-4 border-t border-gray-200 space-y-3">
                   {/* KYC Verification Icon - Mobile */}
-                  {isAuthenticated && user?.kyc?.isVerified && (
+                  {effectiveAuth && effectiveUser?.kyc?.isVerified && (
                     <div className="flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg shadow-md">
                       <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
@@ -253,13 +272,21 @@ export default function NavBar() {
                       <span className="text-sm font-semibold">KYC Verified</span>
                     </div>
                   )}
-                  {isAuthenticated ? (
-                    <button
-                      onClick={handleLogout}
-                      className="w-full bg-gradient-to-r from-red-500 to-red-600 text-white px-5 py-2.5 rounded-lg font-semibold hover:from-red-600 hover:to-red-700 shadow-md transition-all text-center"
-                    >
-                      Logout
-                    </button>
+                  {effectiveAuth ? (
+                    <>
+                      <button
+                        onClick={() => handleClick("/admin")}
+                        className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white px-5 py-2.5 rounded-lg font-semibold hover:from-green-600 hover:to-green-700 shadow-md transition-all text-center"
+                      >
+                        Dashboard
+                      </button>
+                      <button
+                        onClick={handleLogout}
+                        className="w-full bg-gradient-to-r from-red-500 to-red-600 text-white px-5 py-2.5 rounded-lg font-semibold hover:from-red-600 hover:to-red-700 shadow-md transition-all text-center"
+                      >
+                        Logout
+                      </button>
+                    </>
                   ) : (
                     <button
                       onClick={() => {

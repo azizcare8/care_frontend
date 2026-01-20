@@ -69,7 +69,7 @@ export default function FundraiserDashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-green-100 text-sm">Total Raised</p>
-                <p className="text-3xl font-bold">₹{totalRaised.toLocaleString()}</p>
+                <p className="text-3xl font-bold">{totalRaised.toLocaleString()}</p>
               </div>
               <FiDollarSign className="text-4xl text-green-200" />
             </div>
@@ -126,8 +126,8 @@ export default function FundraiserDashboard() {
                       <div className="flex-1">
                         <h3 className="font-semibold text-gray-900">{campaign.title}</h3>
                         <div className="flex items-center gap-4 mt-2 text-sm text-gray-600">
-                          <span>₹{campaign.currentAmount?.toLocaleString() || 0} raised</span>
-                          <span>Goal: ₹{campaign.goalAmount?.toLocaleString()}</span>
+                          <span>{campaign.currentAmount?.toLocaleString() || 0} raised</span>
+                          <span>Goal: {campaign.goalAmount?.toLocaleString()}</span>
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
                           <div
@@ -181,7 +181,7 @@ export default function FundraiserDashboard() {
                         </p>
                       </div>
                       <div className="text-right">
-                        <p className="font-bold text-green-600">₹{donation.amount?.toLocaleString()}</p>
+                        <p className="font-bold text-green-600">{donation.amount?.toLocaleString()}</p>
                         <span className={`text-xs px-2 py-1 rounded ${donation.status === 'completed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
                           }`}>
                           {donation.status}

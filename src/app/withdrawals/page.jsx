@@ -379,19 +379,19 @@ export default function WithdrawalsPage() {
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                       <div>
                         <p className="text-gray-600">Requested Amount</p>
-                        <p className="font-bold text-gray-900">₹{withdrawal.amount.toLocaleString()}</p>
+                        <p className="font-bold text-gray-900">{withdrawal.amount.toLocaleString()}</p>
                       </div>
                       <div>
                         <p className="text-gray-600">Platform Fee</p>
-                        <p className="font-semibold text-gray-900">₹{withdrawal.fees?.platformFee || 0}</p>
+                        <p className="font-semibold text-gray-900">{withdrawal.fees?.platformFee || 0}</p>
                       </div>
                       <div>
                         <p className="text-gray-600">Processing Fee</p>
-                        <p className="font-semibold text-gray-900">₹{withdrawal.fees?.processingFee || 0}</p>
+                        <p className="font-semibold text-gray-900">{withdrawal.fees?.processingFee || 0}</p>
                       </div>
                       <div>
                         <p className="text-gray-600">Net Amount</p>
-                        <p className="font-bold text-green-600">₹{withdrawal.fees?.netAmount?.toLocaleString() || 0}</p>
+                        <p className="font-bold text-green-600">{withdrawal.fees?.netAmount?.toLocaleString() || 0}</p>
                       </div>
                     </div>
 

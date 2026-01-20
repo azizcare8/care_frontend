@@ -151,7 +151,7 @@ export default function FundraiserRequestTable() {
                           {campaign.fundraiser?.phone || campaign.beneficiary?.contact || 'N/A'}
                         </td>
                         <td className="px-6 py-4 text-sm font-bold text-green-600">
-                          ₹{campaign.goalAmount?.toLocaleString() || 0}
+                          {campaign.goalAmount?.toLocaleString() || 0}
                         </td>
                         <td className="px-6 py-4">
                           <span className="px-3 py-1.5 rounded-full text-xs font-bold shadow-sm bg-gradient-to-r from-blue-400 to-blue-600 text-white">

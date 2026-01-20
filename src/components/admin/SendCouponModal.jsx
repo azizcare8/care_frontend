@@ -168,7 +168,7 @@ export default function SendCouponModal({ coupon, onClose, onSuccess }) {
             <p className="text-lg font-semibold mt-2">
               {coupon.value?.percentage 
                 ? `${coupon.value.percentage}% OFF`
-                : `₹${coupon.value?.amount}`
+                : `${coupon.value?.amount}`
               }
             </p>
           </div>

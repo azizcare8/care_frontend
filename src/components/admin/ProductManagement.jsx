@@ -316,7 +316,7 @@ export default function ProductManagement() {
                         {product.category?.charAt(0).toUpperCase() + product.category?.slice(1) || "Other"}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-600">₹{product.price?.toFixed(2) || "0.00"}</td>
+                    <td className="px-6 py-4 text-sm text-gray-600">{product.price?.toFixed(2) || "0.00"}</td>
                     <td className="px-6 py-4 text-sm text-gray-600">
                       {product.currentQuantity || 0} / {product.targetQuantity || 0} {product.unit}
                     </td>
@@ -461,7 +461,7 @@ export default function ProductManagement() {
               </div>
               <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Price (₹)</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Price ()</label>
                   <input
                     type="number"
                     value={formData.price}

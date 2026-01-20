@@ -168,7 +168,7 @@ export default function UrgentCampaigns() {
                     <div className="mb-4">
                       <div className="flex justify-between text-sm mb-2">
                         <span className="font-bold text-gray-900">
-                          ₹{campaign.currentAmount?.toLocaleString()} raised
+                          {campaign.currentAmount?.toLocaleString()} raised
                         </span>
                         <span className="text-gray-600">{progress}%</span>
                       </div>
@@ -182,7 +182,7 @@ export default function UrgentCampaigns() {
                         />
                       </div>
                       <p className="text-xs text-gray-500 mt-1">
-                        Goal: ₹{campaign.goalAmount?.toLocaleString()}
+                        Goal: {campaign.goalAmount?.toLocaleString()}
                       </p>
                     </div>
 

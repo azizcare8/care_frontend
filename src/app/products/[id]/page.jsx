@@ -87,7 +87,7 @@ export default function ProductDetailPage() {
     const amount = customAmount || selectedAmount;
     
     if (!amount || amount < 1) {
-      toast.error('Minimum donation amount is ₹1');
+      toast.error('Minimum donation amount is 1');
       return;
     }
 
@@ -265,7 +265,7 @@ export default function ProductDetailPage() {
                 <div className="mb-6 text-center">
                   <p className="text-sm text-gray-600 mb-1">Price per {product.unit || 'item'}</p>
                   <p className="text-3xl font-bold text-green-600">
-                    ₹{product.price.toFixed(2)}
+                    {product.price.toFixed(2)}
                   </p>
                 </div>
               )}
@@ -384,7 +384,7 @@ export default function ProductDetailPage() {
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  Total: ₹{(product.price * quantity).toFixed(2)}
+                  Total: {(product.price * quantity).toFixed(2)}
                 </p>
               </div>
             )}
@@ -411,7 +411,7 @@ export default function ProductDetailPage() {
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                   >
-                    ₹{amount.toLocaleString()}
+                    {amount.toLocaleString()}
                   </button>
                 ))}
               </div>
@@ -432,7 +432,7 @@ export default function ProductDetailPage() {
                     setQuantity(Math.floor(parseInt(e.target.value) / product.price) || 1);
                   }
                 }}
-                placeholder="Enter amount (min ₹10)"
+                placeholder="Enter amount (min 10)"
                 min="10"
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
               />

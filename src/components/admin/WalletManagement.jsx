@@ -362,10 +362,10 @@ export default function WalletManagement() {
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="font-semibold text-green-600">₹{wallet.currentBalance?.toFixed(2) || "0.00"}</div>
+                      <div className="font-semibold text-green-600">{wallet.currentBalance?.toFixed(2) || "0.00"}</div>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-600">₹{wallet.totalReceived?.toFixed(2) || "0.00"}</td>
-                    <td className="px-6 py-4 text-sm text-gray-600">₹{wallet.totalSettled?.toFixed(2) || "0.00"}</td>
+                    <td className="px-6 py-4 text-sm text-gray-600">{wallet.totalReceived?.toFixed(2) || "0.00"}</td>
+                    <td className="px-6 py-4 text-sm text-gray-600">{wallet.totalSettled?.toFixed(2) || "0.00"}</td>
                     <td className="px-6 py-4">
                       <span
                         className={`px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap min-w-[80px] h-[28px] flex items-center justify-center ${
@@ -442,7 +442,7 @@ export default function WalletManagement() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Amount (₹) *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Amount *</label>
                 <input
                   type="number"
                   value={topupAmount}
@@ -514,11 +514,11 @@ export default function WalletManagement() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Current Balance: ₹{selectedWallet.currentBalance?.toFixed(2) || "0.00"}
+                  Current Balance: {selectedWallet.currentBalance?.toFixed(2) || "0.00"}
                 </label>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Settlement Amount (₹) *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Settlement Amount *</label>
                 <input
                   type="number"
                   value={settleAmount}

@@ -313,7 +313,7 @@ export default function DonatePage() {
       toast.success('UPI payment initiated. Please complete on your UPI app.');
       
       // Show UPI details
-      alert(`Please pay ₹${donationData.amount} to UPI ID: ${response.data.upiId}\n\nTransaction ID: ${response.data.transactionId}`);
+      alert(`Please pay ${donationData.amount} to UPI ID: ${response.data.upiId}\n\nTransaction ID: ${response.data.transactionId}`);
 
       // Payment successful - no coupon generation
       setPaymentSuccess(true);
@@ -422,7 +422,7 @@ export default function DonatePage() {
               </div>
               <div className="text-right">
                 <p className="text-sm text-gray-600">Amount</p>
-                <p className="text-2xl font-bold text-green-600">₹{donationData.amount.toLocaleString()}</p>
+                <p className="text-2xl font-bold text-green-600">{donationData.amount.toLocaleString()}</p>
               </div>
             </div>
           </div>
@@ -564,7 +564,7 @@ export default function DonatePage() {
                 Processing...
               </div>
             ) : (
-              `Pay ₹${donationData.amount.toLocaleString()}`
+              `Pay ${donationData.amount.toLocaleString()}`
             )}
           </button>
 

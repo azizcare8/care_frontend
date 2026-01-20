@@ -673,7 +673,7 @@ export default function FormSubmissionsTable() {
                       <div className="bg-gray-50 p-4 rounded-lg space-y-2">
                         <p><span className="font-medium">Category:</span> {selectedSubmission.beneficiaryInfo.category || "N/A"}</p>
                         <p><span className="font-medium">Reason:</span> {selectedSubmission.beneficiaryInfo.reason || "N/A"}</p>
-                        <p><span className="font-medium">Required Amount:</span> ₹{selectedSubmission.beneficiaryInfo.requiredAmount?.toLocaleString() || 0}</p>
+                        <p><span className="font-medium">Required Amount:</span> {selectedSubmission.beneficiaryInfo.requiredAmount?.toLocaleString() || 0}</p>
                         <p><span className="font-medium">Urgency:</span> {selectedSubmission.beneficiaryInfo.urgency || "N/A"}</p>
                       </div>
                     </div>
@@ -1128,7 +1128,7 @@ export default function FormSubmissionsTable() {
                           />
                         </div>
                         <div>
-                          <label className="block text-xs md:text-sm font-medium text-gray-700 mb-2">Required Amount (₹)</label>
+                          <label className="block text-xs md:text-sm font-medium text-gray-700 mb-2">Required Amount</label>
                           <input
                             type="number"
                             value={editFormData.beneficiaryInfo.requiredAmount || ''}
