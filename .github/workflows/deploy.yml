@@ -16,12 +16,24 @@ jobs:
 
       - name: Deploy Frontend
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "
-            export NVM_DIR=/root/.nvm &&
-            [ -s \"\$NVM_DIR/nvm.sh\" ] && . \"\$NVM_DIR/nvm.sh\" &&
-            nvm use 22 &&
-            cd /var/www/carefoundation/frontend &&
-            npm install &&
-            npm run build &&
-            pm2 restart carefoundation-frontend
+          ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
+            set -e
+
+            export NVM_DIR=/root/.nvm
+            [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+            nvm use 22
+
+            cd /var/www/carefoundation/frontend
+
+            git reset --hard
+            git clean -fd
+            git pull origin main
+
+            npm install
+            npm run build
+
+            pm2 reload carefoundation-frontend || pm2 start npm --name carefoundation-frontend -- start
+
+            pm2 status | grep carefoundation-frontend | grep online
+          EOF
           "
