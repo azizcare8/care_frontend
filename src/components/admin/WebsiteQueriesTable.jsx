@@ -1,7 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
 import { BiSearch, BiMailSend } from "react-icons/bi";
-import { FiMail, FiPhone, FiMessageSquare } from "react-icons/fi";
+import { FiPhone, FiMessageSquare } from "react-icons/fi";
+import { BiEnvelope } from "react-icons/bi";
 import { adminService } from "@/services/adminService";
 import toast from "react-hot-toast";
 
@@ -112,7 +113,7 @@ export default function WebsiteQueriesTable() {
                   <tr key={query._id} className={`border-b border-gray-200 hover:bg-gradient-to-r hover:from-blue-50 hover:to-green-50 transition-all duration-200 ${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}`}>
                     <td className="px-4 md:px-6 py-3 md:py-4 text-xs md:text-sm">
                       <div className="flex items-center gap-2">
-                        <FiMail className="text-gray-400 flex-shrink-0" size={16} />
+                        <BiEnvelope className="text-gray-400 flex-shrink-0" size={16} />
                         <div className="min-w-0">
                           <div className="font-medium text-gray-900 break-words">{query.name}</div>
                           <div className="text-xs text-gray-500 break-words">{query.email}</div>
@@ -175,7 +176,7 @@ export default function WebsiteQueriesTable() {
                 <div className="space-y-3">
                   {/* Name and Email */}
                   <div className="flex items-start gap-2 border-b border-gray-200 pb-3">
-                    <FiMail className="text-gray-400 flex-shrink-0 mt-1" size={16} />
+                    <BiEnvelope className="text-gray-400 flex-shrink-0 mt-1" size={16} />
                     <div className="flex-1 min-w-0">
                       <div className="font-semibold text-gray-900 text-base mb-1 break-words">{query.name}</div>
                       <div className="text-xs text-gray-500 break-words">{query.email}</div>

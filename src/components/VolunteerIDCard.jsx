@@ -1,7 +1,8 @@
 "use client";
 import Image from "next/image";
 import { BiPrinter, BiQr } from "react-icons/bi";
-import { FiMapPin, FiPhone, FiMail, FiGlobe } from "react-icons/fi";
+import { FiMapPin, FiPhone, FiGlobe } from "react-icons/fi";
+import { BiEnvelope } from "react-icons/bi";
 import { getBackendBaseUrl } from "@/utils/api";
 
 /**
@@ -248,7 +249,7 @@ export default function VolunteerIDCard({ cardData, onPrint }) {
             <span>1106, Alexander Tower, Sai World Empire, opposite Swapnapoorti Mhada colony, valley Shilp Road, Sector 36, Kharghar, Navi Mumbai - 410210</span>
           </div>
           <div className="flex items-center gap-2">
-            <FiMail className="text-green-600 flex-shrink-0" size={14} />
+            <BiEnvelope className="text-green-600 flex-shrink-0" size={14} />
             <span>carefoundationtrustorg@gmail.com</span>
           </div>
           <div className="flex items-center gap-2">

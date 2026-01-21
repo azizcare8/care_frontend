@@ -1,7 +1,8 @@
 "use client";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { FiMapPin, FiPhone, FiMail, FiSend } from "react-icons/fi";
+import { FiMapPin, FiPhone, FiSend } from "react-icons/fi";
+import { BiEnvelope } from "react-icons/bi";
 import { FaWhatsapp } from "react-icons/fa";
 import api from "@/utils/api";
 import BackToHome from "@/components/BackToHome";
@@ -85,7 +86,7 @@ export default function ContactUs() {
             <div className="bg-white rounded-xl shadow-lg p-6">
               <div className="flex items-start gap-4">
                 <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-green-600">
-                  <FiMail className="text-xl" />
+                  <BiEnvelope className="text-xl" />
                 </div>
                 <div>
                   <h3 className="font-bold text-gray-900 mb-2">Email</h3>

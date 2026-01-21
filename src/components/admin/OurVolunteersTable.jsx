@@ -1,7 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
 import { BiSearch, BiEdit, BiTrash } from "react-icons/bi";
-import { FiMail, FiPhone } from "react-icons/fi";
+import { FiPhone } from "react-icons/fi";
+import { BiEnvelope } from "react-icons/bi";
 import Image from "next/image";
 import useAdminStore from "@/store/adminStore";
 import toast from "react-hot-toast";
@@ -159,7 +160,7 @@ export default function OurVolunteersTable() {
                       <td className="px-4 py-4">
                         <div className="space-y-1">
                           <div className="flex items-center gap-2 text-sm text-gray-700">
-                            <FiMail size={14} />
+                            <BiEnvelope size={14} />
                             {vol.email}
                           </div>
                           <div className="flex items-center gap-2 text-sm text-gray-600">

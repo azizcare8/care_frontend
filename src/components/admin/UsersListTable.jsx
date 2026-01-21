@@ -160,7 +160,7 @@ export default function UsersListTable() {
                         <div>
                           <div className="font-medium text-gray-900">{user.name}</div>
                           <div className="flex items-center gap-2 text-xs text-gray-600 mt-1">
-                            <FiMail size={12} />
+                            <BiEnvelope size={12} />
                             {user.email}
                           </div>
                           {user.phone && (

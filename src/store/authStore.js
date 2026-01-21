@@ -209,7 +209,25 @@ const useAuthStore = create(
         set({ isLoading: true });
         try {
           const response = await authService.updatePassword(passwordData);
+          const token = response?.data?.token || response?.token;
+          const user = response?.data?.user || response?.user;
+
+          if (token) {
+            Cookies.set('token', token, { 
+              expires: 7,
+              secure: process.env.NODE_ENV === 'production',
+              sameSite: 'lax',
+              path: '/'
+            });
+            if (typeof window !== 'undefined') {
+              localStorage.setItem('token', token);
+            }
+          }
+
           set({
+            user: user || get().user,
+            token: token || get().token,
+            isAuthenticated: true,
             isLoading: false,
             error: null
           });

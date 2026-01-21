@@ -1,7 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
 import { BiSearch, BiCheck, BiX, BiEdit } from "react-icons/bi";
-import { FiMail, FiPhone, FiCalendar, FiEye } from "react-icons/fi";
+import { FiPhone, FiCalendar, FiEye } from "react-icons/fi";
+import { BiEnvelope } from "react-icons/bi";
 import api from "@/utils/api";
 import toast from "react-hot-toast";
 
@@ -364,7 +365,7 @@ export default function FormSubmissionsTable() {
                     </td>
                     <td className="px-4 md:px-6 py-3 md:py-4 text-xs md:text-sm">
                       <div className="text-gray-700 flex items-center gap-1 break-words">
-                        <FiMail size={14} />
+                        <BiEnvelope size={14} />
                         <span className="truncate max-w-[200px]">{submission.personalInfo?.email || "N/A"}</span>
                       </div>
                       <div className="text-gray-600 flex items-center gap-1 mt-1">
@@ -488,7 +489,7 @@ export default function FormSubmissionsTable() {
                 <div className="space-y-2">
                   <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Contact</div>
                   <div className="text-sm text-gray-700 flex items-center gap-2 break-words">
-                    <FiMail size={14} className="flex-shrink-0" />
+                    <BiEnvelope size={14} className="flex-shrink-0" />
                     <span>{submission.personalInfo?.email || "N/A"}</span>
                   </div>
                   <div className="text-sm text-gray-700 flex items-center gap-2">

@@ -1,11 +1,12 @@
 "use client";
-import { FiMail, FiDownload, FiFileText, FiCheckCircle } from "react-icons/fi";
+import { FiDownload, FiFileText, FiCheckCircle } from "react-icons/fi";
+import { BiEnvelope } from "react-icons/bi";
 import Link from "next/link";
 
 export default function GetReceiptPage() {
   const receiptFeatures = [
     {
-      icon: <FiMail className="text-3xl" />,
+      icon: <BiEnvelope className="text-3xl" />,
       title: "Instant Email",
       description: "Receive your donation receipt instantly to your registered email address"
     },

@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { 
   FiSearch, 
   FiHeart, 
-  FiMail, 
   FiTrendingUp, 
   FiZap, 
   FiEdit, 
@@ -15,6 +14,7 @@ import {
   FiArrowRight,
   FiCheck
 } from "react-icons/fi";
+import { BiEnvelope } from "react-icons/bi";
 
 export default function HowItWorks() {
   const router = useRouter();
@@ -45,7 +45,7 @@ export default function HowItWorks() {
       link: "/donate"
     },
     {
-      icon: FiMail,
+      icon: BiEnvelope,
       title: "Get Receipt",
       description: "Receive instant receipt and updates on campaign progress",
       bgColor: "bg-gradient-to-br from-purple-500 to-purple-600",

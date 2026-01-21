@@ -3,7 +3,8 @@
 import Link from "next/link";
 import Image from "next/image";
 import { FaFacebookF, FaInstagram, FaTwitter, FaYoutube } from "react-icons/fa";
-import { FiPhone, FiMail, FiMapPin } from "react-icons/fi";
+import { FiPhone, FiMapPin } from "react-icons/fi";
+import { BiEnvelope } from "react-icons/bi";
 import { FACEBOOK_URL, TWITTER_URL, INSTAGRAM_URL, YOUTUBE_URL } from "@/constants/contact";
 
 const MAP_URL =
@@ -127,7 +128,7 @@ export default function Footer() {
               </a>
             </li>
             <li className="flex items-center space-x-2">
-              <FiMail className="text-green-400" />
+              <BiEnvelope className="text-green-400" />
               <a 
                 href="mailto:carefoundationtrustorg@gmail.com"
                 className="hover:text-green-400 transition-colors"
