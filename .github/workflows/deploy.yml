@@ -2,38 +2,52 @@ name: Deploy Frontend to VPS
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Setup SSH
-        uses: webfactory/ssh-agent@v0.9.0
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          ssh-private-key: ${{ secrets.VPS_SSH_KEY }}
+          node-version: 22
 
-      - name: Deploy Frontend
-        run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
-            set -e
+      - name: Install dependencies
+        run: npm install
 
-            export NVM_DIR=/root/.nvm
-            [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-            nvm use 22
+      - name: Build Next.js app
+        run: npm run build
 
-            cd /var/www/carefoundation/frontend
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script_stop: false
+          script: |
+            set +e
 
-            git reset --hard
-            git clean -fd
-            git pull origin main
+            cd /var/www/care_frontend
+
+            git fetch origin
+            git reset --hard origin/main
 
             npm install
             npm run build
 
-            pm2 reload carefoundation-frontend || pm2 start npm --name carefoundation-frontend -- start
+            pm2 describe care_frontend > /dev/null
+            if [ $? -eq 0 ]; then
+              pm2 restart care_frontend
+            else
+              pm2 start npm --name "care_frontend" -- start
+            fi
 
-            pm2 status | grep carefoundation-frontend | grep online
-          EOF
-          "
+            pm2 save
+            exit 0
