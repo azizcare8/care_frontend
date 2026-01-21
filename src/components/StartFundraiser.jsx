@@ -90,7 +90,7 @@ export default function StartFundraiser() {
               Start Now
             </h5>
             <h1 className="text-4xl md:text-5xl font-extrabold text-gray-800 leading-tight">
-              Why Fundraise With <span className="text-green-600">Care Foundation Trust</span>
+              Why Fundraise With <span className="text-green-600">Care Foundation TrustⓇ</span>
             </h1>
             <div className="mt-3 w-32 h-1 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full" />
           </div>

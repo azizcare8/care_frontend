@@ -6,7 +6,7 @@ import toast from "react-hot-toast";
 import Cookies from "js-cookie";
 import useAuthStore from "../store/authStore";
 
-export default function AuthForm({ redirectUrl, kycMode = false }) {
+export default function AuthForm({ redirectUrl }) {
   const router = useRouter();
   const { 
     login, 
@@ -99,12 +99,6 @@ export default function AuthForm({ redirectUrl, kycMode = false }) {
       // Get user data from result
       const loggedInUser = result?.user || result?.data?.user;
       const userRole = loggedInUser?.role;
-      
-      // Check if KYC mode is active and user needs to complete KYC
-      if (kycMode && loggedInUser && (!loggedInUser.kyc?.isCompleted || !loggedInUser.kyc?.isVerified)) {
-        router.replace('/kyc-verification');
-        return;
-      }
       
       // Redirect to intended URL or based on user role
       // Priority: redirectUrl > admin role > dashboard

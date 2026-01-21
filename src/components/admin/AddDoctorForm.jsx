@@ -454,13 +454,38 @@ export default function AddDoctorForm({ isPartnerSubmission = false, onBack = nu
           gstNumber: '',
           panNumber: panCardUrl
             ? (panCardUrl.startsWith('http') ? panCardUrl : `${backendBaseURL}${panCardUrl}`)
-            : '',
-          aadharNumber: aadharCardUrl
+            : ''
+        },
+        metadata: {
+          username: formData.username || '',
+          registration: formData.registration || '',
+          qualification: formData.qualification || '',
+          specialization: formData.specialization || '',
+          fees: formData.fees || '',
+          feesOffer: formData.feesOffer || '',
+          aadharCardUrl: aadharCardUrl
             ? (aadharCardUrl.startsWith('http') ? aadharCardUrl : `${backendBaseURL}${aadharCardUrl}`)
             : '',
           clinicPhotos: clinicPhotoUrls.map(url =>
             url.startsWith('http') ? url : `${backendBaseURL}${url}`
-          )
+          ),
+          timings: {
+            morning: {
+              from: formData.morningFrom || '',
+              to: formData.morningTo || '',
+              days: formData.morningDays || []
+            },
+            evening: {
+              from: formData.eveningFrom || '',
+              to: formData.eveningTo || '',
+              days: formData.eveningDays || []
+            },
+            night: {
+              from: formData.nightFrom || '',
+              to: formData.nightTo || '',
+              days: formData.nightDays || []
+            }
+          }
         },
         status: isPartnerSubmission ? 'pending' : 'approved', // Auto-approve for admin-created partners, pending for partner submissions
         isActive: isPartnerSubmission ? false : true // Ensure partner is active only if approved
@@ -925,7 +950,7 @@ export default function AddDoctorForm({ isPartnerSubmission = false, onBack = nu
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-900 mb-2">Fees For Care Foundation Trust</label>
+            <label className="block text-sm font-medium text-gray-900 mb-2">Fees For Care Foundation TrustⓇ</label>
             <input type="text" name="feesOffer" value={formData.feesOffer} onChange={handleChange} placeholder="Enter Any Offer For NGO" className="border rounded-lg px-4 py-2 w-full text-sm" />
           </div>
 
@@ -1063,7 +1088,7 @@ export default function AddDoctorForm({ isPartnerSubmission = false, onBack = nu
           <div className="space-y-2">
             <label className="flex items-center gap-2">
               <input type="radio" name="agree1" value="Yes" className="w-4 h-4" />
-              <span className="text-sm text-gray-900">1. Do You Agree To Pay Care Foundation Trust 20% Admin Charges? ○ Yes ○ No</span>
+              <span className="text-sm text-gray-900">1. Do You Agree To Pay Care Foundation TrustⓇ 20% Admin Charges? ○ Yes ○ No</span>
             </label>
             <label className="flex items-center gap-2">
               <input type="radio" name="agree2" value="Yes" className="w-4 h-4" />

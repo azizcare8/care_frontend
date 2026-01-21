@@ -59,7 +59,7 @@ export default function BeneficiaryFormPage() {
         <div className="bg-white rounded-xl shadow-lg p-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Beneficiary Application</h1>
           <p className="text-gray-600 mb-6">
-            Apply to become a beneficiary and receive support from Care Foundation Trust.
+            Apply to become a beneficiary and receive support from Care Foundation TrustⓇ.
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-6">

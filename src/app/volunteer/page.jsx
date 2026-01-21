@@ -4,6 +4,7 @@ import ClientLayout from "../ClientLayout";
 import toast from "react-hot-toast";
 import { FiHeart, FiUsers, FiClock, FiMapPin } from "react-icons/fi";
 import BackToHome from "@/components/BackToHome";
+import { authService } from "@/services/authService";
 
 export default function Volunteer() {
   const [formData, setFormData] = useState({
@@ -19,12 +20,50 @@ export default function Volunteer() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    
-    setTimeout(() => {
-      toast.success("Thank you for your interest! We'll contact you soon.");
-      setFormData({ name: "", email: "", phone: "", city: "", interests: "", availability: "" });
+
+    // Basic validation
+    const emailRegex = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
+    const phoneRegex = /^\d{10}$/;
+    const cleanPhone = formData.phone.replace(/\D/g, "");
+
+    if (!emailRegex.test(formData.email)) {
+      toast.error("Please enter a valid email address.");
       setIsLoading(false);
-    }, 1000);
+      return;
+    }
+    if (!phoneRegex.test(cleanPhone)) {
+      toast.error("Please enter a valid 10-digit phone number.");
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      await authService.register({
+        name: formData.name.trim(),
+        email: formData.email.toLowerCase().trim(),
+        phone: cleanPhone,
+        role: "volunteer",
+        volunteerDetails: {
+          communicationAddress: formData.city?.trim() || "",
+          hobbies: formData.interests || "",
+          whyVolunteer: formData.availability
+            ? `Availability: ${formData.availability}`
+            : "",
+          designation: "Volunteer"
+        }
+      });
+
+      toast.success("Volunteer form submitted! Your request is pending approval.");
+      setFormData({ name: "", email: "", phone: "", city: "", interests: "", availability: "" });
+    } catch (error) {
+      const errorMessage =
+        error?.message ||
+        error?.response?.data?.message ||
+        "Failed to submit volunteer form.";
+      toast.error(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const benefits = [

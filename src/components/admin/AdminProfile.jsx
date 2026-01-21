@@ -54,7 +54,7 @@ export default function AdminProfile() {
               </div>
               <div className="grid grid-cols-3 gap-4">
                 <div className="text-sm font-medium text-blue-600">Company</div>
-                <div className="col-span-2 text-sm text-gray-700">Care Foundation Trust</div>
+                <div className="col-span-2 text-sm text-gray-700">Care Foundation TrustⓇ</div>
               </div>
               <div className="grid grid-cols-3 gap-4">
                 <div className="text-sm font-medium text-blue-600">Country</div>

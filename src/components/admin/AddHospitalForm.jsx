@@ -165,7 +165,8 @@ export default function AddHospitalForm({ isPartnerSubmission = false, onBack = 
       // Ensure required backend fields are populated with safe defaults
       const documents = {
         ...formData.documents,
-        businessLicense: formData.documents.businessLicense || 'Admin-approved hospital'
+        businessLicense: formData.documents.businessLicense || 'Admin-approved hospital',
+        bankDetails: formData.bankDetails
       };
 
       const contactPerson = {
@@ -198,7 +199,6 @@ export default function AddHospitalForm({ isPartnerSubmission = false, onBack = 
             ? [{ url: formData.images, isPrimary: true }]
             : [],
         documents,
-        bankDetails: formData.bankDetails,
         status: isPartnerSubmission ? 'pending' : 'approved',
         isActive: isPartnerSubmission ? false : true,
         metadata: {

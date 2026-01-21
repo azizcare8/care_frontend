@@ -6,7 +6,7 @@ import useAuthStore from "@/store/authStore";
 import { userService } from "@/services/userService";
 import { uploadService } from "@/services/uploadService";
 import toast from "react-hot-toast";
-import { FaUser, FaEnvelope, FaPhone, FaMapMarkerAlt, FaEdit, FaSave, FaTimes, FaCamera, FaIdCard, FaCheckCircle } from "react-icons/fa";
+import { FaUser, FaEnvelope, FaPhone, FaMapMarkerAlt, FaEdit, FaSave, FaTimes, FaCamera, FaCheckCircle } from "react-icons/fa";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -29,17 +29,6 @@ export default function ProfilePage() {
     }
   });
 
-  const [kycData, setKycData] = useState({
-    documents: []
-  });
-
-  const [newDocument, setNewDocument] = useState({
-    type: 'aadhar',
-    number: '',
-    file: null
-  });
-
-  const [isUploadingKYC, setIsUploadingKYC] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -60,9 +49,6 @@ export default function ProfilePage() {
           pincode: user.address?.pincode || '',
           country: user.address?.country || 'India'
         }
-      });
-      setKycData({
-        documents: user.kyc?.documents || []
       });
     }
   }, [user]);
@@ -100,70 +86,6 @@ export default function ProfilePage() {
     }
   };
 
-  const handleKYCDocumentChange = (e) => {
-    const { name, value } = e.target;
-    setNewDocument(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handleKYCFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error('File size should be less than 5MB');
-        return;
-      }
-      setNewDocument(prev => ({
-        ...prev,
-        file: file
-      }));
-    }
-  };
-
-  const handleUploadKYC = async () => {
-    if (!newDocument.type || !newDocument.number || !newDocument.file) {
-      toast.error('Please fill all KYC fields and select a document');
-      return;
-    }
-
-    try {
-      setIsUploadingKYC(true);
-
-      // Upload file first
-      const formData = new FormData();
-      formData.append('file', newDocument.file);
-      
-      const uploadResponse = await uploadService.uploadFile(formData);
-      const fileUrl = uploadResponse.data.url;
-
-      // Submit KYC document
-      const kycPayload = {
-        type: newDocument.type,
-        number: newDocument.number,
-        file: fileUrl
-      };
-
-      const response = await userService.uploadKYCDocument(kycPayload);
-      updateUser(response.data);
-      
-      toast.success('KYC document uploaded successfully! Admin will verify soon.');
-      
-      // Reset form
-      setNewDocument({
-        type: 'aadhar',
-        number: '',
-        file: null
-      });
-      document.getElementById('kycFileInput').value = '';
-      
-    } catch (error) {
-      toast.error(error.message || 'Failed to upload KYC document');
-    } finally {
-      setIsUploadingKYC(false);
-    }
-  };
 
   const handleAvatarUpload = async (e) => {
     const file = e.target.files[0];
@@ -242,11 +164,6 @@ export default function ProfilePage() {
                     <FaCheckCircle /> Verified
                   </span>
                 )}
-                {user?.kyc?.isCompleted && (
-                  <span className="bg-yellow-500 px-3 py-1 rounded-full text-sm flex items-center gap-1">
-                    <FaIdCard /> KYC Complete
-                  </span>
-                )}
               </div>
             </div>
           </div>
@@ -265,17 +182,6 @@ export default function ProfilePage() {
             >
               <FaUser className="inline mr-2" />
               Profile Information
-            </button>
-            <button
-              onClick={() => setActiveTab('kyc')}
-              className={`flex-1 py-4 px-6 font-semibold transition-colors ${
-                activeTab === 'kyc'
-                  ? 'text-green-600 border-b-2 border-green-600'
-                  : 'text-gray-600 hover:text-green-600'
-              }`}
-            >
-              <FaIdCard className="inline mr-2" />
-              KYC Verification
             </button>
           </div>
         </div>
@@ -436,146 +342,6 @@ export default function ProfilePage() {
           </div>
         )}
 
-        {/* KYC Tab */}
-        {activeTab === 'kyc' && (
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">KYC Verification</h2>
-
-            {/* KYC Status */}
-            <div className={`p-4 rounded-lg mb-6 ${
-              user?.kyc?.isCompleted 
-                ? 'bg-green-50 border border-green-200' 
-                : 'bg-yellow-50 border border-yellow-200'
-            }`}>
-              <p className="font-semibold text-gray-900 mb-1">
-                {user?.kyc?.isCompleted ? '✅ KYC Completed' : '⚠️ KYC Pending'}
-              </p>
-              <p className="text-sm text-gray-700">
-                {user?.kyc?.isCompleted 
-                  ? 'Your KYC verification is complete. You can now access all features.'
-                  : 'Please upload your identity documents for verification.'}
-              </p>
-            </div>
-
-            {/* Upload New Document */}
-            <div className="border border-gray-200 rounded-lg p-6 mb-6">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">Upload New Document</h3>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Document Type
-                  </label>
-                  <select
-                    name="type"
-                    value={newDocument.type}
-                    onChange={handleKYCDocumentChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
-                  >
-                    <option value="aadhar">Aadhar Card</option>
-                    <option value="pan">PAN Card</option>
-                    <option value="passport">Passport</option>
-                    <option value="driving_license">Driving License</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Document Number
-                  </label>
-                <input
-                  type="text"
-                  name="number"
-                  value={newDocument.number || ''}
-                  onChange={handleKYCDocumentChange}
-                  placeholder="Enter document number"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
-                />
-                </div>
-              </div>
-
-              <div className="mb-4">
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Upload Document (PDF/Image, Max 5MB)
-                </label>
-                <input
-                  id="kycFileInput"
-                  type="file"
-                  onChange={handleKYCFileChange}
-                  accept=".pdf,.jpg,.jpeg,.png"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
-                />
-                {newDocument.file && (
-                  <p className="text-sm text-green-600 mt-2">
-                    ✓ File selected: {newDocument.file.name}
-                  </p>
-                )}
-              </div>
-
-              <button
-                onClick={handleUploadKYC}
-                disabled={isUploadingKYC}
-                className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isUploadingKYC ? (
-                  <div className="flex items-center justify-center gap-2">
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                    Uploading...
-                  </div>
-                ) : (
-                  'Upload Document'
-                )}
-              </button>
-            </div>
-
-            {/* Existing Documents */}
-            <div>
-              <h3 className="text-lg font-bold text-gray-900 mb-4">Your Documents</h3>
-              
-              {kycData.documents && kycData.documents.length > 0 ? (
-                <div className="space-y-3">
-                  {kycData.documents.map((doc, index) => (
-                    <div key={index} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <FaIdCard className="text-2xl text-gray-400" />
-                        <div>
-                          <p className="font-semibold text-gray-900 capitalize">
-                            {doc.type.replace('_', ' ')}
-                          </p>
-                          <p className="text-sm text-gray-600">{doc.number}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                          doc.verified 
-                            ? 'bg-green-100 text-green-800' 
-                            : 'bg-yellow-100 text-yellow-800'
-                        }`}>
-                          {doc.verified ? '✓ Verified' : '⏳ Pending'}
-                        </span>
-                        {doc.file && (
-                          <a
-                            href={doc.file}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-600 hover:text-blue-700 text-sm font-semibold"
-                          >
-                            View
-                          </a>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8 text-gray-500">
-                  <FaIdCard className="text-4xl mx-auto mb-2 opacity-50" />
-                  <p>No documents uploaded yet</p>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

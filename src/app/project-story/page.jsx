@@ -4,7 +4,7 @@ import BackToHome from "@/components/BackToHome";
 
 export default function ProjectStory() {
   const milestones = [
-    { year: "1997", title: "Foundation Established", description: "Care Foundation Trust was established with a vision to serve the underprivileged." },
+    { year: "1997", title: "Foundation Established", description: "Care Foundation TrustⓇ was established with a vision to serve the underprivileged." },
     { year: "2005", title: "Healthcare Initiative", description: "Launched our first healthcare program providing free medical camps." },
     { year: "2010", title: "Education Program", description: "Started educational support for underprivileged children." },
     { year: "2015", title: "Food Distribution", description: "Initiated daily food distribution program for the needy." },

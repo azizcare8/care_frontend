@@ -58,20 +58,6 @@ export const uploadService = {
     }
   },
 
-  // Upload KYC document
-  uploadKYCDocument: async (formData) => {
-    try {
-      const response = await api.post('/upload/kyc-document', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error;
-    }
-  },
-
   // Upload base64 image
   uploadBase64: async (base64Data) => {
     try {

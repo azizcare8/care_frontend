@@ -19,7 +19,7 @@ export default function DonationCard() {
 
         <div className="w-full text-left space-y-2 text-gray-800 mb-6">
           <p><span className="font-semibold">Bank A/C No:</span> 50200068627799</p>
-          <p><span className="font-semibold">Bank A/C Name:</span> Care Foundation Trust</p>
+          <p><span className="font-semibold">Bank A/C Name:</span> Care Foundation TrustⓇ</p>
           <p><span className="font-semibold">Branch IFSC:</span> HDFC0000626</p>
           <p><span className="font-semibold">Bank Name:</span> HDFC Bank</p>
         </div>

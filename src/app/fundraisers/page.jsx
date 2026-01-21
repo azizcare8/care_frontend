@@ -56,7 +56,7 @@ export default function FundraisersPage() {
               Support Through Direct Donation
             </h2>
             <p className="text-gray-600 text-lg">
-              You can also donate directly to Care Foundation Trust
+              You can also donate directly to Care Foundation TrustⓇ
             </p>
             <div className="mt-3 w-24 h-1 bg-gradient-to-r from-green-500 to-emerald-600 mx-auto rounded-full" />
           </div>

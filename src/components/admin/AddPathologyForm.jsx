@@ -162,8 +162,10 @@ export default function AddPathologyForm({ isPartnerSubmission = false, onBack =
           : formData.images 
             ? [{ url: formData.images, isPrimary: true }]
             : [],
-        documents: formData.documents,
-        bankDetails: formData.bankDetails,
+        documents: {
+          ...formData.documents,
+          bankDetails: formData.bankDetails
+        },
         status: isPartnerSubmission ? 'pending' : 'approved',
         isActive: isPartnerSubmission ? false : true,
         metadata: {

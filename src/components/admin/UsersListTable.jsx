@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
-import { BiSearch, BiUser, BiShield, BiX, BiCalendar, BiMap, BiPhone, BiEnvelope } from "react-icons/bi";
-import { FiMail, FiPhone, FiEye } from "react-icons/fi";
+import { BiSearch, BiUser, BiX, BiCalendar, BiMap, BiPhone, BiEnvelope } from "react-icons/bi";
+import { FiPhone, FiEye } from "react-icons/fi";
 import useAdminStore from "@/store/adminStore";
 import { adminService } from "@/services/adminService";
 import api from "@/utils/api";
@@ -13,15 +13,10 @@ export default function UsersListTable() {
   const [entriesPerPage, setEntriesPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
   const [assigningRole, setAssigningRole] = useState({});
-  const [sendingKYCEmail, setSendingKYCEmail] = useState({});
   const [selectedUser, setSelectedUser] = useState(null);
   const [showUserModal, setShowUserModal] = useState(false);
   const [userDetails, setUserDetails] = useState(null);
   const [loadingUserDetails, setLoadingUserDetails] = useState(false);
-  const [showEmailModal, setShowEmailModal] = useState(false);
-  const [emailStatus, setEmailStatus] = useState(null); // 'success' or 'error'
-  const [emailMessage, setEmailMessage] = useState("");
-  const [emailUserEmail, setEmailUserEmail] = useState("");
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -61,42 +56,6 @@ export default function UsersListTable() {
     }
   };
 
-  const handleSendKYCEmail = async (userId) => {
-    try {
-      setSendingKYCEmail({ ...sendingKYCEmail, [userId]: true });
-      const user = users.find(u => u._id === userId);
-      const userEmail = user?.email || 'user';
-      
-      await adminService.sendKYCVerificationEmail(userId);
-      
-      // Show success modal
-      setEmailStatus('success');
-      setEmailMessage(`KYC verification email has been sent successfully to ${userEmail}. The user will receive instructions to complete their KYC verification.`);
-      setEmailUserEmail(userEmail);
-      setShowEmailModal(true);
-      
-      console.log("✅ KYC Email sent successfully");
-    } catch (error) {
-      console.error("❌ Error sending KYC email:", error);
-      
-      // Extract error message
-      const errorMessage = error?.response?.data?.message || 
-                          error?.message || 
-                          error?.response?.data?.error ||
-                          "An unexpected error occurred while sending the email.";
-      
-      const user = users.find(u => u._id === userId);
-      const userEmail = user?.email || 'user';
-      
-      // Show error modal
-      setEmailStatus('error');
-      setEmailMessage(`Failed to send KYC verification email to ${userEmail}. Error: ${errorMessage}`);
-      setEmailUserEmail(userEmail);
-      setShowEmailModal(true);
-    } finally {
-      setSendingKYCEmail({ ...sendingKYCEmail, [userId]: false });
-    }
-  };
 
   const handleViewUser = async (userId) => {
     try {
@@ -121,12 +80,6 @@ export default function UsersListTable() {
     setUserDetails(null);
   };
 
-  const closeEmailModal = () => {
-    setShowEmailModal(false);
-    setEmailStatus(null);
-    setEmailMessage("");
-    setEmailUserEmail("");
-  };
 
   const validRoles = ['donor', 'fundraiser', 'admin', 'partner', 'volunteer', 'vendor', 'staff'];
 
@@ -244,13 +197,8 @@ export default function UsersListTable() {
                         <span className={`px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap min-w-[80px] h-[28px] flex items-center justify-center ${
                           user.isVerified ? 'bg-gradient-to-r from-green-400 to-green-600 text-white' : 'bg-gradient-to-r from-yellow-400 to-yellow-600 text-white'
                         }`}>
-                          {user.isVerified ? '✓ Verified' : '⚠ Pending'}
-                        </span>
-                        {user.kyc?.isCompleted && (
-                          <span className="px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap min-w-[80px] h-[28px] flex items-center justify-center bg-gradient-to-r from-blue-400 to-blue-600 text-white">
-                            KYC Done
-                          </span>
-                        )}
+                        {user.isVerified ? '✓ Verified' : '⚠ Pending'}
+                      </span>
                       </div>
                     </td>
                     <td className="px-6 py-4">
@@ -262,25 +210,6 @@ export default function UsersListTable() {
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex gap-2 flex-wrap">
-                        {/* KYC Mail Button - First Action */}
-                        <button
-                          onClick={() => handleSendKYCEmail(user._id)}
-                          disabled={sendingKYCEmail[user._id]}
-                          className="flex items-center justify-center gap-1 px-3 py-1.5 bg-gradient-to-r from-purple-500 to-purple-600 text-white text-xs font-medium rounded-lg hover:from-purple-600 hover:to-purple-700 transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed h-[28px] min-w-[90px]"
-                          title="Send KYC verification email"
-                        >
-                          {sendingKYCEmail[user._id] ? (
-                            <>
-                              <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
-                              <span>Sending...</span>
-                            </>
-                          ) : (
-                            <>
-                              <FiMail size={12} />
-                              <span>KYC Mail</span>
-                            </>
-                          )}
-                        </button>
                         {user.isActive ? (
                           <button 
                             onClick={() => handleStatusChange(user._id, 'blocked')}
@@ -515,43 +444,6 @@ export default function UsersListTable() {
                   </div>
                 )}
 
-                {/* KYC Information */}
-                {userDetails.kyc && (
-                  <div className="bg-white rounded-xl p-6 border-2 border-gray-200">
-                    <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                      <BiShield className="text-purple-600" />
-                      KYC Information
-                    </h3>
-                    <div className="space-y-3">
-                      <div>
-                        <label className="text-sm font-semibold text-gray-600">KYC Status</label>
-                        <p className="text-gray-900">
-                          <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                            userDetails.kyc.isCompleted ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
-                          }`}>
-                            {userDetails.kyc.isCompleted ? '✓ Completed' : '⚠ Pending'}
-                          </span>
-                        </p>
-                      </div>
-                      {userDetails.kyc.documents && userDetails.kyc.documents.length > 0 && (
-                        <div>
-                          <label className="text-sm font-semibold text-gray-600">Documents</label>
-                          <div className="mt-2 space-y-2">
-                            {userDetails.kyc.documents.map((doc, idx) => (
-                              <div key={idx} className="flex items-center gap-2 text-sm">
-                                <span className="font-medium">{doc.type}:</span>
-                                <span className={doc.verified ? 'text-green-600' : 'text-yellow-600'}>
-                                  {doc.verified ? '✓ Verified' : '⚠ Pending'}
-                                </span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-
                 {/* Permissions (if admin/staff) */}
                 {userDetails.permissions && (userDetails.role === 'admin' || userDetails.role === 'staff' || userDetails.role === 'volunteer') && (
                   <div className="bg-white rounded-xl p-6 border-2 border-gray-200">
@@ -652,78 +544,6 @@ export default function UsersListTable() {
         </div>
       )}
 
-      {/* Email Status Modal - Top Right Popup */}
-      {showEmailModal && (
-        <div className="fixed top-4 right-4 z-[60] animate-in slide-in-from-top-2 fade-in duration-300">
-          <div className="bg-white rounded-lg shadow-2xl max-w-sm w-80 border-2 border-green-500">
-            {/* Modal Header */}
-            <div className={`p-4 rounded-t-lg ${
-              emailStatus === 'success' 
-                ? 'bg-gradient-to-r from-green-500 to-green-600' 
-                : 'bg-gradient-to-r from-red-500 to-red-600'
-            } text-white`}>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  {emailStatus === 'success' ? (
-                    <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
-                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                      </svg>
-                    </div>
-                  ) : (
-                    <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
-                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </div>
-                  )}
-                  <h2 className="text-base font-bold">
-                    {emailStatus === 'success' ? 'Email Sent!' : 'Email Failed'}
-                  </h2>
-                </div>
-                <button
-                  onClick={closeEmailModal}
-                  className="p-1 hover:bg-white/20 rounded transition-colors flex-shrink-0"
-                >
-                  <BiX size={18} className="text-white" />
-                </button>
-              </div>
-            </div>
-
-            {/* Modal Content */}
-            <div className="p-4">
-              <p className="text-sm text-gray-700 leading-relaxed mb-3">
-                {emailStatus === 'success' 
-                  ? `KYC email sent to ${emailUserEmail}` 
-                  : `Failed: ${emailMessage.split('Error:')[1] || emailMessage}`}
-              </p>
-
-              {emailStatus === 'success' && emailUserEmail && (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-2.5">
-                  <div className="flex items-center gap-2">
-                    <FiMail className="text-green-600 flex-shrink-0" size={14} />
-                    <p className="text-xs text-green-700 truncate">{emailUserEmail}</p>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Modal Footer */}
-            <div className="px-4 pb-4">
-              <button
-                onClick={closeEmailModal}
-                className={`w-full py-2 px-4 rounded-lg text-sm font-semibold text-white transition-all shadow-md hover:shadow-lg ${
-                  emailStatus === 'success'
-                    ? 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700'
-                    : 'bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700'
-                }`}
-              >
-                OK
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 }

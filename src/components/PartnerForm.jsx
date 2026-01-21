@@ -67,7 +67,7 @@ export default function PartnerForm() {
 
   const handlePartnerTypeSelect = (typeId) => {
     if (typeId === "event") {
-      router.push("/admin/create-event");
+      router.push("/events#event-form");
       return;
     }
     setSelectedPartnerType(typeId);

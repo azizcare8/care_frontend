@@ -82,7 +82,7 @@ export default function VolunteerIDCard({ cardData, onPrint }) {
               <div className="w-16 h-16 bg-white rounded-lg flex items-center justify-center shadow-md">
                 <Image
                   src="/trademark.png"
-                  alt="Care Foundation Trust Logo"
+                  alt="Care Foundation TrustⓇ Logo"
                   width={50}
                   height={50}
                   className="object-contain"
@@ -188,10 +188,10 @@ export default function VolunteerIDCard({ cardData, onPrint }) {
         <div className="p-4 bg-white">
           <h3 className="text-gray-900 font-bold text-sm mb-3">Terms & Conditions</h3>
           <div className="space-y-2 text-xs text-gray-700 leading-relaxed">
-            <p>• The Designation Role Of Individual For Care Foundation Trust™ Is Certified By This Identification Card.</p>
+            <p>• The Designation Role Of Individual For Care Foundation TrustⓇ Is Certified By This Identification Card.</p>
             <p>• The Card Cannot Be Changed Into Cash Or Transferred To Another Person.</p>
-            <p>• It Belongs To The Care Foundation Trust™ Legally.</p>
-            <p>• If Found Please Return It To Care Foundation Trust™ At The Address Mentioned Below.</p>
+            <p>• It Belongs To The Care Foundation TrustⓇ Legally.</p>
+            <p>• If Found Please Return It To Care Foundation TrustⓇ At The Address Mentioned Below.</p>
           </div>
         </div>
 
@@ -201,7 +201,7 @@ export default function VolunteerIDCard({ cardData, onPrint }) {
             {/* Left Side - Signature */}
             <div className="flex-1">
               <p className="text-gray-900 font-semibold text-xs mb-1">Signature Authority</p>
-              <p className="text-gray-600 text-[10px] mb-2">CEO, Care Foundation Trust</p>
+              <p className="text-gray-600 text-[10px] mb-2">CEO, Care Foundation TrustⓇ</p>
               <div className="border-t-2 border-gray-900 pt-1 mt-2">
                 <p className="text-gray-900 font-semibold text-xs">Aziz Gheewala</p>
               </div>

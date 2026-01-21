@@ -159,7 +159,7 @@ export default function VerifyCertificatePage() {
             <BiCheckCircle className="text-green-600" size={32} />
             <div>
               <h2 className="text-xl font-bold text-green-800">Certificate Verified</h2>
-              <p className="text-sm text-green-600">This certificate is authentic and issued by Care Foundation Trust™</p>
+              <p className="text-sm text-green-600">This certificate is authentic and issued by Care Foundation TrustⓇ</p>
             </div>
           </div>
           <div className="flex gap-3">

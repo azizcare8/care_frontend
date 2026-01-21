@@ -3,50 +3,78 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { FaQuoteLeft, FaHeart, FaStar } from "react-icons/fa";
+import { useEffect, useMemo, useState } from "react";
+import { FaHeart } from "react-icons/fa";
 import { BiCheckCircle } from "react-icons/bi";
+import { campaignService } from "@/services/campaignService";
+import { getBackendBaseUrl } from "@/utils/api";
+
+const COLOR_PRESETS = [
+  "from-pink-500 to-rose-500",
+  "from-blue-500 to-cyan-500",
+  "from-green-500 to-emerald-500",
+  "from-purple-500 to-fuchsia-500",
+  "from-orange-500 to-amber-500",
+  "from-teal-500 to-sky-500"
+];
+
+const formatCurrency = (amount) => {
+  const value = Number(amount || 0);
+  return value.toLocaleString("en-IN");
+};
+
+const getCampaignImageUrl = (campaign, backendBaseUrl) => {
+  const images = Array.isArray(campaign?.images) ? campaign.images : [];
+  const primary = images.find((img) => img?.isPrimary) || images[0];
+  if (primary?.url) {
+    return primary.url.startsWith("http")
+      ? primary.url
+      : `${backendBaseUrl}${primary.url.startsWith("/") ? "" : "/"}${primary.url}`;
+  }
+  return "/images/c1.jpg";
+};
 
 export default function SuccessStories() {
   const router = useRouter();
+  const [stories, setStories] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
 
-  const stories = [
-    {
-      name: "Riya's Cancer Treatment",
-      image: "/images/c1.jpg",
-      amount: "12,50,000",
-      supporters: 1250,
-      category: "Medical",
-      story: "With your support, 8-year-old Riya successfully completed her cancer treatment and is now cancer-free!",
-      testimonial: "Thank you all for giving my daughter a second chance at life. Your kindness saved our family.",
-      author: "Sunita Sharma (Mother)",
-      rating: 5,
-      color: "from-pink-500 to-rose-500"
-    },
-    {
-      name: "Village School Renovation",
-      image: "/images/c2.jpg",
-      amount: "8,75,000",
-      supporters: 890,
-      category: "Education",
-      story: "Built new classrooms and provided books for 300+ students in a rural Maharashtra village.",
-      testimonial: "Our children now have a proper school with facilities. This wouldn't be possible without your generosity.",
-      author: "Ramesh Patil (Village Head)",
-      rating: 5,
-      color: "from-blue-500 to-cyan-500"
-    },
-    {
-      name: "Flood Relief Kerala",
-      image: "/images/c3.jpg",
-      amount: "15,20,000",
-      supporters: 2100,
-      category: "Disaster Relief",
-      story: "Provided emergency supplies, shelter, and medical aid to 500+ families affected by Kerala floods.",
-      testimonial: "When we lost everything, Care Foundation was there. You helped us rebuild our lives.",
-      author: "Suresh Kumar (Beneficiary)",
-      rating: 5,
-      color: "from-green-500 to-emerald-500"
-    }
-  ];
+  const backendBaseUrl = useMemo(() => getBackendBaseUrl(), []);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchCompletedCampaigns = async () => {
+      setIsLoading(true);
+      setLoadError("");
+      try {
+        const response = await campaignService.getCampaigns({
+          status: "completed",
+          limit: 6,
+          sortBy: "-updatedAt"
+        });
+        const data = response?.data || response?.campaigns || [];
+        if (isMounted) {
+          setStories(data);
+        }
+      } catch (error) {
+        if (isMounted) {
+          setLoadError(error?.message || "Failed to load success stories.");
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    fetchCompletedCampaigns();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   return (
     <section className="py-20 bg-gradient-to-br from-white via-purple-50 to-pink-50 px-2 relative border-y-2 border-purple-400">
@@ -72,7 +100,25 @@ export default function SuccessStories() {
 
         {/* Stories Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-          {stories.map((story, index) => (
+          {isLoading && (
+            <div className="col-span-full text-center text-gray-600 py-12">
+              Loading completed fundraisers...
+            </div>
+          )}
+          {!isLoading && loadError && (
+            <div className="col-span-full text-center text-red-600 py-12">
+              {loadError}
+            </div>
+          )}
+          {!isLoading && !loadError && stories.length === 0 && (
+            <div className="col-span-full text-center text-gray-600 py-12">
+              No completed fundraisers yet.
+            </div>
+          )}
+          {!isLoading && !loadError && stories.map((story, index) => {
+            const gradient = COLOR_PRESETS[index % COLOR_PRESETS.length];
+            const imageUrl = getCampaignImageUrl(story, backendBaseUrl);
+            return (
             <motion.div
               key={index}
               initial={{ opacity: 0, y: 30 }}
@@ -85,13 +131,14 @@ export default function SuccessStories() {
                 {/* Image */}
                 <div className="relative h-48 overflow-hidden">
                   <Image
-                    src={story.image}
-                    alt={story.name}
+                    src={imageUrl}
+                    alt={story.title || "Completed fundraiser"}
                     fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     className="object-cover group-hover:scale-110 transition-transform duration-500"
+                    unoptimized
                   />
-                  <div className={`absolute top-4 right-4 bg-gradient-to-r ${story.color} text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg flex items-center gap-1.5`}>
+                  <div className={`absolute top-4 right-4 bg-gradient-to-r ${gradient} text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg flex items-center gap-1.5`}>
                     <BiCheckCircle className="text-base" />
                     <span>Completed Fundraised</span>
                   </div>
@@ -100,56 +147,47 @@ export default function SuccessStories() {
                 {/* Content */}
                 <div className="p-6">
                   {/* Category Badge */}
-                  <span className="inline-block bg-purple-100 text-purple-700 text-xs font-semibold px-3 py-1 rounded-full mb-3">
-                    {story.category}
-                  </span>
+                  {story.category && (
+                    <span className="inline-block bg-purple-100 text-purple-700 text-xs font-semibold px-3 py-1 rounded-full mb-3">
+                      {story.category}
+                    </span>
+                  )}
 
                   {/* Title */}
                   <h3 className="text-xl font-bold text-gray-900 mb-2">
-                    {story.name}
+                    {story.title || "Completed Fundraiser"}
                   </h3>
 
                   {/* Story */}
                   <p className="text-gray-600 text-sm mb-4 leading-relaxed">
-                    {story.story}
+                    {story.shortDescription || story.description || "A completed fundraiser created by our admin team."}
                   </p>
 
                   {/* Stats */}
                   <div className="flex items-center justify-between mb-4 pb-4 border-b border-gray-200">
                     <div className="text-center">
-                      <p className={`text-lg font-bold bg-gradient-to-r ${story.color} bg-clip-text text-transparent`}>
-                        {story.amount}
+                      <p className={`text-lg font-bold bg-gradient-to-r ${gradient} bg-clip-text text-transparent`}>
+                        {formatCurrency(story.currentAmount)}
                       </p>
                       <p className="text-xs text-gray-500">Raised</p>
                     </div>
                     <div className="text-center">
-                      <p className="text-lg font-bold text-gray-900">{story.supporters}</p>
+                      <p className="text-lg font-bold text-gray-900">
+                        {story.analytics?.donations || 0}
+                      </p>
                       <p className="text-xs text-gray-500">Supporters</p>
                     </div>
                     <div className="text-center">
-                      <div className="flex items-center justify-center gap-0.5 mb-1">
-                        {[...Array(story.rating)].map((_, i) => (
-                          <FaStar key={i} className="text-yellow-400 text-sm" />
-                        ))}
-                      </div>
-                      <p className="text-xs text-gray-500">Rating</p>
+                      <p className="text-lg font-bold text-gray-900">
+                        {formatCurrency(story.goalAmount)}
+                      </p>
+                      <p className="text-xs text-gray-500">Goal</p>
                     </div>
-                  </div>
-
-                  {/* Testimonial */}
-                  <div className="bg-gradient-to-br from-gray-50 to-purple-50 rounded-xl p-4 relative">
-                    <FaQuoteLeft className="text-purple-200 text-2xl absolute top-2 left-2" />
-                    <p className="text-sm text-gray-700 italic mb-2 pl-6">
-                      {story.testimonial}
-                    </p>
-                    <p className="text-xs text-gray-600 font-semibold text-right">
-                      — {story.author}
-                    </p>
                   </div>
                 </div>
               </div>
             </motion.div>
-          ))}
+          )})}
         </div>
 
         {/* CTA Banner */}

@@ -6,7 +6,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { partnerService } from "@/services/partnerService";
 import { FaMapMarkerAlt, FaPhone } from "react-icons/fa";
-import { shouldUnoptimizeImage } from "@/utils/imageUtils";
+import { normalizeImageUrl, shouldUnoptimizeImage } from "@/utils/imageUtils";
 import { getBackendBaseUrl } from "@/utils/api";
 
 export default function FoodPartners() {
@@ -121,13 +121,8 @@ export default function FoodPartners() {
     if (partner.images && partner.images.length > 0) {
       const primaryImage = partner.images.find(img => img.isPrimary) || partner.images[0];
       if (primaryImage?.url) {
-        // If URL is already absolute (http:// or https://), return as is
-        if (primaryImage.url.startsWith('http://') || primaryImage.url.startsWith('https://')) {
-          return primaryImage.url;
-        }
-        // If URL is relative, make it absolute with backend base URL
-        const backendBaseURL = getBackendBaseUrl();
-        return `${backendBaseURL}${primaryImage.url.startsWith('/') ? '' : '/'}${primaryImage.url}`;
+        const normalized = normalizeImageUrl(primaryImage.url);
+        if (normalized) return normalized;
       }
     }
     return 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=500&h=300&fit=crop';

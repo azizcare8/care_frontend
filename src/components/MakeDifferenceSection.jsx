@@ -27,7 +27,7 @@ export default function MakeDifferenceSection() {
         {
             title: "Become A Partner",
             icon: FaHandshake,
-            desc: "We are convinced with the power of teamwork. Partner with Care Foundation Trust if your company is dedicated to making a positive impact on the community.",
+            desc: "We are convinced with the power of teamwork. Partner with Care Foundation TrustⓇ if your company is dedicated to making a positive impact on the community.",
             link: "/partner",
             btn: "Join with Us",
             bg: "bg-gray-100",

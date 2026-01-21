@@ -387,10 +387,39 @@ export default function AddFoodPartnerForm({ isPartnerSubmission = false, onBack
         documents: {
           businessLicense: formData.fsai || 'Admin-approved partner',
           gstNumber: '',
-          panNumber: '',
+          panNumber: ''
+        },
+        metadata: {
+          partnerType: formData.partnerType || '',
+          username: formData.username || '',
+          foodCuisine: formData.foodCuisine || '',
+          specialOffer: formData.specialOffer || '',
+          fsai: formData.fsai || '',
           menuCardPhotos: menuCardPhotoUrls.map(url =>
             url.startsWith('http') ? url : `${backendBaseURL}${url}`
-          )
+          ),
+          timings: {
+            morning: {
+              from: formData.morningFrom || '',
+              to: formData.morningTo || '',
+              days: formData.morningDays || []
+            },
+            afternoon: {
+              from: formData.afternoonFrom || '',
+              to: formData.afternoonTo || '',
+              days: formData.afternoonDays || []
+            },
+            evening: {
+              from: formData.eveningFrom || '',
+              to: formData.eveningTo || '',
+              days: formData.eveningDays || []
+            },
+            night: {
+              from: formData.nightFrom || '',
+              to: formData.nightTo || '',
+              days: formData.nightDays || []
+            }
+          }
         },
         status: isPartnerSubmission ? 'pending' : 'approved', // Auto-approve for admin-created partners, pending for partner submissions
         isActive: isPartnerSubmission ? false : true // Ensure partner is active only if approved
@@ -956,7 +985,7 @@ export default function AddFoodPartnerForm({ isPartnerSubmission = false, onBack
           <div className="space-y-2">
             <label className="flex items-center gap-2">
               <input type="radio" name="agree1" className="w-4 h-4" />
-              <span className="text-sm text-green-600">1. Do You Agree To Pay Care Foundation Trust 10% Admin Charges? ○ Yes ○ No</span>
+              <span className="text-sm text-green-600">1. Do You Agree To Pay Care Foundation TrustⓇ 10% Admin Charges? ○ Yes ○ No</span>
             </label>
             <label className="flex items-center gap-2">
               <input type="radio" name="agree2" className="w-4 h-4" />

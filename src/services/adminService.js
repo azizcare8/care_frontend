@@ -133,52 +133,6 @@ export const adminService = {
     }
   },
 
-  sendKYCVerificationEmail: async (userId) => {
-    try {
-      const response = await api.post(`/admin/users/${userId}/send-kyc-verification`);
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error;
-    }
-  },
-
-  // KYC Management
-  getAllKYCSubmissions: async (params = {}) => {
-    try {
-      const response = await api.get('/admin/kyc', { params });
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error;
-    }
-  },
-
-  getKYCDetails: async (userId) => {
-    try {
-      const response = await api.get(`/admin/kyc/${userId}`);
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error;
-    }
-  },
-
-  approveKYC: async (userId) => {
-    try {
-      const response = await api.put(`/admin/kyc/${userId}/approve`);
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error;
-    }
-  },
-
-  rejectKYC: async (userId, rejectionReason) => {
-    try {
-      const response = await api.put(`/admin/kyc/${userId}/reject`, { rejectionReason });
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error;
-    }
-  },
-
   // Partner Management
   getAllPartners: async (params = {}) => {
     try {

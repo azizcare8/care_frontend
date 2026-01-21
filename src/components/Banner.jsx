@@ -111,8 +111,8 @@ export default function Banner() {
           transition={{ duration: 0.8 }}
           className="lg:w-1/2 space-y-6"
         >
-          <h5 className="text-lg font-semibold text-cyan-700 tracking-wide uppercase">
-            Care Foundation Trust
+          <h5 className="text-lg font-semibold text-cyan-700 tracking-wide uppercase" suppressHydrationWarning>
+            Care Foundation TrustⓇ
           </h5>
 
           <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 leading-tight">
@@ -120,7 +120,7 @@ export default function Banner() {
           </h1>
 
           <p className="text-gray-800 text-lg leading-relaxed">
-            At <span className="font-semibold text-green-600">Care Foundation Trust</span>, we charge{" "}
+            At <span className="font-semibold text-green-600" suppressHydrationWarning>Care Foundation TrustⓇ</span>, we charge{" "}
             <span className="font-semibold text-green-600">0% platform fees</span>. Every rupee you donate goes directly toward helping people in need — no hidden charges, just pure impact.
           </p>
 

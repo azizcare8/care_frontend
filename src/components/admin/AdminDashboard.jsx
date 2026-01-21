@@ -98,7 +98,7 @@ export default function AdminDashboard() {
     },
     {
       title: "Total Donations",
-      count: ` ₹{(stats?.financial?.totalRaised || 0).toLocaleString()}`,
+      count: `₹ ${(stats?.financial?.totalRaised || 0).toLocaleString("en-IN")}`,
       icon: <BiRupee size={24} />,
       bg: "bg-purple-100 text-purple-600",
       gradient: "from-purple-500 to-purple-600",

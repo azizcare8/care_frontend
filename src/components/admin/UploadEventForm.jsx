@@ -6,9 +6,10 @@ import useAuthStore from "@/store/authStore";
 import toast from "react-hot-toast";
 import api, { getBackendBaseUrl } from "@/utils/api";
 
-export default function UploadEventForm() {
+export default function UploadEventForm({ showHeader = true, onSuccess = null } = {}) {
   const router = useRouter();
   const { user } = useAuthStore();
+  const isAdmin = user?.role === 'admin';
   
   const [formData, setFormData] = useState({
     picture: null,
@@ -87,6 +88,11 @@ export default function UploadEventForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!isAdmin) {
+      toast.error('Admin access required to create events.');
+      return;
+    }
     
     // Validation
     if (!formData.heading || !formData.date || !formData.time || !formData.location || !formData.shortBrief || !formData.description) {
@@ -208,9 +214,13 @@ export default function UploadEventForm() {
         image6: null
       });
 
-      setTimeout(() => {
-        window.location.reload();
-      }, 2000);
+      if (typeof onSuccess === 'function') {
+        onSuccess();
+      } else {
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
+      }
 
     } catch (error) {
       console.error('Event creation failed:', error);
@@ -231,22 +241,30 @@ export default function UploadEventForm() {
 
   return (
     <>
-      <div className="mb-8 bg-white rounded-xl shadow-lg p-6 border-2 border-gray-100">
-        <h1 className="text-2xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent mb-2">Upload Events</h1>
-        <nav className="text-gray-500 text-sm">
-          <ol className="flex space-x-2 items-center">
-            <li><a href="/admin" className="hover:underline text-gray-600 hover:text-blue-600 font-medium">Home</a></li>
-            <li className="text-gray-400">/</li>
-            <li className="text-gray-700 font-semibold">Create Event</li>
-          </ol>
-        </nav>
-      </div>
+      {showHeader && (
+        <div className="mb-8 bg-white rounded-xl shadow-lg p-6 border-2 border-gray-100">
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent mb-2">Upload Events</h1>
+          <nav className="text-gray-500 text-sm">
+            <ol className="flex space-x-2 items-center">
+              <li><a href="/admin" className="hover:underline text-gray-600 hover:text-blue-600 font-medium">Home</a></li>
+              <li className="text-gray-400">/</li>
+              <li className="text-gray-700 font-semibold">Create Event</li>
+            </ol>
+          </nav>
+        </div>
+      )}
 
       <div className="bg-white rounded-xl shadow-lg border-2 border-gray-200 p-6 backdrop-blur-sm">
         <h2 className="text-2xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent mb-6 flex items-center gap-2">
           <span className="w-1 h-8 bg-gradient-to-b from-green-500 to-blue-500 rounded-full"></span>
           Upload Events On Website
         </h2>
+
+        {!isAdmin && (
+          <div className="mb-6 rounded-xl border border-yellow-200 bg-yellow-50 p-4 text-sm text-yellow-800">
+            Admin login required to submit events.
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>

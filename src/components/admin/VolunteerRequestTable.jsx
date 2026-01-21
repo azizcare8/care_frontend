@@ -1,9 +1,11 @@
 "use client";
 import { useState, useEffect } from "react";
-import { BiSearch, BiCheck, BiX, BiUser, BiCalendar, BiMap, BiPhone, BiEnvelope, BiShield, BiIdCard } from "react-icons/bi";
+import { BiSearch, BiCheck, BiX, BiUser, BiCalendar, BiMap, BiPhone, BiEnvelope, BiIdCard } from "react-icons/bi";
 import { FiMail, FiPhone, FiCalendar } from "react-icons/fi";
 import Image from "next/image";
 import useAdminStore from "@/store/adminStore";
+import useAuthStore from "@/store/authStore";
+import Cookies from "js-cookie";
 import { adminService } from "@/services/adminService";
 import api, { getBackendBaseUrl } from "@/utils/api";
 import toast from "react-hot-toast";
@@ -11,6 +13,7 @@ import VolunteerIDCard from "@/components/VolunteerIDCard";
 
 export default function VolunteerRequestTable() {
   const { users, isLoading, getUsers, updateUserStatus } = useAdminStore();
+  const { isAuthenticated, user, _hasHydrated, initializeAuth } = useAuthStore();
   const backendBaseUrl = getBackendBaseUrl();
   const [searchTerm, setSearchTerm] = useState("");
   const [entriesPerPage, setEntriesPerPage] = useState(10);
@@ -26,12 +29,22 @@ export default function VolunteerRequestTable() {
   const [loadingCard, setLoadingCard] = useState(false);
 
   useEffect(() => {
+    if (!_hasHydrated) {
+      initializeAuth().catch(() => {});
+    }
+  }, [_hasHydrated, initializeAuth]);
+
+  useEffect(() => {
     const fetchVolunteers = async () => {
       try {
+        if (!_hasHydrated) return;
+        if (!isAuthenticated || user?.role !== 'admin') return;
+        const token = Cookies.get('token') || localStorage.getItem('token');
+        if (!token) return;
         // Fetch users with volunteer role - don't filter by isActive to show all requests
         await getUsers({ role: 'volunteer', limit: 1000 });
       } catch (error) {
-        console.error("Failed to load volunteers:", error);
+        const hasDetails = error && typeof error === 'object' && Object.keys(error).length > 0;
         
         // Extract meaningful error message
         let errorMessage = "Failed to load volunteers";
@@ -46,18 +59,13 @@ export default function VolunteerRequestTable() {
           errorMessage = error.message || error.error || "Failed to load volunteers";
         }
         
-        console.error("Error details:", {
-          message: errorMessage,
-          error: error,
-          type: typeof error,
-          keys: error ? Object.keys(error) : []
-        });
-        
-        toast.error(errorMessage);
+        if (hasDetails) {
+          toast.error(errorMessage);
+        }
       }
     };
     fetchVolunteers();
-  }, [getUsers]);
+  }, [getUsers, _hasHydrated, isAuthenticated, user?.role]);
 
   const handleApprove = async (userId) => {
     try {
@@ -562,27 +570,6 @@ export default function VolunteerRequestTable() {
                   </div>
                 )}
 
-                {/* KYC Information */}
-                {volunteerDetails.kyc && (
-                  <div className="bg-white rounded-xl p-6 border-2 border-gray-200">
-                    <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                      <BiShield className="text-purple-600" />
-                      KYC Information
-                    </h3>
-                    <div className="space-y-3">
-                      <div>
-                        <label className="text-sm font-semibold text-gray-600">KYC Status</label>
-                        <p className="text-gray-900">
-                          <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                            volunteerDetails.kyc.isCompleted ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
-                          }`}>
-                            {volunteerDetails.kyc.isCompleted ? '✓ Completed' : '⚠ Pending'}
-                          </span>
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
               </div>
             ) : (
               <div className="p-12 text-center">

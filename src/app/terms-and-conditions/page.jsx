@@ -17,14 +17,14 @@ export default function TermsAndConditions() {
           <section>
             <h2 className="text-2xl font-bold text-gray-900 mb-4">1. Introduction</h2>
             <p className="text-gray-600">
-              Welcome to Care Foundation Trust. By accessing and using our website and services, you agree to be bound by these Terms and Conditions. Please read them carefully before making any donations or using our services.
+              Welcome to Care Foundation TrustⓇ. By accessing and using our website and services, you agree to be bound by these Terms and Conditions. Please read them carefully before making any donations or using our services.
             </p>
           </section>
 
           <section>
             <h2 className="text-2xl font-bold text-gray-900 mb-4">2. Donations</h2>
             <ul className="list-disc list-inside text-gray-600 space-y-2">
-              <li>All donations made to Care Foundation Trust are voluntary and non-refundable.</li>
+              <li>All donations made to Care Foundation TrustⓇ are voluntary and non-refundable.</li>
               <li>Donations are eligible for tax exemption under Section 80G of the Income Tax Act, 1961.</li>
               <li>We will provide donation receipts for all contributions received.</li>
               <li>The organization reserves the right to allocate donations as per operational requirements.</li>
@@ -57,7 +57,7 @@ export default function TermsAndConditions() {
           <section>
             <h2 className="text-2xl font-bold text-gray-900 mb-4">6. Limitation of Liability</h2>
             <p className="text-gray-600">
-              Care Foundation Trust shall not be liable for any indirect, incidental, or consequential damages arising from the use of our services or website.
+              Care Foundation TrustⓇ shall not be liable for any indirect, incidental, or consequential damages arising from the use of our services or website.
             </p>
           </section>
 

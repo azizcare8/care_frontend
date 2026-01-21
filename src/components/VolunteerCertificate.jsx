@@ -37,7 +37,7 @@ export default function VolunteerCertificate({ certificateData, onPrint, onDownl
                 <span className="text-4xl font-bold text-green-600">Q</span>
               </div>
               <div className="text-left">
-                <h1 className="text-4xl font-bold mb-1">Care Foundation Trust™</h1>
+                <h1 className="text-4xl font-bold mb-1">Care Foundation TrustⓇ</h1>
                 <p className="text-lg opacity-90">Established Since 1997</p>
                 <p className="text-sm opacity-75">Registration No: {regNumber}</p>
               </div>
@@ -75,7 +75,7 @@ export default function VolunteerCertificate({ certificateData, onPrint, onDownl
                 </h3>
               </div>
               <p className="text-lg text-gray-700 leading-relaxed">
-                {certificateData.description || certificateData.purpose || "has demonstrated exceptional dedication and commitment to serving the community through Care Foundation Trust."}
+                {certificateData.description || certificateData.purpose || "has demonstrated exceptional dedication and commitment to serving the community through Care Foundation TrustⓇ."}
               </p>
             </div>
 
@@ -151,7 +151,7 @@ export default function VolunteerCertificate({ certificateData, onPrint, onDownl
                 <p className="text-sm font-semibold text-green-600 mb-1">
                   {certificateData.digitalSignature?.ceoSignature || "Aziz Gheewala"}
                 </p>
-                <p className="text-xs text-gray-600">CEO, Care Foundation Trust™</p>
+                <p className="text-xs text-gray-600">CEO, Care Foundation TrustⓇ</p>
                 <p className="text-xs text-gray-500 mt-1">Date: {formatDate(certificateData.issuedAt)}</p>
               </div>
             </div>

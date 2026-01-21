@@ -199,7 +199,7 @@ export default function CampaignApprovalsPage() {
                       </div>
                     </div>
 
-                    {/* Fundraiser KYC Status */}
+                    {/* Fundraiser Status */}
                     <div className="mt-3 flex items-center gap-2">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                         campaign.fundraiser?.isVerified
@@ -207,13 +207,6 @@ export default function CampaignApprovalsPage() {
                           : 'bg-yellow-100 text-yellow-800'
                       }`}>
                         {campaign.fundraiser?.isVerified ? '✓ Verified' : 'Unverified'}
-                      </span>
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        campaign.fundraiser?.kyc?.isCompleted
-                          ? 'bg-blue-100 text-blue-800'
-                          : 'bg-gray-100 text-gray-800'
-                      }`}>
-                        {campaign.fundraiser?.kyc?.isCompleted ? 'KYC Complete' : 'KYC Pending'}
                       </span>
                     </div>
                   </div>

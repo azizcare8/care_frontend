@@ -10,7 +10,6 @@ function LoginContent() {
   const searchParams = useSearchParams();
   const { isAuthenticated, user, isLoading, initializeAuth, _hasHydrated } = useAuthStore();
   const redirectUrl = searchParams.get('redirect');
-  const kycParam = searchParams.get('kyc');
   const [shouldRedirect, setShouldRedirect] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
 
@@ -40,10 +39,7 @@ function LoginContent() {
     if (isAuthenticated && user && !isLoading) {
       setShouldRedirect(true);
       const timer = setTimeout(() => {
-        // Check if KYC parameter is present and user needs to complete KYC
-        if (kycParam === 'true' && (!user.kyc?.isCompleted || !user.kyc?.isVerified)) {
-          router.replace('/kyc-verification');
-        } else if (redirectUrl) {
+      if (redirectUrl) {
           router.replace(redirectUrl);
         } else {
           const destination = user.role === "admin" ? "/admin" : "/dashboard";
@@ -55,7 +51,7 @@ function LoginContent() {
     } else {
       setShouldRedirect(false);
     }
-  }, [isAuthenticated, user, isLoading, router, redirectUrl, kycParam, isMounted, _hasHydrated]);
+  }, [isAuthenticated, user, isLoading, router, redirectUrl, isMounted, _hasHydrated]);
 
   // Always render the same structure on server and client
   // Only show redirect overlay after mount if authenticated (client-side only)
@@ -71,7 +67,7 @@ function LoginContent() {
       )}
       <NavBar />
       <div className="pt-20 lg:pt-32 pb-8">
-        <AuthForm redirectUrl={redirectUrl} kycMode={kycParam === 'true'} />
+        <AuthForm redirectUrl={redirectUrl} />
       </div>
     </div>
   );

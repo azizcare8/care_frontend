@@ -15,9 +15,9 @@ export default function FounderPage() {
     // Using actual founder data
     setFounderData({
       name: "Aziz Gheewala",
-      designation: "Founder & CEO, Care Foundation Trust®️",
-      introduction: "Welcome to Care Foundation Trust. Since 1997, we have been committed to making a meaningful difference in the lives of those in need through transparent donations, volunteer support, and meaningful partnerships.",
-      bio: "Since 1997, Care Foundation Trust has been committed to making a meaningful difference in the lives of those in need. Our mission is to address critical social issues and uplift lives through compassion, empathy, and dedicated service. With over two decades of service, we have touched thousands of lives through our various programs including food relief, medical assistance, education support, and community development initiatives. Every donation, every volunteer, and every partner contributes to our shared vision of a better, more compassionate world.",
+      designation: "Founder & CEO, Care Foundation TrustⓇ",
+      introduction: "Welcome to Care Foundation TrustⓇ. Since 1997, we have been committed to making a meaningful difference in the lives of those in need through transparent donations, volunteer support, and meaningful partnerships.",
+      bio: "Since 1997, Care Foundation TrustⓇ has been committed to making a meaningful difference in the lives of those in need. Our mission is to address critical social issues and uplift lives through compassion, empathy, and dedicated service. With over two decades of service, we have touched thousands of lives through our various programs including food relief, medical assistance, education support, and community development initiatives. Every donation, every volunteer, and every partner contributes to our shared vision of a better, more compassionate world.",
       achievements: [
         "Over 10,000+ beneficiaries helped",
         "500+ active volunteers",

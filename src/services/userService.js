@@ -62,16 +62,6 @@ export const userService = {
     }
   },
 
-  // Upload KYC document
-  uploadKYCDocument: async (kycData) => {
-    try {
-      const response = await api.post('/users/kyc/upload', kycData);
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error;
-    }
-  },
-
   // Get user referrals
   getReferrals: async () => {
     try {

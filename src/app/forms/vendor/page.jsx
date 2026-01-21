@@ -110,7 +110,7 @@ export default function VendorFormPage() {
             Vendor Registration
           </h1>
           <p className="text-gray-600 mb-6">
-            Register as a vendor partner with Care Foundation Trust and help us serve the community.
+            Register as a vendor partner with Care Foundation TrustⓇ and help us serve the community.
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-6">

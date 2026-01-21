@@ -8,9 +8,12 @@ import { FaWhatsapp, FaFacebook, FaTwitter, FaLink } from "react-icons/fa";
 import Image from "next/image";
 import { normalizeImageUrl, shouldUnoptimizeImage } from "@/utils/imageUtils";
 import BackToHome from "@/components/BackToHome";
+import UploadEventForm from "@/components/admin/UploadEventForm";
+import useAuthStore from "@/store/authStore";
 
 export default function EventsPage() {
   const router = useRouter();
+  const { user } = useAuthStore();
   const [upcomingEvents, setUpcomingEvents] = useState([]);
   const [completedEvents, setCompletedEvents] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -261,6 +264,11 @@ export default function EventsPage() {
             <p className="text-sm text-gray-500">Check back soon for new events!</p>
           </div>
         )}
+
+        {/* Event Form (Admin) */}
+        <div id="event-form" className="mt-16">
+          <UploadEventForm showHeader={false} onSuccess={fetchEvents} />
+        </div>
       </div>
       </div>
     </ClientLayout>

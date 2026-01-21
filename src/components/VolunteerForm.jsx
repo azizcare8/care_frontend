@@ -196,11 +196,11 @@ export default function VolunteerForm() {
             Join Us
           </h5>
           <h1 className="text-3xl md:text-4xl mt-2 font-extrabold text-gray-800 leading-snug transform translate-y-5 animate-[fadeIn_0.8s_ease-in-out_0.2s_forwards]">
-            Become a Volunteer and Make a Difference with Care Foundation Trust!
+            Become a Volunteer and Make a Difference with Care Foundation TrustⓇ!
           </h1>
           
           <p className="text-gray-600 text-lg max-w-3xl mx-auto  transform translate-y-5 animate-[fadeIn_0.8s_ease-in-out_0.4s_forwards]">
-            At Care Foundation Trust, every act of kindness can transform lives. Join our dedicated
+            At Care Foundation TrustⓇ, every act of kindness can transform lives. Join our dedicated
             team of volunteers and help bring positive change to those in need.
           </p>
         </div>
@@ -281,7 +281,7 @@ export default function VolunteerForm() {
               name="message"
               value={formData.message}
               onChange={handleChange}
-              placeholder="Why do you want to be part of Care Foundation Trust?"
+              placeholder="Why do you want to be part of Care Foundation TrustⓇ?"
               required
               rows="4"
               className="w-full p-3 border border-gray-300 rounded-xl bg-gray-50 placeholder-gray-500 text-gray-800 focus:ring-2 focus:ring-green-400 focus:border-green-400 outline-none resize-none transition duration-300"

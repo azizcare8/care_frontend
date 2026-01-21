@@ -8,8 +8,8 @@ export default function FAQ() {
 
   const faqs = [
     {
-      question: "What is Care Foundation Trust?",
-      answer: "Care Foundation Trust is a registered non-profit organization established in 1997. We work towards providing healthcare, education, and nutrition support to underprivileged communities across India."
+      question: "What is Care Foundation TrustⓇ?",
+      answer: "Care Foundation TrustⓇ is a registered non-profit organization established in 1997. We work towards providing healthcare, education, and nutrition support to underprivileged communities across India."
     },
     {
       question: "How can I donate to Care Foundation?",
@@ -17,7 +17,7 @@ export default function FAQ() {
     },
     {
       question: "Is my donation tax-deductible?",
-      answer: "Yes! Care Foundation Trust is registered under Section 80G of the Income Tax Act, 1961. All donations are eligible for tax exemption, and you will receive a donation receipt for your records."
+      answer: "Yes! Care Foundation TrustⓇ is registered under Section 80G of the Income Tax Act, 1961. All donations are eligible for tax exemption, and you will receive a donation receipt for your records."
     },
     {
       question: "How is my donation used?",

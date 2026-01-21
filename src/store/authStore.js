@@ -348,6 +348,19 @@ const useAuthStore = create(
         // Called when storage is rehydrated
         if (state && typeof window !== 'undefined') {
           state._hasHydrated = true;
+          // Ensure token is available to API layer after rehydrate
+          if (state.token) {
+            const storedToken = Cookies.get('token') || localStorage.getItem('token');
+            if (!storedToken) {
+              Cookies.set('token', state.token, {
+                expires: 7,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'lax',
+                path: '/'
+              });
+              localStorage.setItem('token', state.token);
+            }
+          }
           // If user exists in storage, verify with server
           if (state.user && state.isAuthenticated) {
             state.getCurrentUser().catch(() => {

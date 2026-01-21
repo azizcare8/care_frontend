@@ -234,6 +234,14 @@ export default function DonationPaymentPage() {
     setIsProcessing(true);
 
     try {
+      const donorDetails = {
+        name: donationData.firstName
+          ? `${donationData.firstName} ${donationData.lastName || ''}`.trim()
+          : donationData.donorDetails?.name || 'Guest Donor',
+        email: donationData.email || donationData.donorDetails?.email || '',
+        phone: donationData.phone || donationData.donorDetails?.phone || ''
+      };
+
       // Load Razorpay script if not already loaded
       try {
         await loadRazorpayScript();
@@ -264,7 +272,8 @@ export default function DonationPaymentPage() {
       const response = await paymentService.createRazorpayOrder({
         amount: amount, // Send amount in rupees (backend will convert to paise)
         currency: 'INR',
-        receipt: `DONATION-${Date.now()}`
+        receipt: `DONATION-${Date.now()}`,
+        donorDetails
       });
 
       // Validate response
@@ -279,7 +288,7 @@ export default function DonationPaymentPage() {
         key: response.data.keyId || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
         amount: response.data.amount,
         currency: response.data.currency,
-        name: 'Care Foundation Trust',
+        name: 'Care Foundation TrustⓇ',
         description: `Donation of ${amount}`,
         order_id: response.data.orderId,
         handler: async (razorpayResponse) => {
@@ -291,7 +300,8 @@ export default function DonationPaymentPage() {
               razorpay_signature: razorpayResponse.razorpay_signature,
               amount: amount, // Send amount for general donations
               isAnonymous: false,
-              message: donationData.message || ''
+              message: donationData.message || '',
+              donorDetails
               // Note: No campaignId for general donations
             });
 

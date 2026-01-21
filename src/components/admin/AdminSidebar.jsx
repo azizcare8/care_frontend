@@ -79,7 +79,6 @@ const sidebarData = {
       icon: <BiUserCircle />,
       children: [
         { title: "Registered Users", href: "/admin/users" },
-        { title: "KYC Management", href: "/admin/kyc-management" },
       ],
     },
     {

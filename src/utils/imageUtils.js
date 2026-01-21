@@ -1,3 +1,5 @@
+import { getBackendBaseUrl } from "@/utils/api";
+
 // Utility function to check if image should be unoptimized
 export const shouldUnoptimizeImage = (imageUrl) => {
   if (!imageUrl || typeof imageUrl !== 'string') return false;
@@ -10,7 +12,9 @@ export const shouldUnoptimizeImage = (imageUrl) => {
     'localhost:5000',
     '127.0.0.1:5000',
     'carefoundation-backend-1.onrender.com',
-    'caredigiworld.com'
+    'caredigiworld.com',
+    'amazonaws.com',
+    's3.amazonaws.com'
   ];
 
   return unoptimizedDomains.some(domain => imageUrl.includes(domain));
@@ -47,6 +51,8 @@ export const normalizeImageUrl = (imageUrl) => {
     // Not a valid absolute URL → continue
   }
 
-  // Case 3: Relative path → prefix backend URL
-  return `${process.env.NEXT_PUBLIC_BACKEND_URL}${url.startsWith("/") ? "" : "/"}${url}`;
+  // Case 3: Relative path → prefix backend URL when available
+  const backendBaseUrl = getBackendBaseUrl();
+  if (!backendBaseUrl) return url;
+  return `${backendBaseUrl}${url.startsWith("/") ? "" : "/"}${url}`;
 };

@@ -317,7 +317,7 @@ export default function TrendingFundraisers({ campaigns = [], isLoading = false 
                     </div>
                     <div>
                       <p className="text-sm font-semibold text-gray-800">
-                        {campaign.fundraiser?.name || "Care Foundation Trust"}
+                        {campaign.fundraiser?.name || "Care Foundation TrustⓇ"}
                       </p>
                       <p className="text-xs text-gray-500">
                         {campaign.location ? `${campaign.location.city}, ${campaign.location.state}` : "Mumbai, Maharashtra"}

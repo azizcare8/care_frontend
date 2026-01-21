@@ -30,7 +30,7 @@ export default function Footer() {
           <Link href="/" className="flex items-center mb-4 transform hover:scale-105 transition duration-500">
             <Image
               src="/trademark.png"
-              alt="Care Foundation Trust Logo"
+              alt="Care Foundation TrustⓇ Logo"
               width={200}
               height={120}
               className="hover:drop-shadow-xl transition-transform duration-500 rounded-lg"
@@ -38,7 +38,7 @@ export default function Footer() {
             />
           </Link>
           <p className="text-sm text-gray-300 mb-3">
-            Care Foundation Trust is a non-profit organisation committed to compassion and empathy. Our goal is to address critical social issues and uplift lives.
+            Care Foundation TrustⓇ is a non-profit organisation committed to compassion and empathy. Our goal is to address critical social issues and uplift lives.
           </p>
 
           <div className="flex space-x-4 mt-5">

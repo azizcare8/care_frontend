@@ -107,6 +107,34 @@ export default function ClientLayout({ children }) {
       window.removeEventListener('unhandledrejection', handleUnhandledRejection);
     };
   }, []);
+
+  // Global form validation: show native popup for missing required fields
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const handleSubmit = (event) => {
+      const form = event.target;
+      if (!(form instanceof HTMLFormElement)) return;
+      if (form.noValidate) return;
+
+      if (typeof form.checkValidity === 'function' && !form.checkValidity()) {
+        event.preventDefault();
+        event.stopPropagation();
+        if (typeof form.reportValidity === 'function') {
+          form.reportValidity();
+        }
+        const firstInvalid = form.querySelector(':invalid');
+        if (firstInvalid && typeof firstInvalid.scrollIntoView === 'function') {
+          firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }
+    };
+
+    document.addEventListener('submit', handleSubmit, true);
+    return () => {
+      document.removeEventListener('submit', handleSubmit, true);
+    };
+  }, []);
   
   // Check if current route is admin (hide navbar only for admin)
   const isAdminRoute = pathname?.startsWith('/admin');

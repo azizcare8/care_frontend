@@ -56,6 +56,16 @@ const nextConfig = {
         hostname: 'care-foundation-uploads.s3.ap-southeast-2.amazonaws.com',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: '**.amazonaws.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.s3.amazonaws.com',
+        pathname: '/**',
+      },
     ],
     formats: ['image/avif', 'image/webp'],
     minimumCacheTTL: 60,

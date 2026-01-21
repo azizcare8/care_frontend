@@ -82,6 +82,21 @@ export default function HealthPartners() {
     return parts.join(", ").trim();
   };
 
+  const stripUrlsFromAddress = (value) => {
+    if (typeof value !== 'string') return '';
+    const matches = value.match(/https?:\/\/[^\s,]+/gi) || [];
+    let withoutUrls = value;
+    matches.forEach((match) => {
+      const escaped = match.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      withoutUrls = withoutUrls.replace(new RegExp(escaped, "g"), "");
+    });
+    return withoutUrls
+      .replace(/\s*,\s*/g, ", ")
+      .replace(/\s+/g, " ")
+      .replace(/^,\s*|\s*,\s*$/g, "")
+      .trim();
+  };
+
   // Helper function to get full address
   const getFullAddress = (partner) => {
     try {
@@ -97,6 +112,15 @@ export default function HealthPartners() {
     } catch (error) {
       return 'Address not available';
     }
+  };
+
+  const getDisplayAddress = (partner) => {
+    const fullAddress = getFullAddress(partner);
+    if (!fullAddress || fullAddress === 'Address not available') {
+      return 'Address not available';
+    }
+    const cleaned = stripUrlsFromAddress(fullAddress);
+    return cleaned || 'Address not available';
   };
 
   // Helper function to get image URL - handles all sources
@@ -157,7 +181,7 @@ export default function HealthPartners() {
       if (directUrl) {
         return directUrl;
       }
-      const address = getFullAddress(partner);
+      const address = getDisplayAddress(partner);
       // Ensure address is valid and not empty
       if (!address || address.trim() === '' || address === 'Address not available') {
         return 'https://maps.google.com/';
@@ -224,7 +248,7 @@ export default function HealthPartners() {
   const getPartnerType = (partner) => (partner.businessType || '').toLowerCase();
   const sectionConfigs = [
     { id: 'hospital', title: 'Hospitals', subtitle: 'Trusted hospitals supporting our mission' },
-    { id: 'clinic', title: 'Doctors & Clinics', subtitle: 'Medical doctors and clinics for consultations' },
+    { id: 'clinic', title: 'Doctor For U', subtitle: 'Medical doctors and clinics for consultations' },
     { id: 'pathology', title: 'Pathology Labs', subtitle: 'Diagnostic and lab partners' },
     { id: 'pharmacy', title: 'Pharmacies', subtitle: 'Pharmacy partners for medicines' },
     { id: 'other', title: 'Other Medical Partners', subtitle: 'Additional medical support services' }
@@ -317,7 +341,7 @@ export default function HealthPartners() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {section.partners.map((partner, index) => {
                     try {
-                      const address = getFullAddress(partner);
+                      const address = getDisplayAddress(partner);
                       let mapLink = getMapLink(partner);
                       const specialization = getSpecialization(partner);
                       const phone = partner.phone || partner.contactPerson?.phone || 'N/A';
@@ -358,13 +382,13 @@ export default function HealthPartners() {
                             {partner.name}
                           </h3>
 
-                          <p className="text-gray-600 text-sm flex items-center justify-center gap-1.5 w-full">
+                          <p className="text-gray-700 text-sm flex items-center justify-center gap-2 text-center w-full">
                             <FaPhone className="text-green-600" />
-                            <span className="flex-1 min-w-0 truncate">{phone}</span>
+                            <span className="font-semibold">{phone}</span>
                           </p>
-                          <p className="text-gray-600 text-sm mt-1 flex items-start justify-center gap-1.5 w-full">
+                          <p className="text-gray-600 text-sm mt-2 flex items-start justify-center gap-2 text-center w-full">
                             <FaMapMarkerAlt className="text-red-600" />
-                            <span className="flex-1 min-w-0 line-clamp-2 break-words">{address}</span>
+                            <span className="line-clamp-2 break-words">{address}</span>
                           </p>
 
                           <div className="flex gap-3 w-full mt-6" onClick={(e) => e.stopPropagation()}>

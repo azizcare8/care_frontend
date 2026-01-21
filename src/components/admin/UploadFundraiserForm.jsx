@@ -8,7 +8,7 @@ import useAuthStore from "@/store/authStore";
 import toast from "react-hot-toast";
 import { getBackendBaseUrl } from "@/utils/api";
 
-export default function UploadFundraiserForm() {
+export default function UploadFundraiserForm({ forcePending = false } = {}) {
   const router = useRouter();
   const { user } = useAuthStore();
   
@@ -247,7 +247,8 @@ export default function UploadFundraiserForm() {
           city: 'Mumbai',
           state: 'Maharashtra',
           country: 'India'
-        }
+        },
+        ...(forcePending && { status: 'pending', isActive: false })
       };
 
       setUploadProgress(80);
