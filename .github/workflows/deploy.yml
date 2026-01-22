@@ -48,11 +48,25 @@ jobs:
             npm run build
 
             echo "✅ Verifying build output..."
-            if [ -d ".next/static/css" ]; then
-              echo "✅ CSS files generated successfully"
-              ls -la .next/static/css/ | head -5
+            # Check for Next.js build output
+            if [ -d ".next" ]; then
+              echo "✅ .next directory exists"
+              if [ -d ".next/static" ]; then
+                echo "✅ Static assets directory exists"
+                echo "📦 Static files:"
+                find .next/static -type f | head -10
+              else
+                echo "⚠️ Warning: .next/static directory not found!"
+              fi
+              if [ -d ".next/static/css" ]; then
+                echo "✅ CSS files generated successfully"
+                ls -la .next/static/css/ | head -5
+              else
+                echo "⚠️ Warning: CSS directory not found!"
+              fi
             else
-              echo "⚠️ Warning: CSS directory not found!"
+              echo "❌ ERROR: .next directory not found! Build failed!"
+              exit 1
             fi
 
             echo "🚀 Restarting PM2 process..."
@@ -62,8 +76,9 @@ jobs:
               pm2 restart care_frontend
             else
               echo "🆕 Process doesn't exist - Starting new..."
-              # Start PM2 with working directory (we're already in the directory, but specify it explicitly)
-              pm2 start npm --name care_frontend -- start
+              # Start PM2 with Next.js production server
+              # Using 'next start' directly ensures proper static asset serving
+              pm2 start npm --name care_frontend -- start -- --port 3000
             fi
 
             echo "💾 Saving PM2 configuration..."

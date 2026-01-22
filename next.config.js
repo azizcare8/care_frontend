@@ -3,6 +3,10 @@ const nextConfig = {
   reactStrictMode: true,
   transpilePackages: ['react-icons'],
   
+  // ✅ CRITICAL: Ensure static assets are served correctly
+  // If your app is served from root domain, basePath should be empty or '/'
+  basePath: '',
+  
   // Performance optimizations
   compress: true,
   poweredByHeader: false,
@@ -96,7 +100,8 @@ const nextConfig = {
   },
 
   // Production optimizations
-  output: 'standalone',
+  // Removed 'standalone' output to ensure static assets are properly served
+  // output: 'standalone', // ❌ This was preventing CSS/JS from loading
   
   // Silence Next 16 Turbopack warning when custom webpack config exists
   turbopack: {
