@@ -10,44 +10,66 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Build Next.js app
-        run: npm run build
-
       - name: Deploy to VPS
         uses: appleboy/ssh-action@v1.0.3
         with:
+          debug: true
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          script_stop: false
           script: |
-            set +e
+            set -ex
 
-            cd /var/www/care_frontend
+            echo "👤 User:"
+            whoami
 
+            # 🔥 LOAD NVM (MOST IMPORTANT PART)
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+
+            echo "🔎 Node info:"
+            node -v
+            npm -v
+            pm2 -v
+
+            cd /var/www/carefoundation/frontend
+
+            echo "📂 Current directory:"
+            pwd
+
+            echo "🔄 Fetching latest code..."
             git fetch origin
             git reset --hard origin/main
 
+            echo "📦 Installing dependencies..."
             npm install
+
+            echo "🏗️ Building Next.js app..."
             npm run build
 
-            pm2 describe care_frontend > /dev/null
-            if [ $? -eq 0 ]; then
-              pm2 restart care_frontend
+            echo "✅ Verifying build output..."
+            if [ -d ".next/static/css" ]; then
+              echo "✅ CSS files generated successfully"
+              ls -la .next/static/css/ | head -5
             else
-              pm2 start npm --name "care_frontend" -- start
+              echo "⚠️ Warning: CSS directory not found!"
             fi
 
+            echo "🚀 Restarting PM2 process..."
+            # Check if process exists, restart or start accordingly
+            if pm2 describe care_frontend > /dev/null 2>&1; then
+              echo "✅ Process exists - Restarting..."
+              pm2 restart care_frontend
+            else
+              echo "🆕 Process doesn't exist - Starting new..."
+              # Start PM2 with working directory (we're already in the directory, but specify it explicitly)
+              pm2 start npm --name care_frontend -- start
+            fi
+
+            echo "💾 Saving PM2 configuration..."
             pm2 save
-            exit 0
+
+            echo "📊 PM2 Status:"
+            pm2 status
+
+            echo "✅ Deployment completed successfully!"
