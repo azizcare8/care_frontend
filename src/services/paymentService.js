@@ -81,7 +81,21 @@ export const paymentService = {
       // Extract proper error message with better handling
       let errorMessage = 'Failed to create Razorpay order';
       
-      if (error?.message) {
+      // Handle 401 Unauthorized errors specifically
+      if (error?.response?.status === 401) {
+        const errorData = error.response.data;
+        const backendMessage = errorData?.message || errorData?.error || error.message;
+        
+        // Check if this is an authentication error that shouldn't happen for guest donations
+        if (backendMessage?.includes('No token provided') || backendMessage?.includes('Access denied')) {
+          errorMessage = 'Payment gateway authentication error. This route should allow guest donations. Please contact support if this issue persists.';
+          console.error('⚠️ Payment Route Error: The backend is requiring authentication for a route that should allow guest donations.');
+          console.error('This suggests the production backend may be using "protect" middleware instead of "optionalAuth".');
+          console.error('Please verify that the route uses optionalAuth middleware in production.');
+        } else {
+          errorMessage = backendMessage || 'Authentication failed. Please try again.';
+        }
+      } else if (error?.message) {
         errorMessage = error.message;
       } else if (error?.response?.data) {
         const errorData = error.response.data;
