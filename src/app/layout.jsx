@@ -13,6 +13,16 @@ export const metadata = {
   title: "Care Foundation - India's Trusted Crowdfunding Platform",
   description: "Raise funds for medical emergencies, education, disaster relief & more. Start your fundraiser on India's most trusted crowdfunding platform.",
   keywords: ["crowdfunding India", "fundraising", "medical fundraising", "education funding", "disaster relief"],
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/fevicon.jpg', type: 'image/jpeg', sizes: '32x32' },
+    ],
+    apple: [
+      { url: '/fevicon.jpg', sizes: '180x180', type: 'image/jpeg' },
+    ],
+    shortcut: '/favicon.ico',
+  },
 };
 
 export const viewport = {
