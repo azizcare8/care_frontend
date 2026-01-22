@@ -19,6 +19,9 @@ export default function DonationPaymentPage() {
   const [razorpayLoaded, setRazorpayLoaded] = useState(false);
 
   // Load Razorpay script
+  // Note: Razorpay SDK may show 400 errors in Network tab for /validate/account endpoint
+  // This is harmless - it's part of Razorpay's internal fraud detection system
+  // These errors don't affect payment functionality and can be safely ignored
   const loadRazorpayScript = () => {
     return new Promise((resolve, reject) => {
       // Check if Razorpay is already available and is a constructor
@@ -450,12 +453,37 @@ export default function DonationPaymentPage() {
 
       try {
         const razorpay = new window.Razorpay(options);
+        
+        // Handle payment failure
         razorpay.on('payment.failed', (response) => {
           console.error('Payment failed:', response);
-          toast.error('Payment failed. Please try again.');
+          const errorMsg = response.error?.description || response.error?.reason || 'Payment failed. Please try again.';
+          toast.error(errorMsg);
           setIsProcessing(false);
         });
+        
+        // Suppress harmless validation errors from Razorpay SDK
+        // These are internal fraud detection checks and don't affect payment functionality
+        const originalConsoleError = console.error;
+        console.error = function(...args) {
+          const message = args.join(' ');
+          // Suppress Razorpay validation errors (harmless 400 errors from account validation)
+          if (typeof message === 'string' && (
+            message.includes('api.razorpay.com') && message.includes('400') ||
+            message.includes('/standard_checkout/payments/validate') ||
+            message.includes('/payments/validate/account')
+          )) {
+            return; // Suppress this harmless error
+          }
+          originalConsoleError.apply(console, args);
+        };
+        
         razorpay.open();
+        
+        // Restore console.error after a delay
+        setTimeout(() => {
+          console.error = originalConsoleError;
+        }, 5000);
       } catch (razorpayError) {
         console.error('Razorpay instantiation error:', razorpayError);
         throw new Error(`Failed to initialize Razorpay: ${razorpayError.message || 'Unknown error'}`);

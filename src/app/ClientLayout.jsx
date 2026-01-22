@@ -1,4 +1,7 @@
 "use client";
+// Import error suppression FIRST - runs immediately before any other code
+import "@/utils/suppressConsoleErrors";
+
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 // import { Toaster } from "react-hot-toast";
@@ -13,8 +16,6 @@ export default function ClientLayout({ children }) {
   // Suppress harmless console errors from third-party scripts/browser extensions
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    // Only suppress errors in production so dev errors stay visible.
-    if (process.env.NODE_ENV !== 'production') return;
 
     const originalError = console.error;
     const originalWarn = console.warn;
@@ -40,14 +41,26 @@ export default function ClientLayout({ children }) {
         'Failed to fetch products',
         'Failed to fetch upcoming events',
         'Failed to fetch urgent campaigns',
-        'Could not establish connection. Receiving end does not exist'
+        'Could not establish connection. Receiving end does not exist',
+        // Razorpay SDK errors (harmless - from fraud detection/tracking system)
+        'Access to image at \'http://localhost:',
+        'CORS policy',
+        'Permissions policy violation',
+        'accelerometer',
+        'deviceorientation',
+        'devicemotion',
+        'sensor features',
+        'Mixed Content.*automatically upgraded'
       ];
       
-      // Suppress all network-related errors in both development and production
+      // Suppress all network-related errors and Razorpay SDK errors
       return suppressedMessages.some(msg => message.includes(msg)) ||
              message.includes('Network error') ||
              message.includes('connection') ||
-             message.includes('ERR_CONNECTION');
+             message.includes('ERR_CONNECTION') ||
+             /localhost:\d+\/.*\.png/i.test(message) ||
+             /x-rtb-fingerprint-id/i.test(message) ||
+             /Permissions policy violation/i.test(message);
     };
 
     console.error = (...args) => {

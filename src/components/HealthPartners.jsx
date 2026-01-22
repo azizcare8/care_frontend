@@ -1,12 +1,12 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { partnerService } from "@/services/partnerService";
 import toast from "react-hot-toast";
-import { FaPhone, FaMapMarkerAlt } from "react-icons/fa";
-import { shouldUnoptimizeImage } from "@/utils/imageUtils";
+import { FaPhone, FaMapMarkerAlt, FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { shouldUnoptimizeImage, normalizeImageUrl } from "@/utils/imageUtils";
 import { getBackendBaseUrl } from "@/utils/api";
 
 export default function HealthPartners() {
@@ -14,6 +14,7 @@ export default function HealthPartners() {
   const [isLoading, setIsLoading] = useState(true);
   const searchParams = useSearchParams();
   const router = useRouter();
+  const sliderRefs = useRef({});
 
   useEffect(() => {
     const fetchPartners = async () => {
@@ -123,38 +124,126 @@ export default function HealthPartners() {
     return cleaned || 'Address not available';
   };
 
+  const sanitizeCardLabel = (value) => {
+    if (typeof value !== 'string') return '';
+    return value.replace(/ID:\s*[^|]+(\|\s*BLOOD:\s*[^|]+)?/gi, '').trim();
+  };
+
   // Helper function to get image URL - handles all sources
   const getImageUrl = (partner) => {
+    // First, check if imageUrl (string) is available (preferred method)
+    if (partner.imageUrl && typeof partner.imageUrl === 'string' && partner.imageUrl.trim()) {
+      try {
+        // Normalize the URL to handle concatenated/malformed URLs
+        const normalizedUrl = normalizeImageUrl(partner.imageUrl);
+        
+        if (normalizedUrl) {
+          // Validate the normalized URL
+          try {
+            new URL(normalizedUrl);
+            if (process.env.NODE_ENV === 'development') {
+              console.log('Image URL normalized (from imageUrl field):', {
+                original: partner.imageUrl,
+                normalized: normalizedUrl,
+                partner: partner.name
+              });
+            }
+            return normalizedUrl;
+          } catch (validationError) {
+            if (process.env.NODE_ENV === 'development') {
+              console.warn('Normalized URL validation failed:', normalizedUrl, validationError);
+            }
+          }
+        }
+        
+        // Fallback: try to handle the URL manually if normalization didn't work
+        const imageUrl = partner.imageUrl;
+        
+        // If URL is already absolute (http:// or https://), validate and return
+        if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+          try {
+            // Validate URL using URL constructor
+            new URL(imageUrl);
+            return imageUrl;
+          } catch (e) {
+            // URL is malformed, continue to fallback
+          }
+        }
+      } catch (error) {
+        // Continue to images array fallback
+      }
+    }
+    
+    // Fallback to images array (for backward compatibility)
     if (partner.images && partner.images.length > 0) {
       const primaryImage = partner.images.find(img => img.isPrimary) || partner.images[0];
       if (primaryImage?.url) {
         try {
+          // First, normalize the URL to handle concatenated/malformed URLs
+          const normalizedUrl = normalizeImageUrl(primaryImage.url);
+          
+          if (normalizedUrl) {
+            // Validate the normalized URL
+            try {
+              new URL(normalizedUrl);
+              if (process.env.NODE_ENV === 'development') {
+                console.log('Image URL normalized:', {
+                  original: primaryImage.url,
+                  normalized: normalizedUrl,
+                  partner: partner.name
+                });
+              }
+              return normalizedUrl;
+            } catch (validationError) {
+              if (process.env.NODE_ENV === 'development') {
+                console.warn('Normalized URL validation failed:', normalizedUrl, validationError);
+              }
+            }
+          }
+          
+          // Fallback: try to handle the URL manually if normalization didn't work
           const imageUrl = primaryImage.url;
           
           // If URL is already absolute (http:// or https://), validate and return
           if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
-            // Validate URL using URL constructor
-            new URL(imageUrl);
-            return imageUrl;
+            try {
+              // Validate URL using URL constructor
+              new URL(imageUrl);
+              return imageUrl;
+            } catch (e) {
+              // URL is malformed, continue to fallback
+            }
           }
           
           // If URL is relative, make it absolute with backend base URL
           const backendBaseURL = getBackendBaseUrl();
           
           // Ensure backendBaseURL is valid
-          if (!backendBaseURL || (!backendBaseURL.startsWith('http://') && !backendBaseURL.startsWith('https://'))) {
-            throw new Error('Invalid backend base URL');
+          if (backendBaseURL && (backendBaseURL.startsWith('http://') || backendBaseURL.startsWith('https://'))) {
+            try {
+              // Construct absolute URL using URL constructor to ensure it's valid
+              const baseUrl = backendBaseURL.endsWith('/') ? backendBaseURL.slice(0, -1) : backendBaseURL;
+              const relativePath = imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`;
+              const absoluteUrl = new URL(relativePath, baseUrl).href;
+              return absoluteUrl;
+            } catch (e) {
+              // URL construction failed
+            }
           }
           
-          // Construct absolute URL using URL constructor to ensure it's valid
-          const baseUrl = backendBaseURL.endsWith('/') ? backendBaseURL.slice(0, -1) : backendBaseURL;
-          const relativePath = imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`;
-          const absoluteUrl = new URL(relativePath, baseUrl).href;
-          
-          return absoluteUrl;
+          // If all else fails, log and return fallback
+          if (process.env.NODE_ENV === 'development') {
+            console.warn('Could not process image URL, using fallback:', {
+              original: primaryImage.url,
+              partner: partner.name
+            });
+          }
+          return 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=300&h=300&fit=crop&crop=faces';
         } catch (error) {
           // If URL construction fails, return fallback
-          console.warn('Invalid image URL:', primaryImage.url, error);
+          if (process.env.NODE_ENV === 'development') {
+            console.warn('Error processing image URL:', primaryImage.url, error);
+          }
           return 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=300&h=300&fit=crop&crop=faces';
         }
       }
@@ -272,6 +361,21 @@ export default function HealthPartners() {
     : groupedSections;
   const hasVisiblePartners = visibleSections.some((section) => section.partners.length > 0);
 
+  const setSliderRef = (sectionId) => (element) => {
+    if (element) {
+      sliderRefs.current[sectionId] = element;
+    }
+  };
+
+  const scrollSection = (sectionId, direction) => {
+    const container = sliderRefs.current[sectionId];
+    if (!container) return;
+    const firstCard = container.querySelector('[data-slider-card="true"]');
+    const cardWidth = firstCard?.getBoundingClientRect().width || 320;
+    const gap = 24;
+    container.scrollBy({ left: direction * (cardWidth + gap), behavior: "smooth" });
+  };
+
   if (isLoading) {
     return (
       <section className="py-20 bg-gradient-to-br from-blue-50 via-pink-50 to-white">
@@ -336,14 +440,43 @@ export default function HealthPartners() {
                     <h3 className="text-2xl font-bold text-gray-800">{section.title}</h3>
                     <p className="text-sm text-gray-600">{section.subtitle}</p>
                   </div>
-                  <span className="text-sm text-gray-500">{section.partners.length} partners</span>
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm text-gray-500">{section.partners.length} partners</span>
+                    {section.id === "clinic" && (
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => scrollSection(section.id, -1)}
+                          aria-label="Scroll left"
+                          className="h-9 w-9 rounded-full border border-gray-200 bg-white text-gray-600 shadow-sm hover:text-blue-600 hover:border-blue-300 transition-colors"
+                        >
+                          <FaChevronLeft className="mx-auto" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => scrollSection(section.id, 1)}
+                          aria-label="Scroll right"
+                          className="h-9 w-9 rounded-full border border-gray-200 bg-white text-gray-600 shadow-sm hover:text-blue-600 hover:border-blue-300 transition-colors"
+                        >
+                          <FaChevronRight className="mx-auto" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div
+                  ref={section.id === "clinic" ? setSliderRef(section.id) : undefined}
+                  className={
+                    section.id === "clinic"
+                      ? "flex gap-6 overflow-x-auto pb-4 scroll-smooth snap-x snap-mandatory"
+                      : "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+                  }
+                >
                   {section.partners.map((partner, index) => {
                     try {
                       const address = getDisplayAddress(partner);
                       let mapLink = getMapLink(partner);
-                      const specialization = getSpecialization(partner);
+                      const specialization = sanitizeCardLabel(getSpecialization(partner));
                       const phone = partner.phone || partner.contactPerson?.phone || 'N/A';
                       const imageUrl = getImageUrl(partner);
 
@@ -361,40 +494,52 @@ export default function HealthPartners() {
                           transition={{ delay: index * 0.05, duration: 0.5 }}
                           whileHover={{ scale: 1.02 }}
                           onClick={() => handleCardClick(partner)}
-                          className="bg-white rounded-2xl shadow-xl p-6 flex flex-col items-center text-center transition-all duration-300 hover:shadow-2xl border-2 border-gray-200 hover:border-blue-400 group cursor-pointer"
+                          data-slider-card={section.id === "clinic" ? "true" : undefined}
+                          className={`bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col text-left transition-all duration-300 hover:shadow-2xl border border-gray-200 hover:border-blue-300 group cursor-pointer ${
+                            section.id === "clinic"
+                              ? "min-w-full sm:min-w-[240px] md:min-w-[260px] lg:min-w-[240px] xl:min-w-[260px] flex-shrink-0 snap-start"
+                              : ""
+                          }`}
                         >
-                          <div className="relative w-32 h-32 mb-4 rounded-full overflow-hidden shadow-lg ring-4 ring-pink-100">
-                            <Image
-                              src={imageUrl}
-                              alt={partner.name || 'Health Partner'}
-                              fill
-                              sizes="128px"
-                              className="object-cover"
-                              unoptimized={shouldUnoptimizeImage(imageUrl)}
-                            />
+                          <div className="relative bg-gradient-to-r from-blue-600 to-cyan-500 h-24">
+                            <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 w-20 h-20 rounded-full border-4 border-white overflow-hidden bg-gray-100 shadow-md">
+                              <Image
+                                src={imageUrl}
+                                alt={partner.name || "Health Partner"}
+                                fill
+                                sizes="80px"
+                                className="object-cover"
+                                unoptimized={shouldUnoptimizeImage(imageUrl)}
+                              />
+                            </div>
                           </div>
 
-                          <p className="text-blue-600 font-semibold text-xs mb-1 uppercase tracking-wide">
-                            {specialization}
-                          </p>
+                          <div className="pt-12 px-4 pb-4 flex flex-col items-center text-center gap-2">
+                            <h3 className="text-base font-bold text-gray-800">
+                              {partner.name}
+                            </h3>
+                            {specialization && (
+                              <div className="text-xs font-semibold text-blue-700 bg-blue-50 px-3 py-1 rounded-full">
+                                {specialization}
+                              </div>
+                            )}
+                          </div>
 
-                          <h3 className="text-xl font-bold text-gray-800 mb-2">
-                            {partner.name}
-                          </h3>
+                          <div className="px-4 pb-4 flex flex-col gap-2 text-left">
+                            <p className="text-gray-700 text-xs flex items-center gap-2">
+                              <FaPhone className="text-green-600" />
+                              <span className="font-semibold">{phone}</span>
+                            </p>
+                            <p className="text-gray-600 text-xs flex items-start gap-2">
+                              <FaMapMarkerAlt className="text-red-600 mt-0.5" />
+                              <span className="line-clamp-2 break-words">{address}</span>
+                            </p>
+                          </div>
 
-                          <p className="text-gray-700 text-sm flex items-center justify-center gap-2 text-center w-full">
-                            <FaPhone className="text-green-600" />
-                            <span className="font-semibold">{phone}</span>
-                          </p>
-                          <p className="text-gray-600 text-sm mt-2 flex items-start justify-center gap-2 text-center w-full">
-                            <FaMapMarkerAlt className="text-red-600" />
-                            <span className="line-clamp-2 break-words">{address}</span>
-                          </p>
-
-                          <div className="flex gap-3 w-full mt-6" onClick={(e) => e.stopPropagation()}>
+                          <div className="px-4 pb-5 flex gap-2 w-full" onClick={(e) => e.stopPropagation()}>
                             <button 
                               onClick={() => handleBookAppointment(partner)}
-                              className="flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white py-3 rounded-lg font-semibold shadow-md hover:from-green-600 hover:to-green-700 transition-all transform hover:scale-105"
+                              className="flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white py-2 rounded-md text-xs font-semibold shadow-sm hover:from-green-600 hover:to-green-700 transition-colors"
                             >
                               Consult Now
                             </button>
@@ -402,7 +547,7 @@ export default function HealthPartners() {
                               href={mapLink}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="flex-1 bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-3 rounded-lg font-semibold text-sm shadow-md hover:from-blue-600 hover:to-indigo-700 transition-all text-center transform hover:scale-105"
+                              className="flex-1 bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-2 rounded-md text-xs font-semibold shadow-sm hover:from-blue-600 hover:to-indigo-700 transition-colors text-center"
                             >
                               View Map
                             </a>

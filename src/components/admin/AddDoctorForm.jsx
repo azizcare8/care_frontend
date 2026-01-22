@@ -401,6 +401,9 @@ export default function AddDoctorForm({ isPartnerSubmission = false, onBack = nu
           email: formData.email.toLowerCase().trim(),
           designation: 'Doctor'
         },
+        // Store image URL as string (preferred method)
+        imageUrl: bannerUrl ? (bannerUrl.startsWith('http') ? bannerUrl : `${backendBaseURL}${bannerUrl}`) : '',
+        // Also keep images array for backward compatibility
         images: bannerUrl ? [{
           url: bannerUrl.startsWith('http') ? bannerUrl : `${backendBaseURL}${bannerUrl}`,
           caption: 'Doctor Profile Banner',
