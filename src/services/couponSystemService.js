@@ -4,9 +4,22 @@ import { getApiBaseUrl } from '../utils/api';
 
 const isBrowser = typeof window !== 'undefined';
 
-// Create axios instance for partner service
-const partnerApi = axios.create({
-  baseURL: getApiBaseUrl(),
+// Get couponSystem API base URL
+// Use the same base URL as main API, or override with env variable
+const getCouponSystemBaseUrl = () => {
+  const envUrl = process.env.NEXT_PUBLIC_COUPON_SYSTEM_API_URL;
+  
+  if (envUrl && envUrl !== 'undefined') {
+    return envUrl.endsWith('/api') ? envUrl : `${envUrl}/api`;
+  }
+  
+  // Use the same base URL as main API
+  return getApiBaseUrl();
+};
+
+// Create axios instance for couponSystem
+const couponSystemApi = axios.create({
+  baseURL: getCouponSystemBaseUrl(),
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
@@ -14,7 +27,7 @@ const partnerApi = axios.create({
 });
 
 // Request interceptor to add auth token
-partnerApi.interceptors.request.use(
+couponSystemApi.interceptors.request.use(
   (config) => {
     const token = Cookies.get('token') || 
       (isBrowser ? window.localStorage.getItem('token') : null);
@@ -29,7 +42,7 @@ partnerApi.interceptors.request.use(
 );
 
 // Response interceptor
-partnerApi.interceptors.response.use(
+couponSystemApi.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401 || error.response?.status === 403) {
@@ -42,46 +55,49 @@ partnerApi.interceptors.response.use(
   }
 );
 
-export const partnerService = {
-  // Scan/Enter coupon code
-  scanCoupon: async (couponCode) => {
+// CouponSystem Service
+export const couponSystemService = {
+  // Get all coupons for the authenticated user
+  getMyCoupons: async () => {
     try {
-      const response = await partnerApi.post('/partners/scan', { couponCode });
+      const response = await couponSystemApi.get('/coupons');
       return response.data;
     } catch (error) {
       throw error.response?.data || error;
     }
   },
 
-  // Get redemption requests
-  getRedemptions: async () => {
+  // Get a specific coupon by ID (with QR code)
+  getCouponById: async (id) => {
     try {
-      const response = await partnerApi.get('/partners/redemptions');
+      const response = await couponSystemApi.get(`/coupons/${id}`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error;
     }
   },
 
-  // Get redeemed coupons
-  getCoupons: async () => {
+  // Create a new coupon
+  createCoupon: async (couponData) => {
     try {
-      const response = await partnerApi.get('/partners/coupons');
+      const response = await couponSystemApi.post('/coupons', couponData);
       return response.data;
     } catch (error) {
       throw error.response?.data || error;
     }
   },
 
-  // Get specific redemption request
-  getRedemptionById: async (id) => {
+  // Update payment status
+  updatePaymentStatus: async (id, paymentStatus) => {
     try {
-      const response = await partnerApi.get(`/partners/redemptions/${id}`);
+      const response = await couponSystemApi.patch(`/coupons/${id}/payment-status`, {
+        paymentStatus
+      });
       return response.data;
     } catch (error) {
       throw error.response?.data || error;
     }
-  }
+  },
 };
 
-export default partnerService;
+export default couponSystemService;
