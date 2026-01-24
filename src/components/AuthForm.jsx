@@ -26,6 +26,7 @@ export default function AuthForm({ redirectUrl }) {
     phone: "",
     email: "",
     password: "",
+    confirmPassword: "",
     role: "donor"
   });
   const [forgotEmail, setForgotEmail] = useState("");
@@ -95,39 +96,13 @@ export default function AuthForm({ redirectUrl }) {
       // Wait a bit longer to ensure token is stored and state is updated
       await new Promise(resolve => setTimeout(resolve, 400));
       
-      // Get user data from store state (most reliable after login)
-      const storeState = useAuthStore.getState();
-      let userRole = storeState.user?.role;
+      // Get user data from result
+      const loggedInUser = result?.user || result?.data?.user;
+      const userRole = loggedInUser?.role;
       
-      // Fallback: try to get from result
-      if (!userRole) {
-        const loggedInUser = result?.user || result?.data?.user;
-        userRole = loggedInUser?.role;
-      }
-      
-      // Fallback: if still no role, cannot redirect
-      if (!userRole) {
-        console.error('User role not found in login response:', { result, storeState });
-        toast.error('Login successful but user role not found. Please contact support.');
-        return;
-      }
-      
-      // Redirect to /dashboard (single route handles all roles)
-      // Ignore old role-specific dashboard routes in redirectUrl
-      let destination = '/dashboard';
-      if (redirectUrl) {
-        // Only use redirectUrl if it's not an old role-specific dashboard route
-        const isOldDashboardRoute = redirectUrl.match(/^\/(partner|donor|fundraiser|volunteer|vendor|staff)\/dashboard/);
-        if (!isOldDashboardRoute) {
-          destination = redirectUrl;
-        }
-      }
-      // Admin always goes to admin dashboard
-      if (userRole === 'admin') {
-        destination = '/admin/dashboard';
-      }
-      
-      console.log('Redirecting to:', destination, 'for role:', userRole);
+      // Redirect to intended URL or based on user role
+      // Priority: redirectUrl > admin role > dashboard
+      const destination = redirectUrl || (userRole === "admin" ? "/admin" : "/dashboard");
       
       // Use replace to avoid back button issues
       router.replace(destination);
@@ -192,6 +167,16 @@ export default function AuthForm({ redirectUrl }) {
       return;
     }
 
+    if (!registerData.confirmPassword || registerData.confirmPassword.trim() === "") {
+      toast.error("Confirm Password is required");
+      return;
+    }
+
+    if (registerData.password !== registerData.confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
+
     // Validate role selection
     const validRoles = ['donor', 'fundraiser', 'partner', 'volunteer', 'vendor', 'staff','admin'];
     if (!registerData.role || !validRoles.includes(registerData.role)) {
@@ -200,7 +185,8 @@ export default function AuthForm({ redirectUrl }) {
     }
 
     try {
-      const result = await register(registerData);
+      const { confirmPassword, ...userData } = registerData;
+      const result = await register(userData);
       
       // Check if registration requires approval
       if (result?.requiresApproval) {
@@ -392,6 +378,16 @@ export default function AuthForm({ redirectUrl }) {
                 onChange={handleRegisterChange}
                 className="w-full p-3 border rounded-lg text-gray-700 focus:ring-2 focus:ring-green-400 outline-none transition duration-300 hover:scale-105"
                 minLength={6}
+                required
+                disabled={isLoading}
+              />
+              <input
+                type="password"
+                name="confirmPassword"
+                placeholder="Confirm Password"
+                value={registerData.confirmPassword}
+                onChange={handleRegisterChange}
+                className="w-full p-3 border rounded-lg text-gray-700 focus:ring-2 focus:ring-green-400 outline-none transition duration-300 hover:scale-105"
                 required
                 disabled={isLoading}
               />

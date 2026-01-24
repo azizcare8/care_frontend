@@ -140,7 +140,7 @@ export default function WithdrawalsPage() {
       <div className="max-w-6xl mx-auto px-4">
         {/* Back Button */}
         <button
-          onClick={() => router.push(user?.role === 'admin' ? '/admin/dashboard' : user?.role ? '/dashboard' : '/login')}
+          onClick={() => router.push("/dashboard")}
           className="mb-4 flex items-center gap-2 text-gray-600 hover:text-green-600 font-semibold transition-colors group cursor-pointer"
         >
           <FiArrowLeft className="group-hover:-translate-x-1 transition-transform" />

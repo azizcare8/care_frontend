@@ -210,30 +210,6 @@ export const paymentService = {
     } catch (error) {
       throw error.response?.data || error;
     }
-  },
-
-  // CouponSystem-style payment methods
-  // Create payment intent/order (for coupon purchase)
-  createPayment: async (paymentData) => {
-    try {
-      const response = await api.post('/payments/create', paymentData);
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error;
-    }
-  },
-
-  // Verify payment (for coupon purchase)
-  verifyPayment: async (paymentId, paymentData = {}) => {
-    try {
-      const response = await api.post('/payments/verify', {
-        paymentId,
-        ...paymentData
-      });
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error;
-    }
   }
 };
 

@@ -35,8 +35,7 @@ export default function EnhancedUserDashboard() {
       // Give a delay to allow auth store to initialize
       const timer = setTimeout(() => {
         if (!isAuthenticated || !user) {
-          const redirectPath = user?.role === 'admin' ? '/admin/dashboard' : user?.role ? '/dashboard' : '/login';
-          router.push(`/login?redirect=${redirectPath}`);
+          router.push("/login?redirect=/dashboard");
         }
       }, 500);
       return () => clearTimeout(timer);
@@ -47,8 +46,7 @@ export default function EnhancedUserDashboard() {
     if (!token) {
       console.warn('No token found in cookies, redirecting to login');
       const timer = setTimeout(() => {
-        const redirectPath = user?.role === 'admin' ? '/admin/dashboard' : user?.role ? '/dashboard' : '/login';
-        router.push(`/login?redirect=${redirectPath}`);
+        router.push("/login?redirect=/dashboard");
       }, 200);
       return () => clearTimeout(timer);
     }
@@ -69,8 +67,7 @@ export default function EnhancedUserDashboard() {
       const token = Cookies.get('token') || localStorage.getItem('token');
       if (!token) {
         console.warn('No token found, redirecting to login');
-        const redirectPath = user?.role === 'admin' ? '/admin/dashboard' : user?.role ? '/dashboard' : '/login';
-        router.push(`/login?redirect=${redirectPath}`);
+        router.push('/login?redirect=/dashboard');
         return;
       }
 
@@ -82,8 +79,7 @@ export default function EnhancedUserDashboard() {
       if (error?.response?.status === 401) {
         console.warn('Authentication failed, redirecting to login');
         Cookies.remove('token');
-        const redirectPath = user?.role === 'admin' ? '/admin/dashboard' : user?.role ? '/dashboard' : '/login';
-        router.push(`/login?redirect=${redirectPath}`);
+        router.push('/login?redirect=/dashboard');
         return;
       }
 

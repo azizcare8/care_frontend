@@ -185,17 +185,9 @@ export default function FoodPaymentPage() {
         return;
       }
 
-      // Validate and parse amount for Razorpay
-      const parsedAmountForRazorpay = parseFloat(amount);
-      if (!parsedAmountForRazorpay || isNaN(parsedAmountForRazorpay) || parsedAmountForRazorpay <= 0) {
-        toast.error('Please enter a valid amount (minimum 1)');
-        setIsProcessing(false);
-        return;
-      }
-
       // Create order
       const orderResponse = await paymentService.createRazorpayOrder({
-        amount: parsedAmountForRazorpay, // Amount in rupees (backend will convert to paise)
+        amount: amount, // Amount in rupees (backend will convert to paise)
         currency: 'INR',
         partnerId: partner?._id,
         consultationId: consultationData?.submittedAt
@@ -229,38 +221,85 @@ export default function FoodPaymentPage() {
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,
               partnerId: partner?._id,
-              amount: parsedAmountForRazorpay,
+              amount: amount,
               consultationData: consultationData
             });
 
-            // Generate coupon after successful payment using simplified coupon system
+            // Generate coupon after successful payment
             try {
-              // Ensure amount is a valid number
-              const finalAmount = Number(parsedAmountForRazorpay);
-              if (!finalAmount || isNaN(finalAmount) || finalAmount <= 0) {
-                throw new Error('Invalid amount. Please enter a valid amount.');
-              }
-
-              console.log('Creating coupon with amount:', finalAmount, 'type:', typeof finalAmount, 'value:', finalAmount);
-
-              // Create coupon with simplified structure (matching couponSystem)
-              const couponResponse = await couponService.createCoupon({
-                amount: finalAmount,
-                paymentId: response.razorpay_payment_id,
-                paymentStatus: 'completed'
-              });
-
-              // Handle response structure
-              const coupon = couponResponse.data || couponResponse;
-              setGeneratedCoupons(coupon ? [coupon] : []);
-              setPaymentSuccess(true);
-              setTransactionId(response.razorpay_payment_id);
+              // Get food coupon packages
+              const packages = await couponService.getPackages();
+              const foodPackage = packages.find(pkg => pkg.category?.toLowerCase() === 'food');
               
-              toast.success('Payment successful! Coupon created successfully.');
+              if (foodPackage) {
+                // Get quantity from consultation data or default to 1
+                const quantity = consultationData.quantity || 1;
+                
+                // Generate ONE coupon with multiple uses
+                const couponResponse = await couponService.purchaseCoupons({
+                  packageId: foodPackage.id,
+                  quantity: quantity, // Number of uses for the coupon
+                  partnerId: partner?._id,
+                  beneficiaryName: consultationData.name,
+                  beneficiaryPhone: consultationData.phone,
+                  beneficiaryEmail: consultationData.email,
+                  assignBeneficiary: true,
+                  paymentReferences: {
+                    gateway: 'razorpay',
+                    transactionId: response.razorpay_payment_id,
+                    gatewayId: response.razorpay_payment_id,
+                    gatewayDetails: verifyResponse.data,
+                    amount: amount
+                  }
+                });
+
+                // Handle single coupon response (new format) or array (backward compatibility)
+                const coupon = couponResponse.data?.coupon || couponResponse.data?.coupons?.[0];
+                setGeneratedCoupons(coupon ? [coupon] : []);
+                setPaymentSuccess(true);
+                setTransactionId(response.razorpay_payment_id);
+                
+                toast.success(`Payment successful! Coupon created with ${quantity} uses available.`);
+              } else {
+                // If no food package found, create coupon manually with payment amount
+                const couponData = {
+                  title: `Food Coupon - ${partner?.name}`,
+                  description: consultationData.message || `Food consultation with ${partner?.name} - Payment: ${amount}`,
+                  category: 'food',
+                  type: 'discount',
+                  value: {
+                    amount: amount,
+                    currency: 'INR',
+                    isPercentage: false
+                  },
+                  partner: partner?._id,
+                  beneficiary: {
+                    name: consultationData.name,
+                    phone: consultationData.phone,
+                    email: consultationData.email
+                  },
+                  validity: {
+                    startDate: new Date(),
+                    endDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000), // 90 days
+                    isActive: true
+                  },
+                  paymentReferences: {
+                    gateway: 'razorpay',
+                    transactionId: response.razorpay_payment_id,
+                    amount: amount
+                  },
+                  status: 'active'
+                };
+
+                const couponResponse = await couponService.createCoupon(couponData);
+                setGeneratedCoupons([couponResponse.data]);
+                setPaymentSuccess(true);
+                setTransactionId(response.razorpay_payment_id);
+                toast.success('Payment successful! Coupon generated.');
+              }
             } catch (couponError) {
               console.error('Coupon generation error:', couponError);
-              const errorMessage = couponError?.response?.data?.message || couponError?.message || 'Unknown error';
-              toast.error(`Payment successful but coupon generation failed: ${errorMessage}`);
+              toast.error('Payment successful but coupon generation failed. Please contact support.');
             }
 
             setIsProcessing(false);
@@ -339,10 +378,8 @@ export default function FoodPaymentPage() {
     try {
       setIsProcessing(true);
 
-      // Validate and parse amount
-      const parsedAmount = parseFloat(amount);
-      if (!parsedAmount || isNaN(parsedAmount) || parsedAmount <= 0) {
-        toast.error('Please enter a valid amount (minimum 1)');
+      if (amount <= 0) {
+        toast.error('Please enter a valid amount');
         setIsProcessing(false);
         return;
       }
@@ -404,37 +441,83 @@ export default function FoodPaymentPage() {
       // Simulate payment processing
       await new Promise(resolve => setTimeout(resolve, 1500));
 
-      // Generate transaction ID (this will be used as paymentId)
+      // Generate transaction ID
       const transactionId = `FOOD-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
 
-      // Generate coupon after successful payment using simplified coupon system
+      // Generate coupon after successful payment
       try {
-        // Ensure amount is a valid number (use parsedAmount from validation above)
-        const finalAmount = Number(parsedAmount);
-        if (!finalAmount || isNaN(finalAmount) || finalAmount <= 0) {
-          throw new Error('Invalid amount. Please enter a valid amount.');
-        }
-
-        console.log('Creating coupon with amount:', finalAmount, 'type:', typeof finalAmount, 'value:', finalAmount);
-
-        // Create coupon with simplified structure (matching couponSystem)
-        const couponResponse = await couponService.createCoupon({
-          amount: finalAmount,
-          paymentId: transactionId,
-          paymentStatus: 'completed'
-        });
-
-        // Handle response structure
-        const coupon = couponResponse.data || couponResponse;
-        setGeneratedCoupons(coupon ? [coupon] : []);
-        setPaymentSuccess(true);
-        setTransactionId(transactionId);
+        // Get food coupon packages
+        const packages = await couponService.getPackages();
+        const foodPackage = packages.find(pkg => pkg.category?.toLowerCase() === 'food');
         
-        toast.success('Payment successful! Coupon created successfully.');
+        if (foodPackage) {
+          // Get quantity from consultation data or default to 1
+          const quantity = consultationData.quantity || 1;
+          
+          // Generate ONE coupon with multiple uses
+          const couponResponse = await couponService.purchaseCoupons({
+            packageId: foodPackage.id,
+            quantity: quantity, // Number of uses for the coupon
+            partnerId: partner?._id,
+            beneficiaryName: consultationData.name,
+            beneficiaryPhone: consultationData.phone,
+            beneficiaryEmail: consultationData.email,
+            assignBeneficiary: true,
+            paymentReferences: {
+              gateway: 'dummy',
+              transactionId: transactionId,
+              gatewayId: transactionId,
+              amount: amount
+            }
+          });
+
+          // Handle single coupon response (new format) or array (backward compatibility)
+          const coupon = couponResponse.data?.coupon || couponResponse.data?.coupons?.[0];
+          setGeneratedCoupons(coupon ? [coupon] : []);
+          setPaymentSuccess(true);
+          setTransactionId(transactionId);
+          
+          toast.success(`Payment successful! Coupon created with ${quantity} uses available.`);
+        } else {
+          // If no food package found, create coupon manually with payment amount
+          const couponData = {
+            title: `Food Coupon - ${partner?.name}`,
+            description: consultationData.message || `Food consultation with ${partner?.name} - Payment: ${amount}`,
+            category: 'food',
+            type: 'discount',
+            value: {
+              amount: amount,
+              currency: 'INR',
+              isPercentage: false
+            },
+            partner: partner?._id,
+            beneficiary: {
+              name: consultationData.name,
+              phone: consultationData.phone,
+              email: consultationData.email
+            },
+            validity: {
+              startDate: new Date(),
+              endDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000), // 90 days
+              isActive: true
+            },
+            paymentReferences: {
+              gateway: 'dummy',
+              transactionId: transactionId,
+              amount: amount
+            },
+            status: 'active'
+          };
+
+          const couponResponse = await couponService.createCoupon(couponData);
+          setGeneratedCoupons([couponResponse.data]);
+          setPaymentSuccess(true);
+          setTransactionId(transactionId);
+          toast.success('Payment successful! Coupon generated.');
+        }
       } catch (couponError) {
         console.error('Coupon generation error:', couponError);
-        const errorMessage = couponError?.response?.data?.message || couponError?.message || 'Unknown error';
-        toast.error(`Payment successful but coupon generation failed: ${errorMessage}`);
+        toast.error('Payment successful but coupon generation failed. Please contact support.');
       }
 
       setIsProcessing(false);
@@ -573,10 +656,7 @@ export default function FoodPaymentPage() {
                       min="1"
                       step="1"
                       value={amount}
-                      onChange={(e) => {
-                        const value = parseFloat(e.target.value) || 0;
-                        setAmount(value > 0 ? value : 1);
-                      }}
+                      onChange={(e) => setAmount(Math.max(1, parseInt(e.target.value) || 0))}
                       className="w-full pl-10 pr-4 py-3 border-2 border-orange-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none text-lg font-semibold"
                       placeholder="Enter amount"
                       required
@@ -736,10 +816,10 @@ export default function FoodPaymentPage() {
                                 </td>
                                 <td className="px-6 py-4">
                                   <div className="flex items-center gap-2">
-                                    <span className="font-mono font-bold text-gray-900 text-sm">{coupon.code || coupon.couponCode || 'N/A'}</span>
+                                    <span className="font-mono font-bold text-gray-900 text-sm">{coupon.code || 'N/A'}</span>
                                     <button
                                       onClick={() => {
-                                        navigator.clipboard.writeText(coupon.code || coupon.couponCode || '');
+                                        navigator.clipboard.writeText(coupon.code || '');
                                         toast.success('Coupon code copied!');
                                       }}
                                       className="text-gray-400 hover:text-green-600 transition-colors p-1"
@@ -769,13 +849,7 @@ export default function FoodPaymentPage() {
                                         month: 'short',
                                         day: 'numeric'
                                       })
-                                    : (coupon.expiryDate 
-                                        ? new Date(coupon.expiryDate).toLocaleDateString('en-IN', {
-                                            year: 'numeric',
-                                            month: 'short',
-                                            day: 'numeric'
-                                          })
-                                        : '1 month from now')}
+                                    : '90 days from now'}
                                 </td>
                                 <td className="px-6 py-4">
                                   <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full font-semibold text-xs whitespace-nowrap">
@@ -931,13 +1005,13 @@ export default function FoodPaymentPage() {
                             <div className="flex items-center gap-2 mt-1">
                               <input
                                 type="text"
-                                value={viewCoupon.code || viewCoupon.couponCode || 'N/A'}
+                                value={viewCoupon.code || 'N/A'}
                                 readOnly
                                 className="flex-1 px-4 py-2 bg-gray-50 border-2 border-gray-200 rounded-lg font-mono font-bold text-lg text-gray-800"
                               />
                               <button
                                 onClick={() => {
-                                  navigator.clipboard.writeText(viewCoupon.code || viewCoupon.couponCode || '');
+                                  navigator.clipboard.writeText(viewCoupon.code || '');
                                   toast.success('Coupon code copied!');
                                 }}
                                 className="bg-orange-500 hover:bg-orange-600 text-white p-2 rounded-lg transition-colors"
@@ -980,13 +1054,7 @@ export default function FoodPaymentPage() {
                                     month: 'long',
                                     day: 'numeric'
                                   })
-                                : (viewCoupon.expiryDate
-                                    ? new Date(viewCoupon.expiryDate).toLocaleDateString('en-IN', {
-                                        year: 'numeric',
-                                        month: 'long',
-                                        day: 'numeric'
-                                      })
-                                    : '1 month from now')}
+                                : '90 days from now'}
                             </div>
                           </div>
                           <div>
@@ -999,14 +1067,14 @@ export default function FoodPaymentPage() {
                           </div>
                         </div>
 
-                        {(viewCoupon.qrCode?.url || viewCoupon.qrCode) && (
+                        {viewCoupon.qrCode?.url && (
                           <div className="mt-4 p-4 bg-gray-50 rounded-lg text-center">
                             <label className="text-xs text-gray-500 font-semibold uppercase block mb-2">
                               <FaQrcode className="inline mr-1" />
                               QR Code
                             </label>
                             <Image
-                              src={viewCoupon.qrCode?.url || viewCoupon.qrCode}
+                              src={viewCoupon.qrCode.url}
                               alt="Coupon QR Code"
                               width={200}
                               height={200}

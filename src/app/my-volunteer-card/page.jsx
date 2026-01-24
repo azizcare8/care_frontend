@@ -171,7 +171,7 @@ export default function MyVolunteerCardPage() {
           </p>
           <div className="flex gap-4 justify-center">
             <button
-              onClick={() => router.push(user?.role === 'admin' ? '/admin/dashboard' : user?.role ? '/dashboard' : '/login')}
+              onClick={() => router.push("/dashboard")}
               className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition flex items-center gap-2"
             >
               <BiArrowToLeft size={18} />
@@ -213,7 +213,7 @@ export default function MyVolunteerCardPage() {
         <div className="flex items-center justify-between bg-white rounded-xl shadow-lg p-4">
           <div className="flex items-center gap-4">
             <button
-              onClick={() => router.push(user?.role === 'admin' ? '/admin/dashboard' : user?.role ? '/dashboard' : '/login')}
+              onClick={() => router.push("/dashboard")}
               className="p-2 hover:bg-gray-100 rounded-lg transition"
             >
               <BiArrowToLeft size={24} className="text-gray-600" />

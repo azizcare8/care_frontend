@@ -60,9 +60,11 @@ export default function OTPLogin() {
         login(response.data);
         toast.success("Login successful!");
         // Redirect based on user role
-        const userRole = response.data.user?.role || response.data.data?.user?.role;
-        const destination = userRole === 'admin' ? '/admin/dashboard' : '/dashboard';
-        router.push(destination);
+        if (response.data.user?.role === "admin") {
+          router.push("/admin");
+        } else {
+          router.push("/dashboard");
+        }
       }
     } catch (error) {
       toast.error(error.response?.data?.message || "Invalid OTP. Please try again.");
