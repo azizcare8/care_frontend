@@ -185,9 +185,17 @@ export default function HealthPaymentPage() {
         return;
       }
 
+      // Validate and parse amount for Razorpay
+      const parsedAmountForRazorpay = parseFloat(amount);
+      if (!parsedAmountForRazorpay || isNaN(parsedAmountForRazorpay) || parsedAmountForRazorpay <= 0) {
+        toast.error('Please enter a valid amount (minimum 1)');
+        setIsProcessing(false);
+        return;
+      }
+
       // Create order
       const orderResponse = await paymentService.createRazorpayOrder({
-        amount: amount, // Amount in rupees (backend will convert to paise)
+        amount: parsedAmountForRazorpay, // Amount in rupees (backend will convert to paise)
         currency: 'INR',
         partnerId: partner?._id,
         consultationId: consultationData?.submittedAt
@@ -221,86 +229,34 @@ export default function HealthPaymentPage() {
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,
               partnerId: partner?._id,
-              amount: amount,
+              amount: parsedAmountForRazorpay,
               consultationData: consultationData
             });
 
-            // Generate coupon after successful payment
+            // Generate coupon after successful payment using simplified coupon system
             try {
-              // Get health coupon packages (backend uses 'medical' category)
-              const packages = await couponService.getPackages();
-              const healthPackage = packages.find(pkg => 
-                pkg.category?.toLowerCase() === 'medical' || 
-                pkg.category?.toLowerCase() === 'health' ||
-                pkg.id?.includes('HEALTH')
-              );
-              
-              if (healthPackage) {
-                // Get quantity from consultation data or default to 1
-                const quantity = consultationData.quantity || 1;
-                
-                // Generate ONE coupon with multiple uses
-                const couponResponse = await couponService.purchaseCoupons({
-                  packageId: healthPackage.id,
-                  quantity: quantity, // Number of uses for the coupon
-                  partnerId: partner?._id,
-                  beneficiaryName: consultationData.name,
-                  beneficiaryPhone: consultationData.phone,
-                  beneficiaryEmail: consultationData.email,
-                  assignBeneficiary: true,
-                  paymentReferences: {
-                    gateway: 'razorpay',
-                    transactionId: response.razorpay_payment_id,
-                    gatewayId: response.razorpay_payment_id,
-                    gatewayDetails: verifyResponse.data,
-                    amount: amount
-                  }
-                });
-
-                // Handle single coupon response (new format) or array (backward compatibility)
-                const coupon = couponResponse.data?.coupon || couponResponse.data?.coupons?.[0];
-                setGeneratedCoupons(coupon ? [coupon] : []);
-                setPaymentSuccess(true);
-                setTransactionId(response.razorpay_payment_id);
-                
-                toast.success(`Payment successful! Coupon created with ${quantity} uses available.`);
-              } else {
-                // If no health package found, create coupon manually with payment amount
-                const couponData = {
-                  title: `Health Coupon - ${partner?.name}`,
-                  description: consultationData.message || `Health consultation with ${partner?.name} - Payment: ${amount}`,
-                  category: 'medical', // Backend uses 'medical' category for health coupons
-                  type: 'discount',
-                  value: {
-                    amount: amount,
-                    currency: 'INR',
-                    isPercentage: false
-                  },
-                  partner: partner?._id,
-                  beneficiary: {
-                    name: consultationData.name,
-                    phone: consultationData.phone,
-                    email: consultationData.email
-                  },
-                  validity: {
-                    startDate: new Date(),
-                    endDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000), // 90 days
-                    isActive: true
-                  },
-                  paymentReferences: {
-                    gateway: 'razorpay',
-                    transactionId: response.razorpay_payment_id,
-                    amount: amount
-                  },
-                  status: 'active'
-                };
-
-                const couponResponse = await couponService.createCoupon(couponData);
-                setGeneratedCoupons([couponResponse.data]);
-                setPaymentSuccess(true);
-                setTransactionId(response.razorpay_payment_id);
-                toast.success('Payment successful! Coupon generated.');
+              // Ensure amount is a valid number
+              const finalAmount = parseFloat(amount);
+              if (!finalAmount || isNaN(finalAmount) || finalAmount <= 0) {
+                throw new Error('Invalid amount. Please enter a valid amount.');
               }
+
+              console.log('Creating coupon with amount:', finalAmount, 'type:', typeof finalAmount);
+
+              // Create coupon with simplified structure (matching couponSystem)
+              const couponResponse = await couponService.createCoupon({
+                amount: finalAmount,
+                paymentId: response.razorpay_payment_id,
+                paymentStatus: 'completed'
+              });
+
+              // Handle response structure
+              const coupon = couponResponse.data || couponResponse;
+              setGeneratedCoupons(coupon ? [coupon] : []);
+              setPaymentSuccess(true);
+              setTransactionId(response.razorpay_payment_id);
+              
+              toast.success('Payment successful! Coupon created successfully.');
             } catch (couponError) {
               // Extract error message properly
               let errorMessage = 'Unknown error';
@@ -414,8 +370,10 @@ export default function HealthPaymentPage() {
     try {
       setIsProcessing(true);
 
-      if (amount <= 0) {
-        toast.error('Please enter a valid amount');
+      // Validate and parse amount
+      const parsedAmount = parseFloat(amount);
+      if (!parsedAmount || isNaN(parsedAmount) || parsedAmount <= 0) {
+        toast.error('Please enter a valid amount (minimum 1)');
         setIsProcessing(false);
         return;
       }
@@ -477,84 +435,33 @@ export default function HealthPaymentPage() {
       // Simulate payment processing
       await new Promise(resolve => setTimeout(resolve, 1500));
 
-      // Generate transaction ID
+      // Generate transaction ID (this will be used as paymentId)
       const transactionId = `HEALTH-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
 
-      // Generate coupon after successful payment
+      // Generate coupon after successful payment using simplified coupon system
       try {
-        // Get health coupon packages (backend uses 'medical' category)
-        const packages = await couponService.getPackages();
-        const healthPackage = packages.find(pkg => 
-          pkg.category?.toLowerCase() === 'medical' || 
-          pkg.category?.toLowerCase() === 'health' ||
-          pkg.id?.includes('HEALTH')
-        );
-        
-        if (healthPackage) {
-          // Get quantity from consultation data or default to 1
-          const quantity = consultationData.quantity || 1;
-          
-          // Generate ONE coupon with multiple uses
-          const couponResponse = await couponService.purchaseCoupons({
-            packageId: healthPackage.id,
-            quantity: quantity, // Number of uses for the coupon
-            partnerId: partner?._id,
-            beneficiaryName: consultationData.name,
-            beneficiaryPhone: consultationData.phone,
-            beneficiaryEmail: consultationData.email,
-            assignBeneficiary: true,
-            paymentReferences: {
-              gateway: 'dummy',
-              transactionId: transactionId,
-              gatewayId: transactionId,
-              amount: amount
-            }
-          });
-
-          // Handle single coupon response (new format) or array (backward compatibility)
-          const coupon = couponResponse.data?.coupon || couponResponse.data?.coupons?.[0];
-          setGeneratedCoupons(coupon ? [coupon] : []);
-          setPaymentSuccess(true);
-          setTransactionId(transactionId);
-          
-          toast.success(`Payment successful! Coupon created with ${quantity} uses available.`);
-        } else {
-          // If no health package found, create coupon manually with payment amount
-          const couponData = {
-            title: `Health Coupon - ${partner?.name}`,
-            description: consultationData.message || `Health consultation with ${partner?.name} - Payment: ${amount}`,
-            category: 'medical', // Backend uses 'medical' category for health coupons
-            type: 'discount',
-            value: {
-              amount: amount,
-              currency: 'INR',
-              isPercentage: false
-            },
-            partner: partner?._id,
-            beneficiary: {
-              name: consultationData.name,
-              phone: consultationData.phone,
-              email: consultationData.email
-            },
-            validity: {
-              startDate: new Date(),
-              endDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000), // 90 days
-              isActive: true
-            },
-            paymentReferences: {
-              gateway: 'dummy',
-              transactionId: transactionId,
-              amount: amount
-            },
-            status: 'active'
-          };
-
-          const couponResponse = await couponService.createCoupon(couponData);
-          setGeneratedCoupons([couponResponse.data]);
-          setPaymentSuccess(true);
-          setTransactionId(transactionId);
-          toast.success('Payment successful! Coupon generated.');
+        // Ensure amount is a valid number (use parsedAmount from validation above)
+        const finalAmount = Number(parsedAmount);
+        if (!finalAmount || isNaN(finalAmount) || finalAmount <= 0) {
+          throw new Error('Invalid amount. Please enter a valid amount.');
         }
+
+        console.log('Creating coupon with amount:', finalAmount, 'type:', typeof finalAmount, 'value:', finalAmount);
+
+        // Create coupon with simplified structure (matching couponSystem)
+        const couponResponse = await couponService.createCoupon({
+          amount: finalAmount,
+          paymentId: transactionId,
+          paymentStatus: 'completed'
+        });
+
+        // Handle response structure
+        const coupon = couponResponse.data || couponResponse;
+        setGeneratedCoupons(coupon ? [coupon] : []);
+        setPaymentSuccess(true);
+        setTransactionId(transactionId);
+        
+        toast.success('Payment successful! Coupon created successfully.');
       } catch (couponError) {
         console.error('Coupon generation error:', couponError);
         const errorMessage = couponError?.response?.data?.message || couponError?.message || 'Unknown error';
@@ -701,9 +608,12 @@ export default function HealthPaymentPage() {
                     <input
                       type="number"
                       min="1"
-                      step="1"
+                      step="0.01"
                       value={amount}
-                      onChange={(e) => setAmount(Math.max(1, parseInt(e.target.value) || 0))}
+                      onChange={(e) => {
+                        const value = parseFloat(e.target.value) || 0;
+                        setAmount(value > 0 ? value : 1);
+                      }}
                       className="w-full pl-10 pr-4 py-3 border-2 border-blue-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-lg font-semibold"
                       placeholder="Enter amount"
                       required
@@ -859,10 +769,10 @@ export default function HealthPaymentPage() {
                                 </td>
                                 <td className="px-6 py-4">
                                   <div className="flex items-center gap-2">
-                                    <span className="font-mono font-bold text-gray-900 text-sm">{coupon.code || 'N/A'}</span>
+                                    <span className="font-mono font-bold text-gray-900 text-sm">{coupon.code || coupon.couponCode || 'N/A'}</span>
                                     <button
                                       onClick={() => {
-                                        navigator.clipboard.writeText(coupon.code || '');
+                                        navigator.clipboard.writeText(coupon.code || coupon.couponCode || '');
                                         toast.success('Coupon code copied!');
                                       }}
                                       className="text-gray-400 hover:text-green-600 transition-colors p-1"
@@ -886,13 +796,13 @@ export default function HealthPaymentPage() {
                                   <span className="font-bold text-green-600 text-lg">{couponValue}</span>
                                 </td>
                                 <td className="px-6 py-4 text-sm text-gray-700 whitespace-nowrap">
-                                  {coupon.validity?.endDate 
-                                    ? new Date(coupon.validity.endDate).toLocaleDateString('en-IN', {
+                                  {coupon.validity?.endDate || coupon.expiryDate
+                                    ? new Date(coupon.validity?.endDate || coupon.expiryDate).toLocaleDateString('en-IN', {
                                         year: 'numeric',
                                         month: 'short',
                                         day: 'numeric'
                                       })
-                                    : '90 days from now'}
+                                    : '1 month from now'}
                                 </td>
                                 <td className="px-6 py-4">
                                   <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full font-semibold text-xs whitespace-nowrap">
@@ -1048,13 +958,13 @@ export default function HealthPaymentPage() {
                             <div className="flex items-center gap-2 mt-1">
                               <input
                                 type="text"
-                                value={viewCoupon.code || 'N/A'}
+                                value={viewCoupon.code || viewCoupon.couponCode || 'N/A'}
                                 readOnly
                                 className="flex-1 px-4 py-2 bg-gray-50 border-2 border-gray-200 rounded-lg font-mono font-bold text-lg text-gray-800"
                               />
                               <button
                                 onClick={() => {
-                                  navigator.clipboard.writeText(viewCoupon.code || '');
+                                  navigator.clipboard.writeText(viewCoupon.code || viewCoupon.couponCode || '');
                                   toast.success('Coupon code copied!');
                                 }}
                                 className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-lg transition-colors"
@@ -1091,13 +1001,13 @@ export default function HealthPaymentPage() {
                           <div>
                             <label className="text-xs text-gray-500 font-semibold uppercase">Valid Until</label>
                             <div className="mt-1 px-4 py-2 bg-gray-50 border-2 border-gray-200 rounded-lg">
-                              {viewCoupon.validity?.endDate 
-                                ? new Date(viewCoupon.validity.endDate).toLocaleDateString('en-IN', {
+                              {viewCoupon.validity?.endDate || viewCoupon.expiryDate
+                                ? new Date(viewCoupon.validity?.endDate || viewCoupon.expiryDate).toLocaleDateString('en-IN', {
                                     year: 'numeric',
                                     month: 'long',
                                     day: 'numeric'
                                   })
-                                : '90 days from now'}
+                                : '1 month from now'}
                             </div>
                           </div>
                           <div>
@@ -1110,14 +1020,14 @@ export default function HealthPaymentPage() {
                           </div>
                         </div>
 
-                        {viewCoupon.qrCode?.url && (
+                        {(viewCoupon.qrCode?.url || viewCoupon.qrCode) && (
                           <div className="mt-4 p-4 bg-gray-50 rounded-lg text-center">
                             <label className="text-xs text-gray-500 font-semibold uppercase block mb-2">
                               <FaQrcode className="inline mr-1" />
                               QR Code
                             </label>
                             <Image
-                              src={viewCoupon.qrCode.url}
+                              src={viewCoupon.qrCode?.url || viewCoupon.qrCode}
                               alt="Coupon QR Code"
                               width={200}
                               height={200}

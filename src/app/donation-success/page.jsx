@@ -3,10 +3,12 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import useAuthStore from '@/store/authStore';
 
 function DonationSuccessContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { user } = useAuthStore();
   const [campaignId, setCampaignId] = useState('');
 
   useEffect(() => {
@@ -54,7 +56,7 @@ function DonationSuccessContent() {
                 </button>
               </Link>
             )}
-            <Link href="/dashboard">
+            <Link href={user?.role === 'admin' ? '/admin/dashboard' : user?.role ? '/dashboard' : '/login'}>
               <button className="w-full sm:w-auto px-6 py-3 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 transition-colors">
                 Go to Dashboard
               </button>

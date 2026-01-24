@@ -8,8 +8,9 @@ export function middleware(request) {
   
   // Define protected routes
   const adminRoutes = pathname.startsWith('/admin');
-  const protectedRoutes = ['/dashboard', '/profile', '/create-fundraiser', '/withdrawals'];
-  const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
+  const dashboardRoute = pathname === '/dashboard';
+  const protectedRoutes = ['/profile', '/create-fundraiser', '/withdrawals'];
+  const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route)) || dashboardRoute;
   
   // If accessing admin routes without authentication
   if (adminRoutes && !token) {
@@ -32,7 +33,7 @@ export function middleware(request) {
 export const config = {
   matcher: [
     '/admin/:path*',
-    '/dashboard/:path*',
+    '/dashboard',
     '/profile/:path*',
     '/create-fundraiser/:path*',
     '/withdrawals/:path*'

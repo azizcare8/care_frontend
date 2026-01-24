@@ -25,7 +25,13 @@ export const couponService = {
   // Create coupon
   createCoupon: async (couponData) => {
     try {
-      const response = await api.post('/coupons', couponData);
+      // Ensure amount is a number
+      const payload = {
+        ...couponData,
+        amount: Number(couponData.amount)
+      };
+      console.log('Sending coupon creation request:', payload);
+      const response = await api.post('/coupons', payload);
       return response.data;
     } catch (error) {
       // Extract proper error message with better handling
@@ -130,13 +136,78 @@ export const couponService = {
     }
   },
 
-  // Redeem coupon
-  redeemCoupon: async (id, redemptionData) => {
+  // Redeem coupon (accepts either id or code)
+  redeemCoupon: async (idOrCode, redemptionData) => {
     try {
-      const response = await api.post(`/coupons/${id}/redeem`, redemptionData);
+      // If redemptionData contains code, use that instead
+      const code = redemptionData?.code || (typeof idOrCode === 'string' && idOrCode.length > 20 ? undefined : idOrCode);
+      const payload = code ? { code, ...redemptionData } : { ...redemptionData };
+      const endpoint = code ? '/coupons/redeem' : `/coupons/${idOrCode}/redeem`;
+      const response = await api.post(endpoint, payload);
       return response.data;
     } catch (error) {
-      throw error.response?.data || error;
+      // Extract proper error message with comprehensive handling
+      let errorMessage = 'Failed to redeem coupon';
+      
+      // Try to extract message from various error structures
+      if (error?.response?.data) {
+        const errorData = error.response.data;
+        if (typeof errorData === 'string' && errorData.trim() !== '') {
+          errorMessage = errorData;
+        } else if (errorData?.message && typeof errorData.message === 'string' && errorData.message.trim() !== '') {
+          errorMessage = errorData.message;
+        } else if (errorData?.error && typeof errorData.error === 'string' && errorData.error.trim() !== '') {
+          errorMessage = errorData.error;
+        } else if (errorData?.status === 'error' && errorData?.message) {
+          errorMessage = errorData.message;
+        }
+      } else if (error?.message && typeof error.message === 'string' && error.message.trim() !== '' && !error.message.includes('[object')) {
+        errorMessage = error.message;
+      } else if (error?.isAuthError && error?.message) {
+        errorMessage = error.message;
+      }
+      
+      // Provide status-based fallback messages
+      if ((!errorMessage || errorMessage === '{}' || errorMessage.trim() === '' || errorMessage.includes('[object')) && error?.response?.status) {
+        const status = error.response.status;
+        if (status === 401) {
+          errorMessage = 'Authentication required. Please login and try again.';
+        } else if (status === 403) {
+          errorMessage = "You don't have permission to redeem this coupon.";
+        } else if (status === 404) {
+          errorMessage = 'Coupon not found. Please verify the coupon code.';
+        } else if (status === 400) {
+          errorMessage = 'Invalid coupon or coupon cannot be redeemed.';
+        } else if (status >= 500) {
+          errorMessage = 'Server error. Please try again later.';
+        } else {
+          errorMessage = 'Failed to redeem coupon. Please try again.';
+        }
+      }
+      
+      // Final fallback
+      if (!errorMessage || errorMessage === '{}' || errorMessage.trim() === '' || errorMessage.includes('[object')) {
+        errorMessage = 'Failed to redeem coupon. Please try again or contact support.';
+      }
+      
+      // Create enhanced error with all details
+      const enhancedError = new Error(errorMessage);
+      enhancedError.response = error.response;
+      enhancedError.status = error.response?.status || error?.status || error?.statusCode;
+      enhancedError.statusCode = enhancedError.status;
+      enhancedError.code = error?.code;
+      enhancedError.name = error?.name || 'RedemptionError';
+      enhancedError.isAuthError = error?.isAuthError;
+      
+      // Preserve original error details for debugging
+      if (error.response?.data) {
+        enhancedError.responseData = error.response.data;
+      }
+      
+      // Add original error for debugging (but don't include it in message)
+      enhancedError.originalError = error;
+      
+      throw enhancedError;
     }
   },
 
@@ -144,6 +215,13 @@ export const couponService = {
   getCouponByCode: async (code) => {
     try {
       const response = await api.get(`/coupons/code/${encodeURIComponent(code)}`);
+      // Map couponCode to code for backward compatibility
+      if (response.data && response.data.data) {
+        const coupon = response.data.data;
+        if (coupon.couponCode && !coupon.code) {
+          coupon.code = coupon.couponCode;
+        }
+      }
       return response.data;
     } catch (error) {
       // If backend returned structured error, throw it directly

@@ -19,11 +19,15 @@ const useAuthStore = create(
         set({ isLoading: true, error: null });
         try {
           const response = await authService.login(credentials);
-          // Backend returns: { status: 'success', data: { token, user } }
-          // authService.login returns: response.data = { status: 'success', data: { token, user } }
-          // So response = { status: 'success', data: { token, user } }
+          // Backend returns: { status: 'success', token, user }
+          // authService.login returns: response.data = { status: 'success', token, user }
+          // So response = { status: 'success', token, user }
+          console.log('Login response structure:', JSON.stringify(response, null, 2));
           const token = response?.data?.token || response?.token;
           const user = response?.data?.user || response?.user;
+          
+          console.log('Extracted token:', !!token, 'Extracted user:', user);
+          console.log('User role:', user?.role);
           
           if (!token || !user) {
             console.error('Login response structure:', JSON.stringify(response, null, 2));

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import useAuthStore from "@/store/authStore";
 import { paymentService } from "@/services/paymentService";
 import { donationService } from "@/services/donationService";
 import toast, { showToastOnce } from "@/utils/toast";
@@ -9,6 +10,7 @@ import { FaCreditCard, FaLock, FaCheckCircle } from "react-icons/fa";
 
 export default function DonationPaymentPage() {
   const router = useRouter();
+  const { user } = useAuthStore();
   const [donationData, setDonationData] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState('dummy');
   const [amount, setAmount] = useState(1);
@@ -618,7 +620,7 @@ export default function DonationPaymentPage() {
           <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl shadow-xl p-8 border-2 border-green-200 relative">
             {/* Return to Dashboard Button - Top Right */}
                               <button
-              onClick={() => router.push('/dashboard')}
+              onClick={() => router.push(user?.role === 'admin' ? '/admin/dashboard' : user?.role ? '/dashboard' : '/login')}
               className="absolute top-4 right-4 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition-all transform hover:scale-105 flex items-center gap-2"
                               >
               <FaCheckCircle />

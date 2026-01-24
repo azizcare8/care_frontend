@@ -131,9 +131,62 @@ export default function RedeemCouponModal({ onRedeemSuccess, onCancel }) {
             if (onRedeemSuccess) onRedeemSuccess();
             onCancel();
         } catch (error) {
-            console.error("Redemption failed:", error);
-            const msg = error.response?.data?.message || error.message || "Failed to redeem coupon.";
-            toast.error(msg);
+            // Enhanced error logging with full details
+            const errorDetails = {
+                message: error?.message,
+                status: error?.status || error?.statusCode || error?.response?.status,
+                responseData: error?.response?.data || error?.responseData,
+                code: error?.code,
+                name: error?.name,
+                fullError: error
+            };
+            
+            console.error("Redemption failed:", {
+                errorMessage: errorDetails.message,
+                status: errorDetails.status,
+                responseData: errorDetails.responseData,
+                code: errorDetails.code,
+                name: errorDetails.name,
+                fullErrorString: JSON.stringify(errorDetails.fullError, Object.getOwnPropertyNames(errorDetails.fullError), 2)
+            });
+            
+            // Extract error message with comprehensive handling
+            let errorMessage = "Failed to redeem coupon.";
+            
+            // Try multiple sources for error message
+            if (error?.message && error.message !== '{}' && error.message.trim() !== '' && !error.message.includes('[object')) {
+                errorMessage = error.message;
+            } else if (error?.response?.data?.message) {
+                errorMessage = error.response.data.message;
+            } else if (error?.responseData?.message) {
+                errorMessage = error.responseData.message;
+            } else if (error?.response?.data?.error) {
+                errorMessage = error.response.data.error;
+            } else if (error?.responseData?.error) {
+                errorMessage = error.responseData.error;
+            } else if (typeof error?.response?.data === 'string' && error.response.data.trim() !== '') {
+                errorMessage = error.response.data;
+            } else if (error?.response?.status) {
+                // Provide status-based messages
+                if (error.response.status === 401) {
+                    errorMessage = "Authentication required. Please login and try again.";
+                } else if (error.response.status === 403) {
+                    errorMessage = "You don't have permission to redeem this coupon.";
+                } else if (error.response.status === 404) {
+                    errorMessage = "Coupon not found. Please verify the coupon code.";
+                } else if (error.response.status === 400) {
+                    errorMessage = "Invalid coupon or coupon cannot be redeemed.";
+                } else if (error.response.status >= 500) {
+                    errorMessage = "Server error. Please try again later.";
+                }
+            }
+            
+            // Final fallback
+            if (!errorMessage || errorMessage === '{}' || errorMessage.trim() === '' || errorMessage.includes('[object')) {
+                errorMessage = "Failed to redeem coupon. Please try again or contact support.";
+            }
+            
+            toast.error(errorMessage);
         } finally {
             setIsRedeeming(false);
         }
@@ -163,6 +216,7 @@ export default function RedeemCouponModal({ onRedeemSuccess, onCancel }) {
     const startScanner = async () => {
         if (!Html5ScannerClass) {
             console.warn("Scanner library not yet loaded");
+            toast.error("Scanner library is loading. Please wait a moment and try again.");
             return;
         }
 
@@ -172,18 +226,86 @@ export default function RedeemCouponModal({ onRedeemSuccess, onCancel }) {
 
             const config = { fps: 10, qrbox: { width: 250, height: 250 } };
 
-            await html5QrCode.start(
-                { facingMode: "environment" },
-                config,
-                handleScanSuccess,
-                (errorMessage) => {
-                    // Scanning...
+            // Try to get available cameras first
+            let cameraId = null;
+            try {
+                const devices = await Html5ScannerClass.getCameras();
+                if (devices && devices.length > 0) {
+                    // Prefer back camera (environment), fallback to first available
+                    const backCamera = devices.find(d => d.label.toLowerCase().includes('back') || d.label.toLowerCase().includes('rear'));
+                    cameraId = backCamera ? backCamera.id : devices[0].id;
                 }
-            );
-            setIsCameraActive(true);
+            } catch (deviceError) {
+                console.warn("Could not enumerate cameras, using default:", deviceError);
+            }
+
+            // Try with specific camera ID first, then fallback to facingMode
+            try {
+                if (cameraId) {
+                    await html5QrCode.start(
+                        cameraId,
+                        config,
+                        handleScanSuccess,
+                        (errorMessage) => {
+                            // Scanning... (silent)
+                        }
+                    );
+                } else {
+                    // Fallback to facingMode
+                    await html5QrCode.start(
+                        { facingMode: "environment" },
+                        config,
+                        handleScanSuccess,
+                        (errorMessage) => {
+                            // Scanning... (silent)
+                        }
+                    );
+                }
+                setIsCameraActive(true);
+            } catch (startError) {
+                // If environment facingMode fails, try user (front camera) as last resort
+                if (!cameraId && startError.message?.includes('environment')) {
+                    try {
+                        await html5QrCode.start(
+                            { facingMode: "user" },
+                            config,
+                            handleScanSuccess,
+                            (errorMessage) => {
+                                // Scanning... (silent)
+                            }
+                        );
+                        setIsCameraActive(true);
+                        toast.success("Using front camera. Please point at QR code.");
+                    } catch (fallbackError) {
+                        throw startError; // Throw original error
+                    }
+                } else {
+                    throw startError;
+                }
+            }
         } catch (err) {
             console.error("Scanner Error:", err);
-            toast.error("Could not start camera. Please check permissions.");
+            setIsCameraActive(false);
+            
+            // Provide user-friendly error messages based on error type
+            let errorMessage = "Could not start camera. ";
+            
+            if (err.message?.includes('NotFoundError') || err.message?.includes('Requested device not found')) {
+                errorMessage += "No camera found. Please ensure a camera is connected and try again.";
+            } else if (err.message?.includes('NotAllowedError') || err.message?.includes('Permission denied')) {
+                errorMessage += "Camera permission denied. Please allow camera access in your browser settings.";
+            } else if (err.message?.includes('NotReadableError') || err.message?.includes('Could not start video source')) {
+                errorMessage += "Camera is in use by another application. Please close other apps using the camera.";
+            } else if (err.message) {
+                errorMessage += err.message;
+            } else {
+                errorMessage += "Please check camera permissions and try again.";
+            }
+            
+            toast.error(errorMessage);
+            
+            // Switch to manual entry mode if camera fails
+            setMode('enter');
         }
     };
 

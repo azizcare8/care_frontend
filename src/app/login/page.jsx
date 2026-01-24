@@ -39,10 +39,26 @@ function LoginContent() {
     if (isAuthenticated && user && !isLoading) {
       setShouldRedirect(true);
       const timer = setTimeout(() => {
-      if (redirectUrl) {
-          router.replace(redirectUrl);
+        if (redirectUrl) {
+          // Ignore old role-specific dashboard routes
+          const isOldDashboardRoute = redirectUrl.match(/^\/(partner|donor|fundraiser|volunteer|vendor|staff)\/dashboard/);
+          if (isOldDashboardRoute) {
+            // Redirect to new /dashboard route instead
+            const userRole = user?.role;
+            const destination = userRole === 'admin' ? '/admin/dashboard' : '/dashboard';
+            router.replace(destination);
+          } else {
+            router.replace(redirectUrl);
+          }
         } else {
-          const destination = user.role === "admin" ? "/admin" : "/dashboard";
+          const userRole = user?.role;
+          if (!userRole) {
+            console.error('User role not found, cannot redirect');
+            return;
+          }
+          // Admin goes to admin dashboard, others go to /dashboard
+          const destination = userRole === 'admin' ? '/admin/dashboard' : '/dashboard';
+          console.log('Login page redirecting to:', destination, 'for role:', userRole);
           router.replace(destination);
         }
       }, 500);
