@@ -1,87 +1,67 @@
-import axios from 'axios';
-import Cookies from 'js-cookie';
-import { getApiBaseUrl } from '../utils/api';
+import api from '../utils/api';
 
-const isBrowser = typeof window !== 'undefined';
-
-// Create axios instance for partner service
-const partnerApi = axios.create({
-  baseURL: getApiBaseUrl(),
-  timeout: 30000,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
-
-// Request interceptor to add auth token
-partnerApi.interceptors.request.use(
-  (config) => {
-    const token = Cookies.get('token') || 
-      (isBrowser ? window.localStorage.getItem('token') : null);
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
-
-// Response interceptor
-partnerApi.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401 || error.response?.status === 403) {
-      Cookies.remove('token');
-      if (isBrowser) {
-        window.localStorage.removeItem('token');
-      }
-    }
-    return Promise.reject(error);
-  }
-);
-
+// Partner Service
 export const partnerService = {
-  // Scan/Enter coupon code
-  scanCoupon: async (couponCode) => {
+  // Get all partners (public)
+  getPartners: async (params = {}) => {
     try {
-      const response = await partnerApi.post('/partners/scan', { couponCode });
+      const response = await api.get('/partners', { params });
       return response.data;
     } catch (error) {
       throw error.response?.data || error;
     }
   },
 
-  // Get redemption requests
-  getRedemptions: async () => {
+  // Get single partner
+  getPartner: async (id) => {
     try {
-      const response = await partnerApi.get('/partners/redemptions');
+      const response = await api.get(`/partners/${id}`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error;
     }
   },
 
-  // Get redeemed coupons
-  getCoupons: async () => {
+  // Get partners by category
+  getPartnersByCategory: async (category, params = {}) => {
     try {
-      const response = await partnerApi.get('/partners/coupons');
+      const response = await api.get('/partners', { 
+        params: { category, status: 'approved', ...params } 
+      });
       return response.data;
     } catch (error) {
       throw error.response?.data || error;
     }
   },
 
-  // Get specific redemption request
-  getRedemptionById: async (id) => {
+  // Get food partners
+  getFoodPartners: async (params = {}) => {
     try {
-      const response = await partnerApi.get(`/partners/redemptions/${id}`);
+      const response = await api.get('/partners', { 
+        params: { category: 'food', status: 'approved', isActive: true, ...params } 
+      });
       return response.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  },
+
+  // Get medical/health partners
+  getHealthPartners: async (params = {}) => {
+    try {
+      const response = await api.get('/partners', { 
+        params: { category: 'medical', status: 'approved', isActive: true, ...params } 
+      });
+      // Backend returns { success: true, data: [...], pagination: {...} }
+      // Return the data array directly for easier use in components
+      return {
+        data: response.data?.data || response.data || [],
+        pagination: response.data?.pagination
+      };
     } catch (error) {
       throw error.response?.data || error;
     }
   }
 };
 
-export default partnerService;
+
